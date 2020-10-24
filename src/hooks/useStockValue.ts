@@ -5,8 +5,8 @@ import { Stock } from './useStock';
 import { useStockContext } from './useStockContext';
 
 export const useStockValue = <V, T extends object = object>(path: string, stock?: Stock<T>): V => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     if (!stock) {
+        // eslint-disable-next-line react-hooks/rules-of-hooks
         stock = useStockContext<T>();
     }
 
