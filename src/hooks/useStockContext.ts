@@ -8,5 +8,5 @@ export const useStockContext = <T extends object>(): Stock<T> => {
 
     invariant(context !== undefined, "You're trying to access Stock not within StockContext.");
 
-    return context as Stock<T>;
+    return (context as unknown) as Stock<T>;
 };
