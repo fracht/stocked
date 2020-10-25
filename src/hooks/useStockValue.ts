@@ -19,6 +19,7 @@ export const useStockValue = <V, T extends object = object>(path: string, stock?
         const observer = (value: V) => setValue(value);
         observe(path, observer);
         return () => stopObserving(path, observer);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [path, observe, stopObserving, values]);
 
     return value;

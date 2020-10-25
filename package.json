@@ -17,6 +17,7 @@
         "test:watch": "npm run test -- --watch",
         "test:coverage": "npm run test -- --coverage",
         "lint": "tsdx lint",
+        "lint:config": "npm run lint -- --write-file",
         "prepare": "tsdx build",
         "size": "size-limit",
         "analyze": "size-limit --why"
@@ -55,6 +56,8 @@
         "@types/lodash": "^4.14.162",
         "@types/react": "^16.9.53",
         "@types/react-dom": "^16.9.8",
+        "@typescript-eslint/eslint-plugin": "^4.5.0",
+        "@typescript-eslint/parser": "^4.5.0",
         "husky": "^4.3.0",
         "react": "^17.0.1",
         "react-dom": "^17.0.1",
