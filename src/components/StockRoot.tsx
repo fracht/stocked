@@ -6,6 +6,9 @@ export type StockRootProps<Values extends object> = StockConfig<Values> & {
     children: React.ReactNode;
 };
 
+/**
+ * The main component, which should wrap all code, which uses stock values.
+ */
 export const StockRoot = <Values extends object>({ children, ...stockConfig }: StockRootProps<Values>) => {
     const stock = useStock(stockConfig);
 

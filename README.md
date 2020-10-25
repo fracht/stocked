@@ -1,160 +1,147 @@
-# TSDX React User Guide
+# stocked
 
-Congrats! You just saved yourself hours of work by bootstrapping this project with TSDX. Let’s get you oriented with what’s here and how to use it.
+![](https://img.shields.io/npm/v/stocked)
+![](https://img.shields.io/npm/dw/stocked)
+![](https://img.shields.io/snyk/vulnerabilities/npm/stocked)
 
-> This TSDX setup is meant for developing React component libraries (not apps!) that can be published to NPM. If you’re looking to build a React-based app, you should use `create-react-app`, `razzle`, `nextjs`, `gatsby`, or `react-static`.
+> Tiny state management app for react.
 
-> If you’re new to TypeScript and React, checkout [this handy cheatsheet](https://github.com/sw-yx/react-typescript-cheatsheet/)
+:warning: Currently this library is not ready for production. :warning:
 
-## Commands
-
-TSDX scaffolds your new library inside `/src`, and also sets up a [Parcel-based](https://parceljs.org) playground for it inside `/example`.
-
-The recommended workflow is to run TSDX in one terminal:
+## Installation
 
 ```bash
-npm start # or yarn start
+npm i stocked
 ```
 
-This builds to `/dist` and runs the project in watch mode so any edits you save inside `src` causes a rebuild to `/dist`.
+## What is this
 
-Then run the example inside another:
+This is tiny state management library, inspired by [Recoil](https://github.com/facebookexperimental/Recoil).
 
-```bash
-cd example
-npm i # or yarn to install dependencies
-npm start # or yarn start
+## The problem
+
+If you need to share state between your components, you'll face the performance issue. Saving all your app state into context isn't good solution, because changing value causes whole app rerender.
+
+## The solution
+
+Stocker adds a little functionality for handling global state. Changing this state not rerenders all your app, it rerenders only components, which use it.
+
+## How to use
+
+Wrap your app into `StockRoot` component. To access stock variable, use `useStockValue` hook. If you want to change variable, use `useStockState` hook, which is similar to standard React's `useState` hook.
+
+## Basic usage
+
+```tsx
+import React from 'react';
+import { StockRoot, useStockState } from 'stocked';
+
+const initialValues = {
+    testValue: 'asdf',
+};
+
+const StockInput = () => {
+    const [value, setValue] = useStockState('hello');
+
+    return <input value={value} onChange={e => setValue(e.target.value)} />;
+};
+
+const App = () => (
+    <StockRoot initialValues={initialValues}>
+        <div>
+            <StockInput />
+        </div>
+    </StockRoot>
+);
 ```
 
-The default example imports and live reloads whatever is in `/dist`, so if you are seeing an out of date component, make sure TSDX is running in watch mode like we recommend above. **No symlinking required**, we use [Parcel's aliasing](https://parceljs.org/module_resolution.html#aliases).
+## Limitations
 
-To do a one-off build, use `npm run build` or `yarn build`.
+Wrapping StockRoot inside another StockRoot will cause a problem: you can access only 1 stock root at time.
 
-To run tests, use `npm test` or `yarn test`.
+## API
 
-## Configuration
+### StockRoot
 
-Code quality is set up for you with `prettier`, `husky`, and `lint-staged`. Adjust the respective fields in `package.json` accordingly.
+Component which provides StockContext for your app.
 
-### Jest
+#### Props
 
-Jest tests are set up to run with `npm test` or `yarn test`.
+| Name          | Type   | Default | Description          |
+| ------------- | ------ | ------- | -------------------- |
+| initialValues | object |         | Initial stock values |
 
-### Bundle analysis
+### useStockContext
 
-Calculates the real cost of your library using [size-limit](https://github.com/ai/size-limit) with `npm run size` and visulize it with `npm run analyze`.
+Hook, returns `Stock` object from Context or throws error, if used outside `StockContext`.
 
-#### Setup Files
+### useStock
 
-This is the folder structure we set up for you:
+Hook, returns new `Stock` object.
 
-```txt
-/example
-  index.html
-  index.tsx       # test your component here in a demo app
-  package.json
-  tsconfig.json
-/src
-  index.tsx       # EDIT THIS
-/test
-  blah.test.tsx   # EDIT THIS
-.gitignore
-package.json
-README.md         # EDIT THIS
-tsconfig.json
-```
+#### Parameters
 
-#### React Testing Library
+| Name          | Type   | Default | Description          |
+| ------------- | ------ | ------- | -------------------- |
+| initialValues | object |         | Initial stock values |
 
-We do not set up `react-testing-library` for you yet, we welcome contributions and documentation on this.
+### useStockState
 
-### Rollup
+Hook, returns tuple, where first value is value, second - setValue.
+Similar to default React's `useState` hook.
 
-TSDX uses [Rollup](https://rollupjs.org) as a bundler and generates multiple rollup configs for various module formats and build settings. See [Optimizations](#optimizations) for details.
+#### Parameters
 
-### TypeScript
+| Name  | Type    | Default   | Description                                                  |
+| ----- | ------- | --------- | ------------------------------------------------------------ |
+| path  | string  |           | Path to variable inside `Stock` values                       |
+| stock | `Stock` | undefined | Use custom provided stock, instead of context-provided stock |
 
-`tsconfig.json` is set up to interpret `dom` and `esnext` types, as well as `react` for `jsx`. Adjust according to your needs.
+#### Returns
 
-## Continuous Integration
+`[value: V, set: (value: V) => void]`
 
-### GitHub Actions
+### useStockValue
 
-Two actions are added by default:
+Hook, returns actual value of `Stock`.
 
-- `main` which installs deps w/ cache, lints, tests, and builds on all pushes against a Node and OS matrix
-- `size` which comments cost comparison of your library on every pull request using [`size-limit`](https://github.com/ai/size-limit)
+#### Parameters
 
-## Optimizations
+| Name  | Type    | Default   | Description                                                  |
+| ----- | ------- | --------- | ------------------------------------------------------------ |
+| path  | string  |           | Path to variable inside `Stock` values                       |
+| stock | `Stock` | undefined | Use custom provided stock, instead of context-provided stock |
 
-Please see the main `tsdx` [optimizations docs](https://github.com/palmerhq/tsdx#optimizations). In particular, know that you can take advantage of development-only optimizations:
+#### Returns
 
-```js
-// ./types/index.d.ts
-declare var __DEV__: boolean;
+`value: V`
 
-// inside your code...
-if (__DEV__) {
-  console.log('foo');
-}
-```
+### Stock
 
-You can also choose to install and use [invariant](https://github.com/palmerhq/tsdx#invariant) and [warning](https://github.com/palmerhq/tsdx#warning) functions.
+Object, containing values and function to work with stock
 
-## Module Formats
+#### Properties
 
-CJS, ESModules, and UMD module formats are supported.
+values: Readonly<MutableRefObject<T>>;
+observe: <V>(path: string, observer: Observer<V>) => void;
+stopObserving: <V>(path: string, observer: Observer<V>) => void;
+setValue: (path: string, value: unknown) => void;
+setValues: (values: T) => void;
+isObserved: (path: string) => boolean;
 
-The appropriate paths are configured in `package.json` and `dist/index.js` accordingly. Please report if any issues are found.
+| Name          | Type                                               | Default | Description                                                       |
+| ------------- | -------------------------------------------------- | ------- | ----------------------------------------------------------------- |
+| values        | `Readonly<React.MutableRefObject<T>>`              |         | Reference to actual values                                        |
+| observe       | `<V>(path: string, observer: Observer<V>) => void` |         | Register observer, which will be called when variable was updated |
+| stopObserving | `<V>(path: string, observer: Observer<V>) => void` |         | Remove observer                                                   |
+| setValue      | `(path: string, value: unknown) => void`           |         | Set stock value                                                   |
+| setValues     | `(values: T) => void`                              |         | Set all stock values                                              |
+| isObserved    | `(path: string) => boolean`                        |         | Returns, if value is observed or not                              |
 
-## Deploying the Example Playground
+### Observer
 
-The Playground is just a simple [Parcel](https://parceljs.org) app, you can deploy it anywhere you would normally deploy that. Here are some guidelines for **manually** deploying with the Netlify CLI (`npm i -g netlify-cli`):
+Function, callen when value was changed.
 
-```bash
-cd example # if not already in the example folder
-npm run build # builds to dist
-netlify deploy # deploy the dist folder
-```
+#### Type
 
-Alternatively, if you already have a git repo connected, you can set up continuous deployment with Netlify:
-
-```bash
-netlify init
-# build command: yarn build && cd example && yarn && yarn build
-# directory to deploy: example/dist
-# pick yes for netlify.toml
-```
-
-## Named Exports
-
-Per Palmer Group guidelines, [always use named exports.](https://github.com/palmerhq/typescript#exports) Code split inside your React app instead of your React library.
-
-## Including Styles
-
-There are many ways to ship styles, including with CSS-in-JS. TSDX has no opinion on this, configure how you like.
-
-For vanilla CSS, you can include it at the root directory and add it to the `files` section in your `package.json`, so that it can be imported separately by your users and run through their bundler's loader.
-
-## Publishing to NPM
-
-We recommend using [np](https://github.com/sindresorhus/np).
-
-## Usage with Lerna
-
-When creating a new package with TSDX within a project set up with Lerna, you might encounter a `Cannot resolve dependency` error when trying to run the `example` project. To fix that you will need to make changes to the `package.json` file _inside the `example` directory_.
-
-The problem is that due to the nature of how dependencies are installed in Lerna projects, the aliases in the example project's `package.json` might not point to the right place, as those dependencies might have been installed in the root of your Lerna project.
-
-Change the `alias` to point to where those packages are actually installed. This depends on the directory structure of your Lerna project, so the actual path might be different from the diff below.
-
-```diff
-   "alias": {
--    "react": "../node_modules/react",
--    "react-dom": "../node_modules/react-dom"
-+    "react": "../../../node_modules/react",
-+    "react-dom": "../../../node_modules/react-dom"
-   },
-```
-
-An alternative to fixing this problem would be to remove aliases altogether and define the dependencies referenced as aliases as dev dependencies instead. [However, that might cause other problems.](https://github.com/palmerhq/tsdx/issues/64)
+`type Observer<V> = (message: V) => void`

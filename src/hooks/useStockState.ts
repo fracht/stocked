@@ -5,6 +5,7 @@ import { useStockValue } from './useStockValue';
 
 type SetAction<V> = (value: V) => void;
 
+/** Hook, returns tuple of value and value set action. */
 export const useStockState = <V, T extends object = object>(path: string, stock?: Stock<T>): [V, SetAction<V>] => {
     if (!stock) {
         // eslint-disable-next-line react-hooks/rules-of-hooks

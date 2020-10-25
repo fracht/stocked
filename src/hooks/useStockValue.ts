@@ -4,6 +4,7 @@ import get from 'lodash/get';
 import { Stock } from './useStock';
 import { useStockContext } from './useStockContext';
 
+/** Hook, which returns actual stock value. */
 export const useStockValue = <V, T extends object = object>(path: string, stock?: Stock<T>): V => {
     if (!stock) {
         // eslint-disable-next-line react-hooks/rules-of-hooks
