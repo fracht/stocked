@@ -24,7 +24,8 @@
         "lint:config": "npm run lint -- --write-file",
         "prepare": "tsdx build",
         "size": "size-limit",
-        "analyze": "size-limit --why"
+        "analyze": "size-limit --why",
+        "release": "np"
     },
     "peerDependencies": {
         "react": ">=16"
