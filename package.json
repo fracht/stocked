@@ -37,7 +37,7 @@
         "singleQuote": true,
         "trailingComma": "es5"
     },
-    "name": "stock",
+    "name": "stocked",
     "author": "Artiom Tretjakovas",
     "module": "dist/stock.esm.js",
     "size-limit": [
@@ -59,6 +59,7 @@
         "@typescript-eslint/eslint-plugin": "^4.5.0",
         "@typescript-eslint/parser": "^4.5.0",
         "husky": "^4.3.0",
+        "np": "^6.5.0",
         "react": "^17.0.1",
         "react-dom": "^17.0.1",
         "react-test-renderer": "^17.0.1",
