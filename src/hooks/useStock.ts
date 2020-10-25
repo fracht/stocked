@@ -10,11 +10,17 @@ import { Observer } from '../typings/Observer';
 import { removeObserver, callObservers } from '../utils/observers';
 
 export type Stock<T extends object> = {
+    /** Reference to actual values. */
     values: Readonly<MutableRefObject<T>>;
+    /** Register function, which will be called every time value was changed. */
     observe: <V>(path: string, observer: Observer<V>) => void;
+    /** Unregister observing function. */
     stopObserving: <V>(path: string, observer: Observer<V>) => void;
+    /** Function for setting value. @see https://lodash.com/docs/4.17.15#set */
     setValue: (path: string, value: unknown) => void;
+    /** Function for setting all values. */
     setValues: (values: T) => void;
+    /** Check if value is observed or not. */
     isObserved: (path: string) => boolean;
 };
 

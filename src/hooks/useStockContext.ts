@@ -3,6 +3,7 @@ import invariant from 'tiny-invariant';
 import { StockContext } from '../components';
 import { Stock } from './useStock';
 
+/** Access stock context. Throws an error if is used outside StockContext. */
 export const useStockContext = <T extends object>(): Stock<T> => {
     const context = useContext(StockContext);
 
