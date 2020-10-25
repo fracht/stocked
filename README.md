@@ -4,7 +4,7 @@
 ![](https://img.shields.io/npm/dw/stocked)
 ![](https://img.shields.io/snyk/vulnerabilities/npm/stocked)
 
-> Tiny state management app for react.
+> Tiny state management library for react.
 
 :warning: Currently this library is not ready for production. :warning:
 

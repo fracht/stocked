@@ -3,7 +3,7 @@
     "license": "MIT",
     "main": "dist/index.js",
     "typings": "dist/index.d.ts",
-    "description": "Tiny state management app for react.",
+    "description": "Tiny state management library for react.",
     "repository": {
         "url": "https://github.com/ArtiomTr/stocked"
     },
