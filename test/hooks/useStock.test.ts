@@ -196,6 +196,23 @@ describe('Value setting and getting', () => {
         });
     });
 
+    it('should send array to observers', () => {
+        const { result } = renderUseStockHook({
+            arr: ['val1', 'val2'],
+        });
+
+        const observer = jest.fn();
+
+        const newValues = ['val3', 'val4'];
+
+        act(() => {
+            result.current.observe('arr', observer);
+            result.current.setValue('arr', newValues);
+        });
+
+        expect(observer.mock.calls[0][0]).toStrictEqual(newValues);
+    });
+
     it('should set all values', () => {
         const { result } = renderUseStockHook({});
 

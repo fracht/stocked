@@ -8,6 +8,7 @@ import { isInnerPath, normalizePath } from '../utils/pathUtils';
 import { useLazyRef } from '../utils/useLazyRef';
 import { Observer } from '../typings/Observer';
 import { removeObserver, callObservers } from '../utils/observers';
+import { clone } from 'lodash';
 
 export type Stock<T extends object> = {
     /** Reference to actual values. */
@@ -54,7 +55,7 @@ export const useStock = <T extends object>({ initialValues }: StockConfig<T>): S
         paths.forEach(path => {
             const observer = observers.current[path];
             const value = get(values, path);
-            callObservers(observer, typeof value === 'object' ? { ...value } : value);
+            callObservers(observer, typeof value === 'object' ? clone(value) : value);
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
