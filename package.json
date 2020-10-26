@@ -43,14 +43,14 @@
     },
     "name": "stocked",
     "author": "Artiom Tretjakovas",
-    "module": "dist/stock.esm.js",
+    "module": "dist/stocked.esm.js",
     "size-limit": [
         {
-            "path": "dist/stock.cjs.production.min.js",
+            "path": "dist/stocked.cjs.production.min.js",
             "limit": "10 KB"
         },
         {
-            "path": "dist/stock.esm.js",
+            "path": "dist/stocked.esm.js",
             "limit": "10 KB"
         }
     ],

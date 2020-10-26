@@ -1,5 +1,5 @@
 import React, { useReducer } from 'react';
-import { StockRoot, useStockContext, useStockState, useStockValue } from 'stock';
+import { StockRoot, useStockContext, useStockState, useStockValue } from 'stocked';
 
 const StockInput = ({ name, ...oth }: React.InputHTMLAttributes<HTMLInputElement> & { name: string }) => {
     const [value, setValue] = useStockState<string>(name);
