@@ -2,13 +2,13 @@ import { MutableRefObject, useCallback, useRef } from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import set from 'lodash/set';
+import clone from 'lodash/clone';
 import invariant from 'tiny-invariant';
 
 import { isInnerPath, normalizePath } from '../utils/pathUtils';
 import { useLazyRef } from '../utils/useLazyRef';
 import { Observer } from '../typings/Observer';
 import { removeObserver, callObservers } from '../utils/observers';
-import { clone } from 'lodash';
 
 export type Stock<T extends object> = {
     /** Reference to actual values. */
