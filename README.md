@@ -25,7 +25,7 @@ If you need to share state between your components, you'll face the performance 
 
 ## The solution
 
-Stocker adds a little functionality for handling global state. Changing this state not rerenders all your app, it rerenders only components, which use it.
+"Stocked" adds a little functionality for handling global state. Changing this state not rerenders all your app, it rerenders only components, which use it.
 
 ## How to use
 
@@ -122,13 +122,6 @@ Hook, returns actual value of `Stock`.
 Object, containing values and function to work with stock
 
 #### Properties
-
-values: Readonly<MutableRefObject<T>>;
-observe: <V>(path: string, observer: Observer<V>) => void;
-stopObserving: <V>(path: string, observer: Observer<V>) => void;
-setValue: (path: string, value: unknown) => void;
-setValues: (values: T) => void;
-isObserved: (path: string) => boolean;
 
 | Name          | Type                                               | Default | Description                                                       |
 | ------------- | -------------------------------------------------- | ------- | ----------------------------------------------------------------- |
