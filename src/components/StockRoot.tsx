@@ -1,5 +1,5 @@
 import React from 'react';
-import { Stock, StockConfig, useStock } from '../hooks';
+import { Stock, StockConfig, useStock } from '../hooks/useStock';
 import { StockContext } from './StockContext';
 
 export type StockRootProps<Values extends object> = StockConfig<Values> & {

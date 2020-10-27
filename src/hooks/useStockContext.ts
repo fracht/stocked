@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import invariant from 'tiny-invariant';
-import { StockContext } from '../components';
+import { StockContext } from '../components/StockContext';
 import { Stock } from './useStock';
 
 /** Access stock context. Throws an error if is used outside StockContext. */
