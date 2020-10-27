@@ -56,15 +56,96 @@ const App = () => (
 );
 ```
 
+## How it works?
+
+"Stocked" saves all values into React reference. As we know, changing value inside React reference not enforces component re-render. But why we can still get actual values? Because you can observe value change. So, what `useStockValue` hook does, it just subscribes to value changes, and when value will change, it will change it's own state, what will force component to rerender.
+
 ## Limitations
 
-Wrapping StockRoot inside another StockRoot will cause a problem: you can access only 1 stock root at time.
+StockRoot supports only 1 stock. This means, that when you use `useStockState` hook, it will take stock from nearest parent context. To use few stocks at the same time, we suggest to create your own `StockRoot`:
+
+```tsx
+/* Declare types for your stock values */
+
+type Stock1Values = {
+    test: string;
+    test2: string;
+};
+
+type Stock2Values = {
+    example: string;
+    nested: {
+        value: number;
+    };
+};
+
+/* Declare type for your context */
+
+type MyStockContextType = {
+    stock1: Stock<Stock1Values>;
+    stock2: Stock<Stock2Values>;
+};
+
+/* Create context */
+
+const MyStockContext = React.createContext<any>({});
+
+/* Create your custom StockRoot */
+
+type MyStockRootProps = {
+    initialValues1: Stock1Values;
+    initialValues2: Stock2Values;
+    children?: React.ReactNode;
+};
+
+const MyStockRoot = ({ initialValues1, initialValues2, children }: MyStockRootProps) => {
+    const stock1 = useStock({ initialValues: initialValues1 });
+    const stock2 = useStock({ initialValues: initialValues2 });
+
+    return <MyStockContext.Provider value={{ stock1, stock2 }}>{children}</MyStockContext.Provider>;
+};
+
+/* Use value from stock */
+
+const ExampleComponent = () => {
+    const { stock1 } = React.useContext(MyStockContext);
+    const { stock2 } = React.useContext(MyStockContext);
+
+    /* works the same as before, just with custom-stock provided */
+    const valueFromFirstStock = useStockValue('test', stock1);
+    const valueFromSecondStock = useStockValue('example', stock2);
+
+    return (
+        <div>
+            {valueFromFirstStock}/{valueFromSecondStock}
+        </div>
+    );
+};
+
+/* Or, use stock state state */
+
+const ExampleStateComponent = () => {
+    const { stock1 } = React.useContext(MyStockContext);
+    const { stock2 } = React.useContext(MyStockContext);
+
+    /* works the same as before, just with custom-stock provided */
+    const [valueFromFirstStock, setFirstValue] = useStockState('test', stock1);
+    const [valueFromSecondStock, setSecondValue] = useStockState('example', stock2);
+
+    return (
+        <div>
+            {valueFromFirstStock}/{valueFromSecondStock}
+        </div>
+    );
+};
+```
 
 ## API
 
 ### StockRoot
 
-Component which provides StockContext for your app.
+The main component, which should wrap all code, which uses stock values.
+Creates stock and puts it in `StockContext`.
 
 #### Props
 
@@ -88,15 +169,17 @@ Hook, returns new `Stock` object.
 
 ### useStockState
 
-Hook, returns tuple, where first value is value, second - setValue.
-Similar to default React's `useState` hook.
+Hook, returns tuple of value and value set action.
+Returns _actual_ value.
+This means, this hook fires re-render each time value in stock was changed.
+Similar to standard React's `useState` hook.
 
 #### Parameters
 
-| Name  | Type    | Default   | Description                                                  |
-| ----- | ------- | --------- | ------------------------------------------------------------ |
-| path  | string  |           | Path to variable inside `Stock` values                       |
-| stock | `Stock` | undefined | Use custom provided stock, instead of context-provided stock |
+| Name  | Type    | Default   | Description                                                                                      |
+| ----- | ------- | --------- | ------------------------------------------------------------------------------------------------ |
+| path  | string  |           | Path to variable in stock, deeply gets value. [Explanation](https://lodash.com/docs/4.17.15#get) |
+| stock | `Stock` | undefined | Optional parameter, if you want to work with custom stock, not received from context.            |
 
 #### Returns
 
@@ -104,14 +187,15 @@ Similar to default React's `useState` hook.
 
 ### useStockValue
 
-Hook, returns actual value of `Stock`.
+Hook, which returns _actual_ stock value.
+This means, it will update component each time when value in stock changes.
 
 #### Parameters
 
-| Name  | Type    | Default   | Description                                                  |
-| ----- | ------- | --------- | ------------------------------------------------------------ |
-| path  | string  |           | Path to variable inside `Stock` values                       |
-| stock | `Stock` | undefined | Use custom provided stock, instead of context-provided stock |
+| Name  | Type    | Default   | Description                                                                                      |
+| ----- | ------- | --------- | ------------------------------------------------------------------------------------------------ |
+| path  | string  |           | Path to variable in stock, deeply gets value. [Explanation](https://lodash.com/docs/4.17.15#get) |
+| stock | `Stock` | undefined | optional parameter, if you want to work with custom stock, not received from context.            |
 
 #### Returns
 
@@ -125,12 +209,19 @@ Object, containing values and function to work with stock
 
 | Name          | Type                                               | Default | Description                                                       |
 | ------------- | -------------------------------------------------- | ------- | ----------------------------------------------------------------- |
-| values        | `Readonly<React.MutableRefObject<T>>`              |         | Reference to actual values                                        |
+| values        | `Readonly<React.MutableRefObject<T>>`              |         | Reference to actual values[^1]                                    |
 | observe       | `<V>(path: string, observer: Observer<V>) => void` |         | Register observer, which will be called when variable was updated |
 | stopObserving | `<V>(path: string, observer: Observer<V>) => void` |         | Remove observer                                                   |
 | setValue      | `(path: string, value: unknown) => void`           |         | Set stock value                                                   |
 | setValues     | `(values: T) => void`                              |         | Set all stock values                                              |
 | isObserved    | `(path: string) => boolean`                        |         | Returns, if value is observed or not                              |
+
+[^1]: **WARN:** do not try to mutate those values, or use them for display.
+
+For changing value use `setValue` and `setValues` instead.
+For accessing variable use `useStockValue` or `useStockState` or, if you want to provide custom logic, subscribe to changes via `observe` and remember to do cleanup via `stopObserving`.
+Why it is so complicated? Because of performance issues, stock not updates directly
+values, what will cause whole app re-render. Instead, it uses observers to re-render only necessary parts.
 
 ### Observer
 
