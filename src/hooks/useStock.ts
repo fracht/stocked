@@ -38,6 +38,18 @@ export type Stock<T extends object> = {
     setValues: (values: T) => void;
     /** Check if value is observed or not. */
     isObserved: (path: string) => boolean;
+    /** "stocked" updates values in batches, so you can subscribe to batch updates. */
+    observeBatchUpdates: (observer: Observer<BatchUpdate<T>>) => void;
+    /** stop observing batch updates. */
+    stopObservingBatchUpdates: (observer: Observer<BatchUpdate<T>>) => void;
+};
+
+/** Object, in which "stocked" calls observers */
+export type BatchUpdate<T> = {
+    /** which paths should be updated */
+    paths: string[];
+    /** all values, which should be sent to observers */
+    values: T;
 };
 
 export type StockConfig<T extends object> = {
@@ -56,6 +68,7 @@ export type StockConfig<T extends object> = {
 export const useStock = <T extends object>({ initialValues }: StockConfig<T>): Stock<T> => {
     const values = useLazyRef<T>(() => cloneDeep(initialValues));
     const observers = useRef<Record<string, Array<Observer<unknown>>>>({});
+    const batchUpdateObservers = useRef<Array<Observer<BatchUpdate<T>>>>([]);
 
     const observe = useCallback(<V>(path: string, observer: Observer<V>) => {
         path = normalizePath(path);
@@ -75,7 +88,9 @@ export const useStock = <T extends object>({ initialValues }: StockConfig<T>): S
         if (currentObservers.length === 0) delete observers.current[path];
     }, []);
 
-    const notifyObservers = useCallback((paths: string[], values: T) => {
+    const batchUpdate = useCallback((update: BatchUpdate<T>) => {
+        callObservers(batchUpdateObservers.current, update);
+        const { paths, values } = update;
         paths.forEach(path => {
             const observer = observers.current[path];
             const value = get(values, path);
@@ -92,21 +107,33 @@ export const useStock = <T extends object>({ initialValues }: StockConfig<T>): S
                 tempPath => isInnerPath(path, tempPath) || path === tempPath || isInnerPath(tempPath, path)
             );
 
-            notifyObservers(paths, values.current);
+            batchUpdate({ paths, values: values.current });
         },
-        [values, notifyObservers]
+        [values, batchUpdate]
     );
 
     const setValues = useCallback(
         (newValues: T) => {
             values.current = newValues;
-            notifyObservers(Object.keys(observers.current), newValues);
+            batchUpdate({ paths: Object.keys(observers.current), values: newValues });
         },
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [values, notifyObservers]
+        [values, batchUpdate]
     );
 
     const isObserved = useCallback((path: string) => Object.prototype.hasOwnProperty.call(observers.current, path), []);
+
+    const observeBatchUpdates = useCallback(
+        (observer: Observer<BatchUpdate<T>>) => batchUpdateObservers.current.push(observer),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        []
+    );
+
+    const stopObservingBatchUpdates = useCallback(
+        (observer: Observer<BatchUpdate<T>>) => removeObserver(batchUpdateObservers.current, observer),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        []
+    );
 
     return {
         values,
@@ -115,5 +142,7 @@ export const useStock = <T extends object>({ initialValues }: StockConfig<T>): S
         setValue,
         isObserved,
         setValues,
+        observeBatchUpdates,
+        stopObservingBatchUpdates,
     };
 };
