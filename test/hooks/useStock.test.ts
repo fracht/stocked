@@ -405,3 +405,76 @@ describe('Removing observers test', () => {
         expect(observer).toBeCalledTimes(1);
     });
 });
+
+describe('Batch observers tests', () => {
+    it('should call observer', () => {
+        const { result } = renderUseStockHook({
+            value: 'asdf',
+        });
+
+        const observer = jest.fn();
+
+        act(() => {
+            result.current.observeBatchUpdates(observer);
+
+            result.current.setValue('value', '2');
+        });
+
+        expect(observer).toBeCalled();
+    });
+
+    it('should call observer on any update with arguments', () => {
+        const { result } = renderUseStockHook({
+            value: 'asdf',
+            parent: {
+                child: {
+                    hello: 'asdf',
+                },
+            },
+        });
+
+        const observer = jest.fn();
+
+        act(() => {
+            result.current.observeBatchUpdates(observer);
+            result.current.observe('parent.child', jest.fn());
+            result.current.observe('parent', jest.fn());
+            result.current.observe('value', jest.fn());
+
+            result.current.setValue('parent.child.hello', '2');
+        });
+
+        expect(observer).toBeCalled();
+        expect(observer).toBeCalledWith({
+            paths: ['parent.child', 'parent'],
+            values: {
+                value: 'asdf',
+                parent: {
+                    child: {
+                        hello: '2',
+                    },
+                },
+            },
+        });
+    });
+
+    it('should remove observer', () => {
+        const { result } = renderUseStockHook({
+            value: 'asdf',
+        });
+
+        const observer = jest.fn();
+
+        act(() => {
+            result.current.observeBatchUpdates(observer);
+
+            result.current.setValue('value', '2');
+
+            result.current.stopObservingBatchUpdates(observer);
+
+            result.current.setValue('value', 'h');
+        });
+
+        expect(observer).toBeCalledTimes(1);
+    });
+});
