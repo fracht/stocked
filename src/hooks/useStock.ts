@@ -96,7 +96,6 @@ export const useStock = <T extends object>({ initialValues }: StockConfig<T>): S
             const value = get(values, path);
             callObservers(observer, typeof value === 'object' ? clone(value) : value);
         });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const setValue = useCallback(
@@ -117,7 +116,6 @@ export const useStock = <T extends object>({ initialValues }: StockConfig<T>): S
             values.current = newValues;
             batchUpdate({ paths: Object.keys(observers.current), values: newValues });
         },
-        // eslint-disable-next-line react-hooks/exhaustive-deps
         [values, batchUpdate]
     );
 
@@ -125,13 +123,11 @@ export const useStock = <T extends object>({ initialValues }: StockConfig<T>): S
 
     const observeBatchUpdates = useCallback(
         (observer: Observer<BatchUpdate<T>>) => batchUpdateObservers.current.push(observer),
-        // eslint-disable-next-line react-hooks/exhaustive-deps
         []
     );
 
     const stopObservingBatchUpdates = useCallback(
         (observer: Observer<BatchUpdate<T>>) => removeObserver(batchUpdateObservers.current, observer),
-        // eslint-disable-next-line react-hooks/exhaustive-deps
         []
     );
 

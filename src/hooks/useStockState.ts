@@ -23,7 +23,6 @@ export const useStockState = <V, T extends object = object>(path: string, stock?
 
     const { setValue } = stock;
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     const set = useCallback((value: V) => setValue(path, value), [path, setValue]);
 
     return [value, set];
