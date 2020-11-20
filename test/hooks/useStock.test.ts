@@ -393,11 +393,11 @@ describe('Removing observers test', () => {
         const observer = jest.fn();
 
         act(() => {
-            result.current.observe('value', observer);
+            const key = result.current.observe('value', observer);
 
             result.current.setValue('value', '2');
 
-            result.current.stopObserving('value', observer);
+            result.current.stopObserving('value', key);
 
             result.current.setValue('value', '3');
         });
@@ -466,11 +466,11 @@ describe('Batch observers tests', () => {
         const observer = jest.fn();
 
         act(() => {
-            result.current.observeBatchUpdates(observer);
+            const key = result.current.observeBatchUpdates(observer);
 
             result.current.setValue('value', '2');
 
-            result.current.stopObservingBatchUpdates(observer);
+            result.current.stopObservingBatchUpdates(key);
 
             result.current.setValue('value', 'h');
         });
