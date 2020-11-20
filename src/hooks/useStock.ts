@@ -8,7 +8,7 @@ import invariant from 'tiny-invariant';
 import { isInnerPath, normalizePath } from '../utils/pathUtils';
 import { useLazyRef } from '../utils/useLazyRef';
 import { Observer } from '../typings/Observer';
-import { removeObserver, callObservers } from '../utils/observers';
+import { ObserverArray, ObserverKey } from '../utils/ObserverArray';
 
 export type Stock<T extends object> = {
     /**
@@ -29,9 +29,9 @@ export type Stock<T extends object> = {
      */
     values: Readonly<MutableRefObject<T>>;
     /** Register function, which will be called every time value was changed. */
-    observe: <V>(path: string, observer: Observer<V>) => void;
+    observe: <V>(path: string, observer: Observer<V>) => ObserverKey;
     /** Unregister observing function. */
-    stopObserving: <V>(path: string, observer: Observer<V>) => void;
+    stopObserving: (path: string, observerKey: ObserverKey) => void;
     /** Function for setting value. Deeply sets value, using path to variable. @see https://lodash.com/docs/4.17.15#set */
     setValue: (path: string, value: unknown) => void;
     /** Function for setting all values. */
@@ -39,9 +39,9 @@ export type Stock<T extends object> = {
     /** Check if value is observed or not. */
     isObserved: (path: string) => boolean;
     /** "stocked" updates values in batches, so you can subscribe to batch updates. */
-    observeBatchUpdates: (observer: Observer<BatchUpdate<T>>) => void;
+    observeBatchUpdates: (observer: Observer<BatchUpdate<T>>) => ObserverKey;
     /** stop observing batch updates. */
-    stopObservingBatchUpdates: (observer: Observer<BatchUpdate<T>>) => void;
+    stopObservingBatchUpdates: (observerKey: ObserverKey) => void;
 };
 
 /** Object, in which "stocked" calls observers */
@@ -67,36 +67,39 @@ export type StockConfig<T extends object> = {
  */
 export const useStock = <T extends object>({ initialValues }: StockConfig<T>): Stock<T> => {
     const values = useLazyRef<T>(() => cloneDeep(initialValues));
-    const observers = useRef<Record<string, Array<Observer<unknown>>>>({});
-    const batchUpdateObservers = useRef<Array<Observer<BatchUpdate<T>>>>([]);
+    const observers = useRef<Record<string, ObserverArray<unknown>>>({});
+    const batchUpdateObservers = useLazyRef<ObserverArray<BatchUpdate<T>>>(() => new ObserverArray());
 
     const observe = useCallback(<V>(path: string, observer: Observer<V>) => {
         path = normalizePath(path);
         if (!Object.prototype.hasOwnProperty.call(observers.current, path)) {
-            observers.current[path] = [];
+            observers.current[path] = new ObserverArray();
         }
-        observers.current[path].push(observer as Observer<unknown>);
+        return observers.current[path].add(observer as Observer<unknown>);
     }, []);
 
-    const stopObserving = useCallback(<V>(path: string, observer: Observer<V>) => {
+    const stopObserving = useCallback((path: string, observerKey: ObserverKey) => {
         const currentObservers = observers.current[path];
 
         invariant(currentObservers, 'Cannot remove observer from value, which is not observing');
 
-        removeObserver(currentObservers, observer);
+        currentObservers.remove(observerKey);
 
-        if (currentObservers.length === 0) delete observers.current[path];
+        if (currentObservers.isEmpty()) delete observers.current[path];
     }, []);
 
-    const batchUpdate = useCallback((update: BatchUpdate<T>) => {
-        callObservers(batchUpdateObservers.current, update);
-        const { paths, values } = update;
-        paths.forEach(path => {
-            const observer = observers.current[path];
-            const value = get(values, path);
-            callObservers(observer, typeof value === 'object' ? clone(value) : value);
-        });
-    }, []);
+    const batchUpdate = useCallback(
+        (update: BatchUpdate<T>) => {
+            batchUpdateObservers.current.call(update);
+            const { paths, values } = update;
+            paths.forEach(path => {
+                const observer = observers.current[path];
+                const value = get(values, path);
+                observer.call(typeof value === 'object' ? clone(value) : value);
+            });
+        },
+        [batchUpdateObservers]
+    );
 
     const setValue = useCallback(
         (path: string, value: unknown) => {
@@ -122,14 +125,13 @@ export const useStock = <T extends object>({ initialValues }: StockConfig<T>): S
     const isObserved = useCallback((path: string) => Object.prototype.hasOwnProperty.call(observers.current, path), []);
 
     const observeBatchUpdates = useCallback(
-        (observer: Observer<BatchUpdate<T>>) => batchUpdateObservers.current.push(observer),
-        []
+        (observer: Observer<BatchUpdate<T>>) => batchUpdateObservers.current.add(observer),
+        [batchUpdateObservers]
     );
 
-    const stopObservingBatchUpdates = useCallback(
-        (observer: Observer<BatchUpdate<T>>) => removeObserver(batchUpdateObservers.current, observer),
-        []
-    );
+    const stopObservingBatchUpdates = useCallback((key: ObserverKey) => batchUpdateObservers.current.remove(key), [
+        batchUpdateObservers,
+    ]);
 
     return {
         values,
