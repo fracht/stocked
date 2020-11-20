@@ -2,7 +2,6 @@ import { MutableRefObject, useCallback, useRef } from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import set from 'lodash/set';
-import clone from 'lodash/clone';
 import invariant from 'tiny-invariant';
 
 import { isInnerPath, normalizePath } from '../utils/pathUtils';
@@ -95,7 +94,7 @@ export const useStock = <T extends object>({ initialValues }: StockConfig<T>): S
             paths.forEach(path => {
                 const observer = observers.current[path];
                 const value = get(values, path);
-                observer.call(typeof value === 'object' ? clone(value) : value);
+                observer.call(value);
             });
         },
         [batchUpdateObservers]
