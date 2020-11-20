@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useReducer } from 'react';
 import get from 'lodash/get';
 
 import { Stock } from './useStock';
@@ -18,11 +18,13 @@ export const useStockValue = <V, T extends object = object>(path: string, stock?
 
     const { observe, stopObserving, values } = stock;
 
-    const [value, setValue] = useState(() => get(values.current, path));
+    const [renderId, forceUpdate] = useReducer(val => val + 1, 0);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const value = useMemo(() => get(values.current, path), [values, path, renderId]);
 
     useEffect(() => {
-        setValue(get(values.current, path));
-        const observerKey = observe(path, setValue);
+        const observerKey = observe(path, forceUpdate);
         return () => stopObserving(path, observerKey);
     }, [path, observe, stopObserving, values]);
 
