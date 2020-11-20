@@ -3,7 +3,7 @@ import { Stock } from './useStock';
 import { useStockContext } from './useStockContext';
 import { useStockValue } from './useStockValue';
 
-type SetAction<V> = (value: V) => void;
+export type SetAction<V> = (value: V) => void;
 
 /**
  * Hook, returns tuple of value and value set action.

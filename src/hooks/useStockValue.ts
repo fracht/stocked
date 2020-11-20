@@ -22,9 +22,8 @@ export const useStockValue = <V, T extends object = object>(path: string, stock?
 
     useEffect(() => {
         setValue(get(values.current, path));
-        const observer = (value: V) => setValue(value);
-        observe(path, observer);
-        return () => stopObserving(path, observer);
+        const observerKey = observe(path, setValue);
+        return () => stopObserving(path, observerKey);
     }, [path, observe, stopObserving, values]);
 
     return value;
