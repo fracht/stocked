@@ -382,6 +382,19 @@ describe('Is observed test', () => {
         expect(result.current.isObserved('value')).toBeTruthy();
         expect(result.current.isObserved('asdf')).toBeFalsy();
     });
+    it('should be observed denormalized path', () => {
+        const { result } = renderUseStockHook({
+            arr: [0, 1, 2],
+        });
+
+        act(() => {
+            result.current.observe('arr[0]', jest.fn());
+        });
+
+        expect(result.current.isObserved('arr[0]')).toBeTruthy();
+        expect(result.current.isObserved('arr.0')).toBeTruthy();
+        expect(result.current.isObserved('arr[3]')).toBeFalsy();
+    });
 });
 
 describe('Removing observers test', () => {
@@ -403,6 +416,28 @@ describe('Removing observers test', () => {
         });
 
         expect(observer).toBeCalledTimes(1);
+    });
+
+    it('should remove denormalized path observer', () => {
+        const { result } = renderUseStockHook({
+            arr: [0, 1, 2],
+        });
+
+        const observer = jest.fn();
+
+        act(() => {
+            const key = result.current.observe('arr[0]', observer);
+
+            result.current.setValue('arr.0', 0);
+            result.current.setValue('arr[0]', 1);
+
+            result.current.stopObserving('arr[0]', key);
+
+            result.current.setValue('arr.0', 1);
+            result.current.setValue('arr[0]', 2);
+        });
+
+        expect(observer).toBeCalledTimes(2);
     });
 });
 
