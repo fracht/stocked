@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useReducer } from 'react';
+import { useContext, useEffect, useMemo, useReducer } from 'react';
 import get from 'lodash/get';
 
 import { Stock } from './useStock';
-import { useStockContext } from './useStockContext';
+import { StockContext } from '../components';
+import invariant from 'tiny-invariant';
 
 /**
  * Hook, which returns *actual* stock value.
@@ -11,10 +12,11 @@ import { useStockContext } from './useStockContext';
  * @param stock - optional parameter, if you want to work with custom stock, not received from context.
  */
 export const useStockValue = <V, T extends object = object>(path: string, stock?: Stock<T>): V => {
-    if (!stock) {
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        stock = useStockContext<T>();
-    }
+    const stockContext = (useContext(StockContext) as unknown) as Stock<T> | undefined;
+
+    stock = stock ?? stockContext;
+
+    invariant(stock, "You're trying to access stock state outside stock context and without providing custom stock.");
 
     const { observe, stopObserving, values } = stock;
 

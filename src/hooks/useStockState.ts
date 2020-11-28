@@ -1,6 +1,7 @@
-import { useCallback } from 'react';
+import { useCallback, useContext } from 'react';
+import invariant from 'tiny-invariant';
+import { StockContext } from '../components/StockContext';
 import { Stock } from './useStock';
-import { useStockContext } from './useStockContext';
 import { useStockValue } from './useStockValue';
 
 export type SetAction<V> = (value: V) => void;
@@ -14,10 +15,11 @@ export type SetAction<V> = (value: V) => void;
  * @param stock - optional parameter, if you want to work with custom stock, not received from context.
  */
 export const useStockState = <V, T extends object = object>(path: string, stock?: Stock<T>): [V, SetAction<V>] => {
-    if (!stock) {
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        stock = useStockContext<T>();
-    }
+    const stockContext: Stock<T> | undefined = (useContext(StockContext) as unknown) as Stock<T> | undefined;
+
+    stock = stock ?? stockContext;
+
+    invariant(stock, "You're trying to access stock value outside stock context and without providing custom stock.");
 
     const value = useStockValue<V, T>(path, stock);
 
