@@ -78,6 +78,7 @@ export const useStock = <T extends object>({ initialValues }: StockConfig<T>): S
     }, []);
 
     const stopObserving = useCallback((path: string, observerKey: ObserverKey) => {
+        path = normalizePath(path);
         const currentObservers = observers.current[path];
 
         invariant(currentObservers, 'Cannot remove observer from value, which is not observing');
@@ -121,7 +122,10 @@ export const useStock = <T extends object>({ initialValues }: StockConfig<T>): S
         [values, batchUpdate]
     );
 
-    const isObserved = useCallback((path: string) => Object.prototype.hasOwnProperty.call(observers.current, path), []);
+    const isObserved = useCallback(
+        (path: string) => Object.prototype.hasOwnProperty.call(observers.current, normalizePath(path)),
+        []
+    );
 
     const observeBatchUpdates = useCallback(
         (observer: Observer<BatchUpdate<T>>) => batchUpdateObservers.current.add(observer),
