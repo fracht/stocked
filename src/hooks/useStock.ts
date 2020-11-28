@@ -103,6 +103,8 @@ export const useStock = <T extends object>({ initialValues }: StockConfig<T>): S
 
     const setValue = useCallback(
         (path: string, value: unknown) => {
+            path = normalizePath(path);
+
             set(values.current, path, value);
 
             const paths = Object.keys(observers.current).filter(
