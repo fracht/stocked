@@ -1,5 +1,6 @@
 import { useContext } from 'react';
 import invariant from 'tiny-invariant';
+import { ProxyContext } from '../components/ProxyContext';
 import { StockContext } from '../components/StockContext';
 import { Stock } from './useStock';
 
@@ -9,5 +10,10 @@ export const useStockContext = <T extends object>(): Stock<T> => {
 
     invariant(context !== undefined, "You're trying to access Stock not within StockContext.");
 
-    return (context as unknown) as Stock<T>;
+    const proxyContext = useContext(ProxyContext);
+
+    if (proxyContext) {
+    } else {
+        return (context as unknown) as Stock<T>;
+    }
 };

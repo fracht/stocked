@@ -1,4 +1,5 @@
 import toPath from 'lodash/toPath';
+import get from 'lodash/get';
 
 /**
  * Function, which normalizes path.
@@ -29,4 +30,15 @@ export const isInnerPath = (_basePath: string, _path: string) => {
     const path = normalizePath(_path);
     const basePath = normalizePath(_basePath);
     return path.indexOf(basePath + '.') === 0 && path.replace(basePath, '').trim().length > 0;
+};
+
+export const findDeepestParent = (_path: string, _possiblePaths: string[]) =>
+    _possiblePaths.sort((a, b) => b.length - a.length).find(parentPath => isInnerPath(parentPath, _path));
+
+export const getOrReturn = (object: unknown, path: string) => {
+    if (path.trim() === '') {
+        return object;
+    } else {
+        return get(object, path);
+    }
 };
