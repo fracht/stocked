@@ -3,8 +3,10 @@ import invariant from 'tiny-invariant';
 import { StockContext } from '../components/StockContext';
 import { Stock } from './useStock';
 import { useStockValue } from './useStockValue';
+import isFunction from 'lodash/isFunction'
 
-export type SetAction<V> = (value: V) => void;
+type SetStateAction<S> = S | ((value: S) => S);
+type Dispatch<A> = (value: A) => void;
 
 /**
  * Hook, returns tuple of value and value set action.
@@ -14,7 +16,7 @@ export type SetAction<V> = (value: V) => void;
  * @param path  - path to variable in stock, deeply gets value. @see https://lodash.com/docs/4.17.15#get
  * @param stock - optional parameter, if you want to work with custom stock, not received from context.
  */
-export const useStockState = <V, T extends object = object>(path: string, stock?: Stock<T>): [V, SetAction<V>] => {
+export const useStockState = <V, T extends object = object>(path: string, stock?: Stock<T>): [V, Dispatch<SetStateAction<V>>] => {
     const stockContext: Stock<T> | undefined = (useContext(StockContext) as unknown) as Stock<T> | undefined;
 
     stock = stock ?? stockContext;
@@ -25,7 +27,10 @@ export const useStockState = <V, T extends object = object>(path: string, stock?
 
     const { setValue } = stock;
 
-    const set = useCallback((value: V) => setValue(path, value), [path, setValue]);
+    const set = useCallback((action: SetStateAction<V>) => {
+        const newValue = isFunction(action) ? action(value) : action
+        setValue(path, newValue)
+    }, [path, setValue]);
 
     return [value, set];
 };

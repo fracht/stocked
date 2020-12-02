@@ -47,6 +47,18 @@ const testWrapper = (testName: string, useContext: boolean) => {
             expect(result.current[0]).toBe(newValue);
         });
 
+        it('Should set value via updater function', async () => {
+            const { result, waitForNextUpdate } = renderUseStockState('parent.child', useContext);
+
+            await act(async () => {
+                const [, setValue] = result.current;
+                setValue((prevValue: string) => prevValue + '_changed_via_updater');
+                await waitForNextUpdate({ timeout: 1000 });
+            });
+
+            expect(result.current[0]).toBe('value_changed_via_updater');
+        });
+
         it('Should update when externally set value', async () => {
             const { result, waitForNextUpdate } = renderUseStockState('hello', useContext);
 
