@@ -3,7 +3,6 @@ import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import isFunction from 'lodash/isFunction';
-import isEqual from 'lodash/isEqual';
 import invariant from 'tiny-invariant';
 
 import { isInnerPath, normalizePath } from '../utils/pathUtils';
@@ -131,19 +130,7 @@ export const useStock = <T extends object>({ initialValues }: StockConfig<T>): S
         [values, batchUpdate]
     );
 
-    const resetValues = useCallback(() => {
-        const paths: string[] = [];
-
-        Object.keys(observers.current).forEach(path => {
-            if (!isEqual(get(values.current, path), get(initialValues, path))) {
-                paths.push(path);
-            }
-        });
-
-        values.current = cloneDeep(initialValues);
-
-        batchUpdate({ paths, values: values.current });
-    }, [initialValues, values, batchUpdate]);
+    const resetValues = useCallback(() => setValues(cloneDeep(initialValues)), [initialValues, setValues]);
 
     const isObserved = useCallback(
         (path: string) => Object.prototype.hasOwnProperty.call(observers.current, normalizePath(path)),

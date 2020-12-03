@@ -273,23 +273,20 @@ describe('Value setting and getting', () => {
             },
         };
 
-        const observer1 = jest.fn();
-        const observer2 = jest.fn();
+        const observer = jest.fn();
 
         const { result } = renderUseStockHook(initialValues);
 
         act(() => {
-            result.current.observe('second', observer1);
-            result.current.observe('first', observer2);
+            result.current.observe('second', observer);
             result.current.setValue('second', { third: 'new' });
             result.current.resetValues();
         });
 
         expect(result.current.values.current).toStrictEqual(initialValues);
-        expect(observer1.mock.calls[1][0]).toStrictEqual({
+        expect(observer.mock.calls[1][0]).toStrictEqual({
             third: 'b',
         });
-        expect(observer2.mock.calls.length).toBe(0);
     });
 });
 
