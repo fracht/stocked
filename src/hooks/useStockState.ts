@@ -3,9 +3,8 @@ import invariant from 'tiny-invariant';
 import { StockContext } from '../components/StockContext';
 import { Stock } from './useStock';
 import { useStockValue } from './useStockValue';
-import isFunction from 'lodash/isFunction';
 
-type SetStateAction<S> = S | ((value: S) => S);
+export type SetStateAction<S> = S | ((value: S) => S);
 type Dispatch<A> = (value: A) => void;
 
 /**
@@ -30,13 +29,7 @@ export const useStockState = <V, T extends object = object>(
 
     const { setValue } = stock;
 
-    const set = useCallback(
-        (action: SetStateAction<V>) => {
-            const newValue = isFunction(action) ? action(value) : action;
-            setValue(path, newValue);
-        },
-        [path, setValue]
-    );
+    const set = useCallback((action: SetStateAction<V>) => setValue(path, action), [path, setValue]);
 
     return [value, set];
 };
