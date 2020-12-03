@@ -3,6 +3,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import isFunction from 'lodash/isFunction';
+import isEqual from 'lodash/isEqual';
 import invariant from 'tiny-invariant';
 
 import { isInnerPath, normalizePath } from '../utils/pathUtils';
@@ -37,6 +38,8 @@ export type Stock<T extends object> = {
     setValue: (path: string, value: unknown) => void;
     /** Function for setting all values. */
     setValues: (values: T) => void;
+    /** Function for resetting values to initial state */
+    resetValues: () => void;
     /** Check if value is observed or not. */
     isObserved: (path: string) => boolean;
     /** "stocked" updates values in batches, so you can subscribe to batch updates. */
@@ -128,6 +131,20 @@ export const useStock = <T extends object>({ initialValues }: StockConfig<T>): S
         [values, batchUpdate]
     );
 
+    const resetValues = useCallback(() => {
+        const paths: string[] = [];
+
+        Object.keys(observers.current).forEach(path => {
+            if (!isEqual(get(values.current, path), get(initialValues, path))) {
+                paths.push(path);
+            }
+        });
+
+        values.current = cloneDeep(initialValues);
+
+        batchUpdate({ paths, values: values.current });
+    }, [initialValues, values, batchUpdate]);
+
     const isObserved = useCallback(
         (path: string) => Object.prototype.hasOwnProperty.call(observers.current, normalizePath(path)),
         []
@@ -147,8 +164,9 @@ export const useStock = <T extends object>({ initialValues }: StockConfig<T>): S
         observe,
         stopObserving,
         setValue,
-        isObserved,
         setValues,
+        resetValues,
+        isObserved,
         observeBatchUpdates,
         stopObservingBatchUpdates,
     };
