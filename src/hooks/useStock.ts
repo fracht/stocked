@@ -2,11 +2,13 @@ import { MutableRefObject, useCallback, useRef } from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import set from 'lodash/set';
+import isFunction from 'lodash/isFunction';
 import invariant from 'tiny-invariant';
 
 import { isInnerPath, normalizePath } from '../utils/pathUtils';
 import { useLazyRef } from '../utils/useLazyRef';
 import { Observer } from '../typings/Observer';
+import { SetStateAction } from '../typings/SetStateAction';
 import { ObserverArray, ObserverKey } from '../utils/ObserverArray';
 
 export type Stock<T extends object> = {
@@ -102,14 +104,16 @@ export const useStock = <T extends object>({ initialValues }: StockConfig<T>): S
     );
 
     const setValue = useCallback(
-        (path: string, value: unknown) => {
+        (path: string, action: SetStateAction<unknown>) => {
             path = normalizePath(path);
-
-            set(values.current, path, value);
 
             const paths = Object.keys(observers.current).filter(
                 tempPath => isInnerPath(path, tempPath) || path === tempPath || isInnerPath(tempPath, path)
             );
+
+            const value = isFunction(action) ? action(get(values.current, path)) : action;
+
+            set(values.current, path, value);
 
             batchUpdate({ paths, values: values.current });
         },
