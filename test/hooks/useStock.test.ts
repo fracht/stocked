@@ -75,6 +75,38 @@ describe('Value setting and getting', () => {
         });
     });
 
+    it('should set value via updater function', () => {
+        const { result } = renderUseStockHook({
+            first: 'a',
+            second: {
+                third: 'b',
+            },
+        });
+
+        act(() => {
+            result.current.setValue('first', (prevValue: string) => prevValue + 'b');
+        });
+
+        expect(result.current.values.current).toStrictEqual({
+            first: 'ab',
+            second: {
+                third: 'b',
+            },
+        });
+
+        act(() => {
+            result.current.setValue('second', (prevValue: object) => ({ ...prevValue, new: 5 }));
+        });
+
+        expect(result.current.values.current).toStrictEqual({
+            first: 'ab',
+            second: {
+                third: 'b',
+                new: 5,
+            },
+        });
+    });
+
     it('should set nested value', () => {
         const { result } = renderUseStockHook({
             nested: {
