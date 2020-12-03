@@ -3,9 +3,7 @@ import invariant from 'tiny-invariant';
 import { StockContext } from '../components/StockContext';
 import { Stock } from './useStock';
 import { useStockValue } from './useStockValue';
-import { SetStateAction } from '../typings/SetStateAction';
-
-type Dispatch<A> = (value: A) => void;
+import { Dispatch, SetStateAction } from '../typings/SetStateAction';
 
 /**
  * Hook, returns tuple of value and value set action.
