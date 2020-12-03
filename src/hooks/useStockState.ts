@@ -3,8 +3,8 @@ import invariant from 'tiny-invariant';
 import { StockContext } from '../components/StockContext';
 import { Stock } from './useStock';
 import { useStockValue } from './useStockValue';
+import { SetStateAction } from '../typings/SetStateAction';
 
-export type SetStateAction<S> = S | ((value: S) => S);
 type Dispatch<A> = (value: A) => void;
 
 /**

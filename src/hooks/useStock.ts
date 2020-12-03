@@ -1,4 +1,4 @@
-import { MutableRefObject, SetStateAction, useCallback, useRef } from 'react';
+import { MutableRefObject, useCallback, useRef } from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import set from 'lodash/set';
@@ -8,6 +8,7 @@ import invariant from 'tiny-invariant';
 import { isInnerPath, normalizePath } from '../utils/pathUtils';
 import { useLazyRef } from '../utils/useLazyRef';
 import { Observer } from '../typings/Observer';
+import { SetStateAction } from '../typings/SetStateAction';
 import { ObserverArray, ObserverKey } from '../utils/ObserverArray';
 
 export type Stock<T extends object> = {
