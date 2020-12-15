@@ -37,6 +37,8 @@ export type Stock<T extends object> = {
     setValue: (path: string, value: unknown) => void;
     /** Function for setting all values. */
     setValues: (values: T) => void;
+    /** Function for resetting values to initial state */
+    resetValues: () => void;
     /** Check if value is observed or not. */
     isObserved: (path: string) => boolean;
     /** "stocked" updates values in batches, so you can subscribe to batch updates. */
@@ -128,6 +130,8 @@ export const useStock = <T extends object>({ initialValues }: StockConfig<T>): S
         [values, batchUpdate]
     );
 
+    const resetValues = useCallback(() => setValues(cloneDeep(initialValues)), [initialValues, setValues]);
+
     const isObserved = useCallback(
         (path: string) => Object.prototype.hasOwnProperty.call(observers.current, normalizePath(path)),
         []
@@ -147,8 +151,9 @@ export const useStock = <T extends object>({ initialValues }: StockConfig<T>): S
         observe,
         stopObserving,
         setValue,
-        isObserved,
         setValues,
+        resetValues,
+        isObserved,
         observeBatchUpdates,
         stopObservingBatchUpdates,
     };

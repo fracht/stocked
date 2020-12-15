@@ -264,6 +264,30 @@ describe('Value setting and getting', () => {
             },
         });
     });
+
+    it('should reset values to initial', () => {
+        const initialValues = {
+            first: 'a',
+            second: {
+                third: 'b',
+            },
+        };
+
+        const observer = jest.fn();
+
+        const { result } = renderUseStockHook(initialValues);
+
+        act(() => {
+            result.current.observe('second', observer);
+            result.current.setValue('second', { third: 'new' });
+            result.current.resetValues();
+        });
+
+        expect(result.current.values.current).toStrictEqual(initialValues);
+        expect(observer.mock.calls[1][0]).toStrictEqual({
+            third: 'b',
+        });
+    });
 });
 
 describe('Observer tests', () => {
