@@ -1,73 +1,65 @@
-import { useCallback, useRef } from 'react';
-import invariant from 'tiny-invariant';
-import { ProxyContextType } from '../components/ProxyContext';
+import { useCallback } from 'react';
 import { Stock } from '../hooks/useStock';
-import { Observer } from '../typings/Observer';
+import { Observer } from '../typings';
 import { StockProxy } from '../typings/StockProxy';
-import { ObserverArray, ObserverKey } from './ObserverArray';
-import { findDeepestParent, getOrReturn, normalizePath } from './pathUtils';
-import { getProxiedValue } from './proxyUtils';
+import { ObserverKey } from './ObserverArray';
+import { isInnerPath } from './pathUtils';
 
-const findProxyName = (name: string, proxies: Record<string, StockProxy<unknown, unknown>>) =>
-    findDeepestParent(name, Object.keys(proxies));
+const shouldUseProxy = (proxy: StockProxy | undefined, path: string) => proxy && isInnerPath(proxy.path, path);
 
-export const useInterceptors = <T extends object>(stock: Stock<T>, { proxies }: ProxyContextType): Stock<T> => {
-    const observersSubTree = useRef<Record<string, Record<string, ObserverArray<unknown>>>>({});
-    const proxyObservers = useRef<Record<string, ObserverKey>>({});
+export const intercept = <T extends (...args: any[]) => any>(
+    proxy: StockProxy | undefined,
+    path: string,
+    standardCallback: T,
+    proxiedCallback: T,
+    args: Parameters<T>
+): ReturnType<T> => {
+    if (!shouldUseProxy(proxy, path)) {
+        return standardCallback(...args);
+    } else {
+        return proxiedCallback(...args);
+    }
+};
 
-    const { observe, stopObserving } = stock;
+export const useInterceptors = <T extends object>(stock: Stock<T>, proxy?: StockProxy): Stock<T> => {
+    const { observe, stopObserving, setValue } = stock;
 
-    const interceptedObservation = useCallback(
-        <V>(name: string, observer: Observer<V>): ObserverKey => {
-            const proxyName = findProxyName(name, proxies);
-            if (proxyName !== undefined) {
-                if (!Object.prototype.hasOwnProperty.call(proxyObservers.current, proxyName)) {
-                    proxyObservers.current[proxyName] = observe(proxyName, (message: V) => {
-                        const proxiedMessage = getProxiedValue(message, proxies[proxyName]);
-                        Object.entries(observersSubTree.current[proxyName]).forEach(([key, arr]) =>
-                            arr.call(getOrReturn(proxiedMessage, key.substring(proxyName.length + 1)))
-                        );
-                    });
-                }
-
-                return observersSubTree.current[proxyName][normalizePath(name)].add(observer as Observer<unknown>);
-            } else {
-                return observe(name, observer);
-            }
-        },
-        [observe, proxies]
+    const interceptedObserve = useCallback(
+        <V>(path: string, observer: Observer<V>) =>
+            intercept(
+                proxy,
+                path,
+                observe,
+                (path, observer: Observer<V>) => proxy!.observe<V>(path, observer, observe),
+                [path, observer as Observer<unknown>]
+            ),
+        [observe, proxy]
     );
 
-    const interceptedStopObservation = useCallback(
-        (name: string, key: ObserverKey) => {
-            const proxyName = findProxyName(name, proxies);
-            if (proxyName !== undefined) {
-                name = normalizePath(name);
-                invariant(
-                    Object.prototype.hasOwnProperty.call(observersSubTree.current, proxyName) &&
-                        Object.prototype.hasOwnProperty.call(observersSubTree.current[proxyName], name),
-                    'Trying to remove observer, which not exists (interceptedStopObservation in proxy)'
-                );
-
-                observersSubTree.current[proxyName][name].remove(key);
-                if (observersSubTree.current[proxyName][name].isEmpty()) {
-                    delete observersSubTree.current[proxyName][name];
-                    if (Object.keys(observersSubTree.current[proxyName]).length === 0) {
-                        delete observersSubTree.current[proxyName];
-                        stopObserving(proxyName, proxyObservers.current[proxyName]);
-                        delete proxyObservers.current[proxyName];
-                    }
-                }
-            } else {
-                return stopObserving(name, key);
-            }
-        },
-        [proxies, stopObserving]
+    const interceptedStopObserving = useCallback(
+        (path: string, key: ObserverKey) =>
+            intercept(proxy, path, stopObserving, (path, key) => proxy!.stopObserving(path, key, stopObserving), [
+                path,
+                key,
+            ]),
+        [stopObserving, proxy]
     );
+
+    const interceptedSetValue = useCallback(
+        (path: string, value: unknown) =>
+            intercept(proxy, path, setValue, (path: string, value: unknown) => proxy!.setValue(path, value, setValue), [
+                path,
+                value,
+            ]),
+        [proxy, setValue]
+    );
+
+    if (!proxy) return stock;
 
     return {
         ...stock,
-        observe: interceptedObservation,
-        stopObserving: interceptedStopObservation,
+        observe: interceptedObserve,
+        stopObserving: interceptedStopObserving,
+        setValue: interceptedSetValue,
     };
 };
