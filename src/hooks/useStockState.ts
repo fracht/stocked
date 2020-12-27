@@ -1,9 +1,9 @@
-import { useCallback, useContext } from 'react';
-import invariant from 'tiny-invariant';
-import { StockContext } from '../components/StockContext';
+import { useCallback } from 'react';
 import { Stock } from './useStock';
 import { useStockValue } from './useStockValue';
 import { Dispatch, SetStateAction } from '../typings/SetStateAction';
+import { StockProxy } from '../typings';
+import { useStockContext } from './useStockContext';
 
 /**
  * Hook, returns tuple of value and value set action.
@@ -11,19 +11,17 @@ import { Dispatch, SetStateAction } from '../typings/SetStateAction';
  * This means, this hook fires re-render each time value in stock was changed.
  * Similar to standard React's `useState` hook.
  * @param path  - path to variable in stock, deeply gets value. @see https://lodash.com/docs/4.17.15#get
- * @param stock - optional parameter, if you want to work with custom stock, not received from context.
+ * @param customStock - optional parameter, if you want to work with custom stock, not received from context. @see useStockContext
+ * @param proxy       - optional parameter, if you want to pass custom proxy, not receive it from context. @see useStockContext
  */
 export const useStockState = <V, T extends object = object>(
     path: string,
-    stock?: Stock<T>
+    customStock?: Stock<T>,
+    proxy?: StockProxy
 ): [V, Dispatch<SetStateAction<V>>] => {
-    const stockContext: Stock<T> | undefined = (useContext(StockContext) as unknown) as Stock<T> | undefined;
+    const stock = useStockContext(customStock, proxy);
 
-    stock = stock ?? stockContext;
-
-    invariant(stock, "You're trying to access stock value outside stock context and without providing custom stock.");
-
-    const value = useStockValue<V, T>(path, stock);
+    const value = useStockValue<V, T>(path, customStock, proxy);
 
     const { setValue } = stock;
 
