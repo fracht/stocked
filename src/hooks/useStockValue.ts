@@ -1,9 +1,10 @@
-import { useContext, useEffect, useMemo, useReducer } from 'react';
+import { useContext, useEffect, useReducer } from 'react';
 import get from 'lodash/get';
 
 import { Stock } from './useStock';
 import { StockContext } from '../components';
 import invariant from 'tiny-invariant';
+import { useLazyRef } from '../utils/useLazyRef';
 
 /**
  * Hook, which returns *actual* stock value.
@@ -20,15 +21,17 @@ export const useStockValue = <V, T extends object = object>(path: string, stock?
 
     const { observe, stopObserving, values } = stock;
 
-    const [renderId, forceUpdate] = useReducer(val => val + 1, 0);
+    const [, forceUpdate] = useReducer(val => val + 1, 0);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    const value = useMemo(() => get(values.current, path), [values, path, renderId]);
+    const value = useLazyRef<V>(() => get(values.current, path));
 
     useEffect(() => {
-        const observerKey = observe(path, forceUpdate);
+        const observerKey = observe(path, (newValue: V) => {
+            value.current = newValue;
+            forceUpdate();
+        });
         return () => stopObserving(path, observerKey);
-    }, [path, observe, stopObserving, values]);
+    }, [path, observe, stopObserving, values, value]);
 
-    return value;
+    return value.current;
 };
