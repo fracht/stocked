@@ -193,3 +193,78 @@ describe('Removing observers test', () => {
         expect(observer).toBeCalledTimes(2);
     });
 });
+
+describe('Batch observers tests', () => {
+    it('should call observer', () => {
+        const { result } = renderUseObserversHook();
+
+        const observer = jest.fn();
+
+        act(() => {
+            result.current.observeBatchUpdates(observer);
+
+            result.current.notifySubTree('value', {
+                value: '2',
+            });
+        });
+
+        expect(observer).toBeCalled();
+    });
+
+    it('should call observer on any update with arguments', () => {
+        const { result } = renderUseObserversHook();
+
+        const observer = jest.fn();
+
+        act(() => {
+            result.current.observeBatchUpdates(observer);
+            result.current.observe('parent.child', jest.fn());
+            result.current.observe('parent', jest.fn());
+            result.current.observe('value', jest.fn());
+
+            result.current.notifySubTree('parent.child.hello', {
+                value: 'asdf',
+                parent: {
+                    child: {
+                        hello: '2',
+                    },
+                },
+            });
+        });
+
+        expect(observer).toBeCalled();
+        expect(observer).toBeCalledWith({
+            paths: ['parent.child', 'parent'],
+            values: {
+                value: 'asdf',
+                parent: {
+                    child: {
+                        hello: '2',
+                    },
+                },
+            },
+        });
+    });
+
+    it('should remove observer', () => {
+        const { result } = renderUseObserversHook();
+
+        const observer = jest.fn();
+
+        act(() => {
+            const key = result.current.observeBatchUpdates(observer);
+
+            result.current.notifySubTree('value', {
+                value: '2',
+            });
+
+            result.current.stopObservingBatchUpdates(key);
+
+            result.current.notifySubTree('value', {
+                value: 'h',
+            });
+        });
+
+        expect(observer).toBeCalledTimes(1);
+    });
+});

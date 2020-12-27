@@ -4,9 +4,7 @@ import set from 'lodash/set';
 import isFunction from 'lodash/isFunction';
 
 import { useLazyRef } from '../utils/useLazyRef';
-import { Observer } from '../typings/Observer';
 import { SetStateAction } from '../typings/SetStateAction';
-import { ObserverArray, ObserverKey } from '../utils/ObserverArray';
 import { ObserversControl, useObservers } from './useObservers';
 import { getOrReturn, normalizePath } from '../utils/pathUtils';
 
@@ -34,19 +32,7 @@ export type Stock<T extends object> = {
     setValues: (values: T) => void;
     /** Function for resetting values to initial state */
     resetValues: () => void;
-    /** "stocked" updates values in batches, so you can subscribe to batch updates. */
-    observeBatchUpdates: (observer: Observer<BatchUpdate<T>>) => ObserverKey;
-    /** stop observing batch updates. */
-    stopObservingBatchUpdates: (observerKey: ObserverKey) => void;
 } & Omit<ObserversControl<T>, 'notifyAll' | 'notifySubTree'>;
-
-/** Object, in which "stocked" calls observers */
-export type BatchUpdate<T> = {
-    /** which paths should be updated */
-    paths: string[];
-    /** all values, which should be sent to observers */
-    values: T;
-};
 
 export type StockConfig<T extends object> = {
     initialValues: T;
@@ -63,15 +49,7 @@ export type StockConfig<T extends object> = {
  */
 export const useStock = <T extends object>({ initialValues }: StockConfig<T>): Stock<T> => {
     const values = useLazyRef<T>(() => cloneDeep(initialValues));
-    const { notifySubTree, notifyAll, ...other } = useObservers();
-    const batchUpdateObservers = useLazyRef<ObserverArray<BatchUpdate<T>>>(() => new ObserverArray());
-
-    const batchUpdate = useCallback(
-        (update: BatchUpdate<T>) => {
-            batchUpdateObservers.current.call(update);
-        },
-        [batchUpdateObservers]
-    );
+    const { notifySubTree, notifyAll, ...other } = useObservers<T>();
 
     const setValue = useCallback(
         (path: string, action: SetStateAction<unknown>) => {
@@ -82,42 +60,25 @@ export const useStock = <T extends object>({ initialValues }: StockConfig<T>): S
             set(values.current, path, value);
 
             notifySubTree(path, values.current);
-
-            // TODO: pass notified paths, or just remove it from BatchUpdate
-            batchUpdate({ paths: [], values: values.current });
         },
-        [values, batchUpdate, notifySubTree]
+        [values, notifySubTree]
     );
 
     const setValues = useCallback(
         (newValues: T) => {
             values.current = newValues;
             notifyAll(newValues);
-
-            // FIXME: pass notified paths, or just remove it from BatchUpdate
-            batchUpdate({ paths: [], values: newValues });
         },
-        [values, notifyAll, batchUpdate]
+        [values, notifyAll]
     );
 
     const resetValues = useCallback(() => setValues(cloneDeep(initialValues)), [initialValues, setValues]);
-
-    const observeBatchUpdates = useCallback(
-        (observer: Observer<BatchUpdate<T>>) => batchUpdateObservers.current.add(observer),
-        [batchUpdateObservers]
-    );
-
-    const stopObservingBatchUpdates = useCallback((key: ObserverKey) => batchUpdateObservers.current.remove(key), [
-        batchUpdateObservers,
-    ]);
 
     return {
         values,
         setValue,
         setValues,
         resetValues,
-        observeBatchUpdates,
-        stopObservingBatchUpdates,
         ...other,
     };
 };

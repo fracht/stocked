@@ -1,8 +1,9 @@
 import { useCallback, useRef } from 'react';
 import invariant from 'tiny-invariant';
-import { Observer } from '../typings';
+import { BatchUpdate, Observer } from '../typings';
 import { ObserverArray, ObserverKey } from '../utils/ObserverArray';
 import { getOrReturn, isInnerPath, normalizePath } from '../utils/pathUtils';
+import { useLazyRef } from '../utils/useLazyRef';
 
 export type ObserversControl<T> = {
     /** Register function, which will be called every time value was changed. */
@@ -15,10 +16,31 @@ export type ObserversControl<T> = {
     notifySubTree: (path: string, values: T) => void;
     /** Notify all observers */
     notifyAll: (values: T) => void;
+    /** "stocked" updates values in batches, so you can subscribe to batch updates. */
+    observeBatchUpdates: (observer: Observer<BatchUpdate<T>>) => ObserverKey;
+    /** stop observing batch updates. */
+    stopObservingBatchUpdates: (observerKey: ObserverKey) => void;
 };
 
 export const useObservers = <T>(): ObserversControl<T> => {
     const observers = useRef<Record<string, ObserverArray<unknown>>>({});
+    const batchUpdateObservers = useLazyRef<ObserverArray<BatchUpdate<T>>>(() => new ObserverArray());
+
+    const batchUpdate = useCallback(
+        (update: BatchUpdate<T>) => {
+            batchUpdateObservers.current.call(update);
+        },
+        [batchUpdateObservers]
+    );
+
+    const observeBatchUpdates = useCallback(
+        (observer: Observer<BatchUpdate<T>>) => batchUpdateObservers.current.add(observer),
+        [batchUpdateObservers]
+    );
+
+    const stopObservingBatchUpdates = useCallback((key: ObserverKey) => batchUpdateObservers.current.remove(key), [
+        batchUpdateObservers,
+    ]);
 
     const observe = useCallback(<V>(path: string, observer: Observer<V>) => {
         path = normalizePath(path);
@@ -45,13 +67,15 @@ export const useObservers = <T>(): ObserversControl<T> => {
     );
 
     const notifyPaths = useCallback(
-        (paths: string[], values: T) =>
+        (paths: string[], values: T) => {
+            batchUpdate({ paths, values });
             paths.forEach(path => {
                 const observer = observers.current[path];
                 const subValue = getOrReturn(values, path);
                 observer.call(subValue);
-            }),
-        []
+            });
+        },
+        [batchUpdate]
     );
 
     const notifySubTree = useCallback(
@@ -73,5 +97,7 @@ export const useObservers = <T>(): ObserversControl<T> => {
         isObserved,
         notifySubTree,
         notifyAll,
+        observeBatchUpdates,
+        stopObservingBatchUpdates,
     };
 };
