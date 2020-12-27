@@ -75,6 +75,38 @@ describe('Value setting and getting', () => {
         });
     });
 
+    it('should set value via updater function', () => {
+        const { result } = renderUseStockHook({
+            first: 'a',
+            second: {
+                third: 'b',
+            },
+        });
+
+        act(() => {
+            result.current.setValue('first', (prevValue: string) => prevValue + 'b');
+        });
+
+        expect(result.current.values.current).toStrictEqual({
+            first: 'ab',
+            second: {
+                third: 'b',
+            },
+        });
+
+        act(() => {
+            result.current.setValue('second', (prevValue: object) => ({ ...prevValue, new: 5 }));
+        });
+
+        expect(result.current.values.current).toStrictEqual({
+            first: 'ab',
+            second: {
+                third: 'b',
+                new: 5,
+            },
+        });
+    });
+
     it('should set nested value', () => {
         const { result } = renderUseStockHook({
             nested: {
@@ -232,6 +264,30 @@ describe('Value setting and getting', () => {
             },
         });
     });
+
+    it('should reset values to initial', () => {
+        const initialValues = {
+            first: 'a',
+            second: {
+                third: 'b',
+            },
+        };
+
+        const observer = jest.fn();
+
+        const { result } = renderUseStockHook(initialValues);
+
+        act(() => {
+            result.current.observe('second', observer);
+            result.current.setValue('second', { third: 'new' });
+            result.current.resetValues();
+        });
+
+        expect(result.current.values.current).toStrictEqual(initialValues);
+        expect(observer.mock.calls[1][0]).toStrictEqual({
+            third: 'b',
+        });
+    });
 });
 
 describe('Observer tests', () => {
@@ -382,6 +438,19 @@ describe('Is observed test', () => {
         expect(result.current.isObserved('value')).toBeTruthy();
         expect(result.current.isObserved('asdf')).toBeFalsy();
     });
+    it('should be observed denormalized path', () => {
+        const { result } = renderUseStockHook({
+            arr: [0, 1, 2],
+        });
+
+        act(() => {
+            result.current.observe('arr[0]', jest.fn());
+        });
+
+        expect(result.current.isObserved('arr[0]')).toBeTruthy();
+        expect(result.current.isObserved('arr.0')).toBeTruthy();
+        expect(result.current.isObserved('arr[3]')).toBeFalsy();
+    });
 });
 
 describe('Removing observers test', () => {
@@ -403,6 +472,28 @@ describe('Removing observers test', () => {
         });
 
         expect(observer).toBeCalledTimes(1);
+    });
+
+    it('should remove denormalized path observer', () => {
+        const { result } = renderUseStockHook({
+            arr: [0, 1, 2],
+        });
+
+        const observer = jest.fn();
+
+        act(() => {
+            const key = result.current.observe('arr[0]', observer);
+
+            result.current.setValue('arr.0', 0);
+            result.current.setValue('arr[0]', 1);
+
+            result.current.stopObserving('arr[0]', key);
+
+            result.current.setValue('arr.0', 1);
+            result.current.setValue('arr[0]', 2);
+        });
+
+        expect(observer).toBeCalledTimes(2);
     });
 });
 

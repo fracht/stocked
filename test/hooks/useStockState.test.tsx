@@ -7,6 +7,7 @@ const initialValues = {
     parent: {
         child: 'value',
     },
+    value: 0,
     array: [
         1,
         {
@@ -45,6 +46,33 @@ const testWrapper = (testName: string, useContext: boolean) => {
             });
 
             expect(result.current[0]).toBe(newValue);
+        });
+
+        it('Should set value via updater function', async () => {
+            const { result, waitForNextUpdate } = renderUseStockState('parent.child', useContext);
+
+            await act(async () => {
+                const [, setValue] = result.current;
+                setValue(() => 'value_changed_via_updater');
+                await waitForNextUpdate({ timeout: 1000 });
+            });
+
+            expect(result.current[0]).toBe('value_changed_via_updater');
+        });
+
+        it('Value updater should receive actual value', async () => {
+            const { result, waitForNextUpdate } = renderUseStockState('value', useContext);
+
+            await act(async () => {
+                const [, setValue] = result.current;
+                const updater = (value: number) => ++value;
+                setValue(updater);
+                setValue(updater);
+                setValue(updater);
+                await waitForNextUpdate({ timeout: 1000 });
+            });
+
+            expect(result.current[0]).toBe(3);
         });
 
         it('Should update when externally set value', async () => {

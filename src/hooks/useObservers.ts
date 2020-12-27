@@ -29,16 +29,20 @@ export const useObservers = (): ObserversControl => {
     }, []);
 
     const stopObserving = useCallback((path: string, observerKey: ObserverKey) => {
+        path = normalizePath(path);
         const currentObservers = observers.current[path];
 
-        invariant(currentObservers, "Cannot remove observer from value, which is'n observed");
+        invariant(currentObservers, 'Cannot remove observer from value, which is not observing');
 
         currentObservers.remove(observerKey);
 
         if (currentObservers.isEmpty()) delete observers.current[path];
     }, []);
 
-    const isObserved = useCallback((path: string) => Object.prototype.hasOwnProperty.call(observers.current, path), []);
+    const isObserved = useCallback(
+        (path: string) => Object.prototype.hasOwnProperty.call(observers.current, normalizePath(path)),
+        []
+    );
 
     const notifyPaths = useCallback(
         <V>(paths: string[], value: V, getSubValue: (value: unknown, path: string) => unknown = getOrReturn) =>
