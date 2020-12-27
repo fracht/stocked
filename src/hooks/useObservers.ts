@@ -1,4 +1,5 @@
 import { useCallback, useRef } from 'react';
+import { unstable_batchedUpdates } from 'react-dom';
 import invariant from 'tiny-invariant';
 import { BatchUpdate, Observer } from '../typings';
 import { ObserverArray, ObserverKey } from '../utils/ObserverArray';
@@ -69,12 +70,14 @@ export const useObservers = <T>(): ObserversControl<T> => {
 
     const notifyPaths = useCallback(
         (paths: string[], values: T) => {
-            batchUpdate({ paths, values });
-            paths.forEach(path => {
-                const observer = observers.current[path];
-                const subValue = getOrReturn(values, path);
-                observer.call(subValue);
+            unstable_batchedUpdates(() => {
+                paths.forEach(path => {
+                    const observer = observers.current[path];
+                    const subValue = getOrReturn(values, path);
+                    observer.call(subValue);
+                });
             });
+            batchUpdate({ paths, values });
         },
         [batchUpdate]
     );
