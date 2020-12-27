@@ -6,9 +6,10 @@ import invariant from 'tiny-invariant';
 /**
  * Function, which normalizes path.
  *
- * Example:
+ * @example
  *
  * array[0].value.1.child -> array.0.value.1.child
+ * path["to"][0].variable["yes"] -> path.to.0.variable.yes
  *
  * @param path - path to normalize
  */
@@ -20,7 +21,7 @@ export const normalizePath = (path: string) =>
 /**
  * Function, which indicates, if path is child of another or not.
  *
- * Example:
+ * @example
  *
  * isInnerPath('parent', 'parent.child') -> true
  * isInnerPath('notParent', 'parent.child') -> false
@@ -34,6 +35,12 @@ export const isInnerPath = (_basePath: string, _path: string) => {
     return path.indexOf(basePath + '.') === 0 && path.replace(basePath, '').trim().length > 0;
 };
 
+/**
+ * Provides same functionality, as @see https://lodash.com/docs/4.17.15#get
+ * If path is empty, it will return whole object.
+ * @param object - object, where should be value taken
+ * @param path - path to deep variable
+ */
 export const getOrReturn = (object: unknown, path: string) => {
     if (path.trim().length === 0) {
         return object;
@@ -42,6 +49,27 @@ export const getOrReturn = (object: unknown, path: string) => {
     }
 };
 
+/**
+ * Provides same functionality, as @see https://lodash.com/docs/4.17.15#set
+ * If path is empty, it will return whole object.
+ * @param object - object, where should be set
+ * @param path - path to set deep variable
+ * @param value - value to set
+ */
+export const setOrReturn = (object: object, path: string, value: unknown) => {
+    if (path.trim().length === 0) {
+        return value;
+    } else {
+        return set(object, path, value);
+    }
+};
+
+/**
+ * Finds longest common path.
+ * @example
+ * ['hello.world', 'hello.world.yes', 'hello.world.bye.asdf'] -> 'hello.world'
+ * ['a', 'b', 'c'] -> ''
+ */
 export const longestCommonPath = (paths: string[]) => {
     if (paths.length === 0) return '';
     if (paths.length === 1) return normalizePath(paths[0]);
@@ -56,14 +84,13 @@ export const longestCommonPath = (paths: string[]) => {
     return firstPath.join('.');
 };
 
-export const setOrReturn = (object: object, path: string, value: unknown) => {
-    if (path.trim().length === 0) {
-        return value;
-    } else {
-        return set(object, path, value);
-    }
-};
-
+/**
+ * Returns relative path. If subPath is not child of basePath, it will throw an error.
+ * @example
+ * relativePath('hello.world', 'hello.world.asdf') -> 'asdf',
+ * relativePath('a.b.c', 'a.b.c.d.e') -> 'd.e',
+ * relativePath('a', 'b') -> Error
+ */
 export const relativePath = (_basePath: string, _subPath: string) => {
     const basePath = normalizePath(_basePath);
     const subPath = normalizePath(_subPath);

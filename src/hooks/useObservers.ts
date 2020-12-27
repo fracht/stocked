@@ -22,6 +22,7 @@ export type ObserversControl<T> = {
     stopObservingBatchUpdates: (observerKey: ObserverKey) => void;
 };
 
+/** Hook, wraps functionality of observers storage (add, remove, notify tree of observers, etc.) */
 export const useObservers = <T>(): ObserversControl<T> => {
     const observers = useRef<Record<string, ObserverArray<unknown>>>({});
     const batchUpdateObservers = useLazyRef<ObserverArray<BatchUpdate<T>>>(() => new ObserverArray());

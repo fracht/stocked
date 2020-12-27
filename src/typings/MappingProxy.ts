@@ -11,6 +11,13 @@ import {
 import { Observer } from './Observer';
 import { StockProxy } from './StockProxy';
 
+/**
+ * Simple example of StockProxy.
+ * Proxies values by map. Map is built by this method:
+ * {
+ *      "<relative path to variable, inside proxied value>": "<path to real value, in stock>"
+ * }
+ */
 export class MappingProxy extends StockProxy {
     private readonly map: Record<string, string>;
 

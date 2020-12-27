@@ -9,6 +9,11 @@ import { isInnerPath, normalizePath } from './pathUtils';
 const shouldUseProxy = (proxy: StockProxy | undefined, path: string) =>
     proxy && (isInnerPath(proxy.path, path) || normalizePath(proxy.path).trim() === normalizePath(path).trim());
 
+/**
+ * Helper function. Calls `standardCallback` if `proxy` is undefined, or if `path` isn't inner path of `proxy.path` variable.
+ * Otherwise, calls `proxiedCallback`.
+ * Passes args into function.
+ */
 export const intercept = <T extends (...args: any[]) => any>(
     proxy: StockProxy | undefined,
     path: string,
@@ -23,6 +28,7 @@ export const intercept = <T extends (...args: any[]) => any>(
     }
 };
 
+/** Intercepts stock's `observe`, `stopObserving` and `setValue` functions, if proxy is provided. */
 export const useInterceptors = <T extends object>(stock: Stock<T>, proxy?: StockProxy): Stock<T> => {
     const { observe, stopObserving, setValue } = stock;
 
