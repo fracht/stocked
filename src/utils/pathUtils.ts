@@ -34,9 +34,6 @@ export const isInnerPath = (_basePath: string, _path: string) => {
     return path.indexOf(basePath + '.') === 0 && path.replace(basePath, '').trim().length > 0;
 };
 
-export const findDeepestParent = (_path: string, _possiblePaths: string[]) =>
-    _possiblePaths.sort((a, b) => b.length - a.length).find(parentPath => isInnerPath(parentPath, _path));
-
 export const getOrReturn = (object: unknown, path: string) => {
     if (path.trim().length === 0) {
         return object;

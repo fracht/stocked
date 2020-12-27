@@ -2,9 +2,9 @@ import { useCallback, useRef } from 'react';
 import invariant from 'tiny-invariant';
 import { Observer } from '../typings';
 import { ObserverArray, ObserverKey } from '../utils/ObserverArray';
-import { getOrReturn, isInnerPath, normalizePath, relativePath } from '../utils/pathUtils';
+import { getOrReturn, isInnerPath, normalizePath } from '../utils/pathUtils';
 
-export type ObserversControl = {
+export type ObserversControl<T> = {
     /** Register function, which will be called every time value was changed. */
     observe: <V>(path: string, observer: Observer<V>) => ObserverKey;
     /** Unregister observing function. */
@@ -12,12 +12,12 @@ export type ObserversControl = {
     /** Check if value is observed or not. */
     isObserved: (path: string) => boolean;
     /** Notify all observers, which are children of specified path */
-    notifySubTree: <V>(path: string, value: V) => void;
+    notifySubTree: (path: string, values: T) => void;
     /** Notify all observers */
-    notifyAll: <V>(values: V) => void;
+    notifyAll: (values: T) => void;
 };
 
-export const useObservers = (): ObserversControl => {
+export const useObservers = <T>(): ObserversControl<T> => {
     const observers = useRef<Record<string, ObserverArray<unknown>>>({});
 
     const observe = useCallback(<V>(path: string, observer: Observer<V>) => {
@@ -45,26 +45,27 @@ export const useObservers = (): ObserversControl => {
     );
 
     const notifyPaths = useCallback(
-        <V>(paths: string[], value: V, getSubValue: (value: unknown, path: string) => unknown = getOrReturn) =>
+        (paths: string[], values: T) =>
             paths.forEach(path => {
                 const observer = observers.current[path];
-                const subValue = getSubValue(value, path);
+                const subValue = getOrReturn(values, path);
                 observer.call(subValue);
             }),
         []
     );
 
     const notifySubTree = useCallback(
-        <V>(path: string, value: V) => {
+        (path: string, values: T) => {
+            path = normalizePath(path);
             const subPaths = Object.keys(observers.current).filter(
                 tempPath => isInnerPath(path, tempPath) || path === tempPath || isInnerPath(tempPath, path)
             );
-            notifyPaths(subPaths, value, (value, subPath) => getOrReturn(value, relativePath(path, subPath)));
+            notifyPaths(subPaths, values);
         },
         [notifyPaths]
     );
 
-    const notifyAll = useCallback(<V>(values: V) => notifyPaths(Object.keys(observers.current), values), [notifyPaths]);
+    const notifyAll = useCallback((values: T) => notifyPaths(Object.keys(observers.current), values), [notifyPaths]);
 
     return {
         observe,

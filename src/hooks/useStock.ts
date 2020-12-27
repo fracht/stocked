@@ -38,7 +38,7 @@ export type Stock<T extends object> = {
     observeBatchUpdates: (observer: Observer<BatchUpdate<T>>) => ObserverKey;
     /** stop observing batch updates. */
     stopObservingBatchUpdates: (observerKey: ObserverKey) => void;
-} & Omit<ObserversControl, 'notifyAll' | 'notifySubTree'>;
+} & Omit<ObserversControl<T>, 'notifyAll' | 'notifySubTree'>;
 
 /** Object, in which "stocked" calls observers */
 export type BatchUpdate<T> = {
@@ -79,9 +79,9 @@ export const useStock = <T extends object>({ initialValues }: StockConfig<T>): S
 
             const value = isFunction(action) ? action(getOrReturn(values.current, path)) : action;
 
-            notifySubTree(path, value);
-
             set(values.current, path, value);
+
+            notifySubTree(path, values.current);
 
             // TODO: pass notified paths, or just remove it from BatchUpdate
             batchUpdate({ paths: [], values: values.current });

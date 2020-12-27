@@ -1,6 +1,13 @@
 import React from 'react';
-import { useStockContext, StockContext, useStock } from '../../src';
-import { renderHook } from '@testing-library/react-hooks';
+import { useStockContext, StockContext, useStock, StockProxy } from '../../src';
+import { act, renderHook } from '@testing-library/react-hooks';
+import { ProxyContext } from '../../src/components/ProxyContext';
+
+class DummyProxy extends StockProxy {
+    public setValue = () => {};
+    public observe = () => 0;
+    public stopObserving = () => {};
+}
 
 describe('Test "useStockContext" hook', () => {
     it('should throw error', () => {
@@ -9,7 +16,7 @@ describe('Test "useStockContext" hook', () => {
         expect(result.error).toBeDefined();
     });
 
-    it('should return stock', () => {
+    it('should return stock from context', () => {
         const {
             result: { current: stock },
         } = renderHook(() => useStock({ initialValues: {} }));
@@ -21,5 +28,73 @@ describe('Test "useStockContext" hook', () => {
         const { result } = renderHook(() => useStockContext(), { wrapper });
 
         expect(result.current).toBe(stock);
+    });
+
+    it('should return stock from arguments', () => {
+        const {
+            result: { current: stock },
+        } = renderHook(() => useStock({ initialValues: {} }));
+
+        const { result } = renderHook(() => useStockContext(stock));
+
+        expect(result.current).toBe(stock);
+    });
+
+    it('should take proxy from context', () => {
+        const {
+            result: { current: stock },
+        } = renderHook(() => useStock({ initialValues: {} }));
+
+        const proxy = new DummyProxy('asdf');
+
+        const observe = jest.fn();
+
+        proxy.observe = observe;
+
+        proxy.activate();
+
+        const wrapper: React.FC = ({ children }) => (
+            <ProxyContext.Provider value={proxy}>{children}</ProxyContext.Provider>
+        );
+
+        const { result } = renderHook(() => useStockContext(stock), { wrapper });
+
+        expect(result.current).not.toBe(stock);
+
+        const observer = jest.fn();
+
+        act(() => {
+            result.current.observe('asdf', observer);
+            result.current.observe('aaaa', () => {});
+        });
+
+        expect(observe).lastCalledWith('asdf', observer, expect.any(Function));
+    });
+
+    it('should take proxy from arguments', () => {
+        const {
+            result: { current: stock },
+        } = renderHook(() => useStock({ initialValues: {} }));
+
+        const proxy = new DummyProxy('asdf');
+
+        const observe = jest.fn();
+
+        proxy.observe = observe;
+
+        proxy.activate();
+
+        const { result } = renderHook(() => useStockContext(stock, proxy));
+
+        expect(result.current).not.toBe(stock);
+
+        const observer = jest.fn();
+
+        act(() => {
+            result.current.observe('asdf', observer);
+            result.current.observe('aaaa', () => {});
+        });
+
+        expect(observe).lastCalledWith('asdf', observer, expect.any(Function));
     });
 });

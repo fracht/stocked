@@ -1,11 +1,13 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
+import invariant from 'tiny-invariant';
 import { Stock } from '../hooks/useStock';
 import { Observer } from '../typings';
 import { StockProxy } from '../typings/StockProxy';
 import { ObserverKey } from './ObserverArray';
-import { isInnerPath } from './pathUtils';
+import { isInnerPath, normalizePath } from './pathUtils';
 
-const shouldUseProxy = (proxy: StockProxy | undefined, path: string) => proxy && isInnerPath(proxy.path, path);
+const shouldUseProxy = (proxy: StockProxy | undefined, path: string) =>
+    proxy && (isInnerPath(proxy.path, path) || normalizePath(proxy.path).trim() === normalizePath(path).trim());
 
 export const intercept = <T extends (...args: any[]) => any>(
     proxy: StockProxy | undefined,
@@ -23,6 +25,15 @@ export const intercept = <T extends (...args: any[]) => any>(
 
 export const useInterceptors = <T extends object>(stock: Stock<T>, proxy?: StockProxy): Stock<T> => {
     const { observe, stopObserving, setValue } = stock;
+
+    useEffect(
+        () =>
+            invariant(
+                !proxy || proxy.isActive(),
+                'Cannot use not activated proxy. Maybe you forgot to call proxy.activate()?'
+            ),
+        [proxy]
+    );
 
     const interceptedObserve = useCallback(
         <V>(path: string, observer: Observer<V>) =>

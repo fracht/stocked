@@ -218,31 +218,6 @@ describe('Mapping proxy', () => {
     });
 
     it('should set proxied value', () => {
-        const fullUser = {
-            personalData: {
-                name: {
-                    firstName: 'Hello',
-                    lastName: 'World',
-                },
-                birthday: new Date('2020.12.26'),
-            },
-            registrationDate: new Date('2020.12.31'),
-            notify: true,
-        };
-
-        const rawData = {
-            registeredUser: {
-                name: fullUser.personalData.name.firstName,
-                surname: fullUser.personalData.name.lastName,
-                dates: {
-                    registration: fullUser.registrationDate,
-                },
-            },
-            dateOfBirth: fullUser.personalData.birthday,
-        };
-
-        console.log(rawData);
-
         const proxy = new MappingProxy(
             {
                 'personalData.name.firstName': 'registeredUser.name',

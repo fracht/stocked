@@ -1,5 +1,12 @@
-import { shuffle } from 'lodash';
-import { findDeepestParent, isInnerPath, normalizePath } from '../../src/utils/pathUtils';
+import { cloneDeep, shuffle } from 'lodash';
+import {
+    getOrReturn,
+    isInnerPath,
+    longestCommonPath,
+    normalizePath,
+    relativePath,
+    setOrReturn,
+} from '../../src/utils/pathUtils';
 
 describe('normalizePath', () => {
     it('"   hello.tst[0].b   " = "hello.tst.0.b"', () => {
@@ -26,24 +33,56 @@ describe('isInnerPath', () => {
     });
 });
 
-describe('findDeepestParent', () => {
-    it('findDeepestParent only one parent', () => {
-        expect(findDeepestParent('hello.world', ['a', 'absc', 'qqq', 'hello', 'bye'])).toBe('hello');
-        expect(
-            findDeepestParent('hello.world[0].lol', ['ello.worldd', 'hello.worldd', 'hello[0]', 'hello.world.0', 'bye'])
-        ).toBe('hello.world.0');
+describe('getOrReturn', () => {
+    it('should return value', () => {
+        const value = { hello: 'asdf' };
+        expect(getOrReturn(cloneDeep(value), '')).toStrictEqual(value);
     });
-    it('findDeepestParent few possible parents: should peek deepest', () => {
-        expect(
-            findDeepestParent(
-                'hello.world.this.is.path',
-                shuffle(['hello', 'hello.world', 'hello.world.this', 'hello.world.this.a', 'hello.worldd'])
-            )
-        ).toBe('hello.world.this');
+    it('should get deep value', () => {
+        const value = { asdf: 'basd' };
+        expect(getOrReturn(cloneDeep(value), 'asdf')).toBe('basd');
     });
-    it('findDeepestParent with no possible parents', () => {
-        expect(findDeepestParent('hello.this.is.no.path', ['a', 'asdf.hello.this', 'hello.this.not', 'basdf'])).toBe(
-            undefined
-        );
+});
+
+describe('setOrReturn', () => {
+    it('should return value', () => {
+        const value = { hello: 'asdf' };
+        expect(setOrReturn(cloneDeep(value), '', { a: 'asdf' })).toStrictEqual({ a: 'asdf' });
+    });
+    it('should set value', () => {
+        const value = { asdf: 'basd' };
+        expect(setOrReturn(cloneDeep(value), 'asdf', 'HELLO')).toStrictEqual({ asdf: 'HELLO' });
+    });
+});
+
+describe('longestCommonPath', () => {
+    it('hit cases', () => {
+        expect(longestCommonPath([])).toBe('');
+        expect(longestCommonPath([''])).toBe('');
+        expect(longestCommonPath(['asdf'])).toBe('asdf');
+    });
+    it('should return longest common path', () => {
+        expect(longestCommonPath(['asdf', 'asdf.hello', 'asdf.bye', 'asdf.hello.bye'])).toBe('asdf');
+        expect(longestCommonPath(['hello.this.is.world', 'hello.this.is.bye', 'hello.this.is'])).toBe('hello.this.is');
+    });
+    it('no common paths', () => {
+        expect(longestCommonPath(shuffle(['asdf', 'asdf.hello', 'asdf.bye', 'asdf.hello.bye', 'b']))).toBe('');
+        expect(
+            longestCommonPath(shuffle(['hello.this.is.world', 'hello.this.is.bye', 'hello.this.is', 'ahello']))
+        ).toBe('');
+    });
+});
+
+describe('relativePath', () => {
+    it('hit cases', () => {
+        expect(relativePath('      ', 'hello.world.this')).toBe('hello.world.this');
+        expect(() =>
+            relativePath('hello.world.this.is.not.parent.path', 'hello.world.this.is.not.nested.path')
+        ).toThrow();
+        expect(relativePath('hello.world[0].same', 'hello["world"].0.same')).toBe('');
+    });
+    it('simple cases', () => {
+        expect(relativePath('hello.world', 'hello.world.nested.path')).toBe('nested.path');
+        expect(relativePath('yes.this["is"][0]["some"].path', 'yes.this.is.0.some.path["asdf"].lol')).toBe('asdf.lol');
     });
 });
