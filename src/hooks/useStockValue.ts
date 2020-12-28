@@ -4,7 +4,6 @@ import { Stock } from './useStock';
 import { useLazyRef } from '../utils/useLazyRef';
 import { useStockContext } from './useStockContext';
 import { StockProxy } from '../typings';
-import { getOrReturn } from '../utils/pathUtils';
 
 /**
  * Hook, which returns *actual* stock value.
@@ -20,11 +19,11 @@ export const useStockValue = <V, T extends object = object>(
 ): V => {
     const stock = useStockContext(customStock, proxy);
 
-    const { observe, stopObserving, values } = stock;
+    const { observe, stopObserving, getValue } = stock;
 
     const [, forceUpdate] = useReducer(val => val + 1, 0);
 
-    const value = useLazyRef<V>(() => getOrReturn(values.current, path));
+    const value = useLazyRef<V>(() => getValue<V>(path));
 
     useEffect(() => {
         const observerKey = observe(path, (newValue: V) => {
@@ -32,7 +31,7 @@ export const useStockValue = <V, T extends object = object>(
             forceUpdate();
         });
         return () => stopObserving(path, observerKey);
-    }, [path, observe, stopObserving, values, value]);
+    }, [path, observe, stopObserving, value]);
 
     return value.current;
 };

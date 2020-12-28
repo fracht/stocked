@@ -1,4 +1,4 @@
-import { MutableRefObject, useCallback } from 'react';
+import { useCallback } from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 import set from 'lodash/set';
 import isFunction from 'lodash/isFunction';
@@ -9,27 +9,14 @@ import { ObserversControl, useObservers } from './useObservers';
 import { getOrReturn, normalizePath } from '../utils/pathUtils';
 
 export type Stock<T extends object> = {
-    /**
-     * Reference to actual values.
-     *
-     * **WARN:** do not try to mutate those values, or use them for display.
-     *
-     * For changing value use `setValue` and `setValues` instead.
-     *
-     * For accessing variable use `useStockValue` or `useStockState` or, if you
-     * want to provide custom logic, subscribe to changes via `observe` and remember
-     * to do cleanup via `stopObserving`.
-     *
-     * Why it is so complicated? Because of performance issues, stock not updates directly
-     * values, what will cause whole app re-render. Instead, it uses observers to re-render only necessary parts.
-     *
-     * Read more about it here -> https://github.com/ArtiomTr/stocked#readme
-     */
-    values: Readonly<MutableRefObject<T>>;
     /** Function for setting value. Deeply sets value, using path to variable. @see https://lodash.com/docs/4.17.15#set */
     setValue: (path: string, value: unknown) => void;
     /** Function for setting all values. */
     setValues: (values: T) => void;
+    /** Get actual value from stock. */
+    getValue: <V>(path: string) => V;
+    /** Get all values from stock */
+    getValues: () => T;
     /** Function for resetting values to initial state */
     resetValues: () => void;
 } & Omit<ObserversControl<T>, 'notifyAll' | 'notifySubTree'>;
@@ -72,10 +59,15 @@ export const useStock = <T extends object>({ initialValues }: StockConfig<T>): S
         [values, notifyAll]
     );
 
+    const getValue = useCallback(<V>(path: string) => getOrReturn(values.current, path) as V, [values]);
+
+    const getValues = useCallback(() => values.current, [values]);
+
     const resetValues = useCallback(() => setValues(cloneDeep(initialValues)), [initialValues, setValues]);
 
     return {
-        values,
+        getValue,
+        getValues,
         setValue,
         setValues,
         resetValues,
