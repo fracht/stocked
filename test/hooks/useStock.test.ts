@@ -60,7 +60,7 @@ describe('Value setting and getting', () => {
             result.current.setValue('first', 'test');
         });
 
-        expect(result.current.values.current).toStrictEqual({
+        expect(result.current.getValues()).toStrictEqual({
             first: 'test',
             second: 'b',
         });
@@ -69,7 +69,7 @@ describe('Value setting and getting', () => {
             result.current.setValue('second', 0);
         });
 
-        expect(result.current.values.current).toStrictEqual({
+        expect(result.current.getValues()).toStrictEqual({
             first: 'test',
             second: 0,
         });
@@ -87,7 +87,7 @@ describe('Value setting and getting', () => {
             result.current.setValue('first', (prevValue: string) => prevValue + 'b');
         });
 
-        expect(result.current.values.current).toStrictEqual({
+        expect(result.current.getValues()).toStrictEqual({
             first: 'ab',
             second: {
                 third: 'b',
@@ -98,7 +98,7 @@ describe('Value setting and getting', () => {
             result.current.setValue('second', (prevValue: object) => ({ ...prevValue, new: 5 }));
         });
 
-        expect(result.current.values.current).toStrictEqual({
+        expect(result.current.getValues()).toStrictEqual({
             first: 'ab',
             second: {
                 third: 'b',
@@ -124,7 +124,7 @@ describe('Value setting and getting', () => {
             result.current.setValue('nested.value', 'b');
         });
 
-        expect(result.current.values.current).toStrictEqual({
+        expect(result.current.getValues()).toStrictEqual({
             nested: {
                 value: 'b',
                 second: {
@@ -140,7 +140,7 @@ describe('Value setting and getting', () => {
             result.current.setValue('nested.second.value', 'c');
         });
 
-        expect(result.current.values.current).toStrictEqual({
+        expect(result.current.getValues()).toStrictEqual({
             nested: {
                 value: 'b',
                 second: {
@@ -156,7 +156,7 @@ describe('Value setting and getting', () => {
             result.current.setValue('nested.second.third.fourth', 'd');
         });
 
-        expect(result.current.values.current).toStrictEqual({
+        expect(result.current.getValues()).toStrictEqual({
             nested: {
                 value: 'b',
                 second: {
@@ -172,7 +172,7 @@ describe('Value setting and getting', () => {
             result.current.setValue('nested.second', { value: 'd', third: { fourth: 'e' } });
         });
 
-        expect(result.current.values.current).toStrictEqual({
+        expect(result.current.getValues()).toStrictEqual({
             nested: {
                 value: 'b',
                 second: {
@@ -201,7 +201,7 @@ describe('Value setting and getting', () => {
             result.current.setValue('arr[0].p1', 0);
         });
 
-        expect(result.current.values.current).toStrictEqual({
+        expect(result.current.getValues()).toStrictEqual({
             arr: [
                 {
                     p1: 0,
@@ -216,7 +216,7 @@ describe('Value setting and getting', () => {
             result.current.setValue('arr.1.p2', null);
         });
 
-        expect(result.current.values.current).toStrictEqual({
+        expect(result.current.getValues()).toStrictEqual({
             arr: [
                 {
                     p1: 0,
@@ -257,7 +257,7 @@ describe('Value setting and getting', () => {
             });
         });
 
-        expect(result.current.values.current).toStrictEqual({
+        expect(result.current.getValues()).toStrictEqual({
             hello: 'asdf',
             b: {
                 c: 0,
@@ -283,7 +283,7 @@ describe('Value setting and getting', () => {
             result.current.resetValues();
         });
 
-        expect(result.current.values.current).toStrictEqual(initialValues);
+        expect(result.current.getValues()).toStrictEqual(initialValues);
         expect(observer.mock.calls[1][0]).toStrictEqual({
             third: 'b',
         });

@@ -57,7 +57,7 @@ describe('StockRoot context testing', () => {
                     <div>
                         <h2>Test component</h2>
                         <p>other component</p>
-                        <StockExtractor logStock={stock => (realValues = stock.values.current)} />
+                        <StockExtractor logStock={stock => (realValues = stock.getValues())} />
                     </div>
                 </StockRoot>,
                 container

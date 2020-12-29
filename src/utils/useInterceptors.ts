@@ -30,7 +30,7 @@ export const intercept = <T extends (...args: any[]) => any>(
 
 /** Intercepts stock's `observe`, `stopObserving` and `setValue` functions, if proxy is provided. */
 export const useInterceptors = <T extends object>(stock: Stock<T>, proxy?: StockProxy): Stock<T> => {
-    const { observe, stopObserving, setValue } = stock;
+    const { observe, stopObserving, setValue, getValue } = stock;
 
     useEffect(
         () =>
@@ -71,6 +71,12 @@ export const useInterceptors = <T extends object>(stock: Stock<T>, proxy?: Stock
         [proxy, setValue]
     );
 
+    const interceptedGetValue = useCallback(
+        <V>(path: string) =>
+            intercept(proxy, path, getValue, (path: string) => proxy!.getValue<V>(path, getValue), [path]),
+        [proxy, getValue]
+    );
+
     if (!proxy) return stock;
 
     return {
@@ -78,5 +84,6 @@ export const useInterceptors = <T extends object>(stock: Stock<T>, proxy?: Stock
         observe: interceptedObserve,
         stopObserving: interceptedStopObserving,
         setValue: interceptedSetValue,
+        getValue: interceptedGetValue,
     };
 };

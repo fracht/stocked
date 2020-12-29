@@ -45,7 +45,7 @@ export class MappingProxy extends StockProxy {
         defaultObserve: (path: string, observer: Observer<V>) => ObserverKey
     ): ObserverKey => {
         const proxiedPath = this.getProxiedPath(path);
-        return defaultObserve(proxiedPath, value => observer(this.getValue(value, path, proxiedPath) as V));
+        return defaultObserve(proxiedPath, value => observer(this.mapValue(value, path, proxiedPath) as V));
     };
 
     public stopObserving = (
@@ -54,7 +54,12 @@ export class MappingProxy extends StockProxy {
         defaultStopObserving: (path: string, key: ObserverKey) => void
     ) => defaultStopObserving(this.getProxiedPath(path), key);
 
-    private getValue = (value: unknown, path: string, proxiedPath: string): unknown => {
+    public getValue = <V>(path: string, defaultGetValue: <U>(path: string) => U): V => {
+        const proxiedPath = this.getProxiedPath(path);
+        return this.mapValue(defaultGetValue(proxiedPath), path, proxiedPath) as V;
+    };
+
+    private mapValue = (value: unknown, path: string, proxiedPath: string): unknown => {
         path = relativePath(this.path, path);
         const innerPaths = Object.entries(this.map).filter(([to]) => isInnerPath(path, to) || path === to);
         return innerPaths.reduce<unknown>(

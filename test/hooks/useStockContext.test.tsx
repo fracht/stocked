@@ -1,13 +1,8 @@
 import React from 'react';
-import { useStockContext, StockContext, useStock, StockProxy } from '../../src';
+import { useStockContext, StockContext, useStock } from '../../src';
 import { act, renderHook } from '@testing-library/react-hooks';
 import { ProxyContext } from '../../src/components/ProxyContext';
-
-class DummyProxy extends StockProxy {
-    public setValue = () => {};
-    public observe = () => 0;
-    public stopObserving = () => {};
-}
+import { DummyProxy } from '../DummyProxy';
 
 describe('Test "useStockContext" hook', () => {
     it('should throw error', () => {

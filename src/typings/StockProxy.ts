@@ -34,6 +34,9 @@ export abstract class StockProxy {
         defaultStopObserving: (path: string, key: ObserverKey) => void
     ) => void;
 
+    /** Function to access proxied value. */
+    public abstract getValue: <V>(path: string, defaultGetValue: <U>(path: string) => U) => V;
+
     /** Activate proxy. After activation, you cannot modify proxy. */
     public activate = () => Object.freeze(this);
 
