@@ -1,4 +1,5 @@
 import { MappingProxy, Observer } from '../../src/typings';
+import { getOrReturn } from '../../src/utils/pathUtils';
 
 describe('Mapping proxy', () => {
     it('should instantiate', () => {
@@ -240,5 +241,51 @@ describe('Mapping proxy', () => {
 
         expect(defaultSetValue).toBeCalledWith('registeredUser.name', 'As');
         expect(defaultSetValue).toBeCalledWith('registeredUser.surname', 'Df');
+    });
+
+    it('should get proxied value', () => {
+        const fullUser = {
+            personalData: {
+                name: {
+                    firstName: 'Hello',
+                    lastName: 'World',
+                },
+                birthday: new Date('2020.12.26'),
+            },
+            registrationDate: new Date('2020.12.31'),
+            notify: true,
+        };
+        const rawData = {
+            registeredUser: {
+                name: fullUser.personalData.name.firstName,
+                surname: fullUser.personalData.name.lastName,
+                dates: {
+                    registration: fullUser.registrationDate,
+                },
+            },
+            dateOfBirth: fullUser.personalData.birthday,
+        };
+
+        const proxy = new MappingProxy(
+            {
+                'personalData.name.firstName': 'registeredUser.name',
+                'personalData.name.lastName': 'registeredUser.surname',
+                'personalData.birthday': 'dateOfBirth',
+                registrationDate: 'registeredUser.dates.registration',
+            },
+            'registeredUser'
+        );
+
+        const defaultGet = (path: string) => getOrReturn(rawData, path);
+
+        expect(proxy.getValue('registeredUser.personalData.name.firstName', defaultGet)).toBe(
+            fullUser.personalData.name.firstName
+        );
+        expect(proxy.getValue('registeredUser.personalData.name', defaultGet)).toStrictEqual(
+            fullUser.personalData.name
+        );
+        expect(proxy.getValue('registeredUser.personalData.birthday', defaultGet)).toStrictEqual(
+            fullUser.personalData.birthday
+        );
     });
 });

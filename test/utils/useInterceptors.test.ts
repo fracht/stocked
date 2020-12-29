@@ -1,6 +1,7 @@
 import { act, renderHook } from '@testing-library/react-hooks';
 import { Stock, StockProxy, useStock } from '../../src';
 import { intercept, useInterceptors } from '../../src/utils/useInterceptors';
+import { DummyProxy } from '../DummyProxy';
 
 const initialValues = {
     hello: '',
@@ -13,12 +14,6 @@ const initialValues = {
 let stock: Stock<typeof initialValues> | undefined;
 
 const renderUseInterceptorsHook = (proxy?: StockProxy) => renderHook(() => useInterceptors(stock!, proxy));
-
-class DummyProxy extends StockProxy {
-    public setValue = () => {};
-    public observe = () => 0;
-    public stopObserving = () => {};
-}
 
 beforeEach(() => {
     const { result } = renderHook(() => useStock({ initialValues }));
@@ -87,10 +82,12 @@ describe('proxy', () => {
         const observe = jest.fn(() => 0);
         const stopObserving = jest.fn();
         const setValue = jest.fn();
+        const getValue = jest.fn();
 
         proxy.observe = observe;
         proxy.stopObserving = stopObserving;
         proxy.setValue = setValue;
+        proxy.getValue = getValue;
         proxy.activate();
         const { result } = renderUseInterceptorsHook(proxy);
 
@@ -102,6 +99,8 @@ describe('proxy', () => {
             result.current.setValue('dest', 'asdf');
             result.current.setValue('asdf', 'asdf');
             result.current.stopObserving('dest', key);
+            result.current.getValue('dest');
+            result.current.getValue('asdf');
             result.current.stopObserving('asdf', key2);
         });
 
@@ -111,5 +110,7 @@ describe('proxy', () => {
         expect(stopObserving).toBeCalledTimes(1);
         expect(setValue).toBeCalledWith('dest', 'asdf', expect.any(Function));
         expect(setValue).toBeCalledTimes(1);
+        expect(getValue).toBeCalledWith('dest', expect.any(Function));
+        expect(getValue).toBeCalledTimes(1);
     });
 });
