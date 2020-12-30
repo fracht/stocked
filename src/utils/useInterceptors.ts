@@ -3,7 +3,6 @@ import invariant from 'tiny-invariant';
 import { Stock } from '../hooks/useStock';
 import { Observer } from '../typings';
 import { StockProxy } from '../typings/StockProxy';
-import { ObserverKey } from './ObserverArray';
 import { isInnerPath, normalizePath } from './pathUtils';
 
 const shouldUseProxy = (proxy: StockProxy | undefined, path: string) =>
@@ -30,7 +29,7 @@ export const intercept = <T extends (...args: any[]) => any>(
 
 /** Intercepts stock's `observe`, `stopObserving` and `setValue` functions, if proxy is provided. */
 export const useInterceptors = <T extends object>(stock: Stock<T>, proxy?: StockProxy): Stock<T> => {
-    const { observe, stopObserving, setValue, getValue } = stock;
+    const { watch, setValue, getValue } = stock;
 
     useEffect(
         () =>
@@ -41,25 +40,16 @@ export const useInterceptors = <T extends object>(stock: Stock<T>, proxy?: Stock
         [proxy]
     );
 
-    const interceptedObserve = useCallback(
+    const interceptedWatch = useCallback(
         <V>(path: string, observer: Observer<V>) =>
             intercept(
                 proxy,
                 path,
-                observe,
-                (path, observer: Observer<V>) => proxy!.observe<V>(path, observer, observe),
-                [path, observer as Observer<unknown>]
+                watch,
+                (path: string, observer: Observer<V>) => proxy!.watch<V>(path, observer, watch),
+                [path, observer]
             ),
-        [observe, proxy]
-    );
-
-    const interceptedStopObserving = useCallback(
-        (path: string, key: ObserverKey) =>
-            intercept(proxy, path, stopObserving, (path, key) => proxy!.stopObserving(path, key, stopObserving), [
-                path,
-                key,
-            ]),
-        [stopObserving, proxy]
+        [watch, proxy]
     );
 
     const interceptedSetValue = useCallback(
@@ -81,8 +71,7 @@ export const useInterceptors = <T extends object>(stock: Stock<T>, proxy?: Stock
 
     return {
         ...stock,
-        observe: interceptedObserve,
-        stopObserving: interceptedStopObserving,
+        watch: interceptedWatch,
         setValue: interceptedSetValue,
         getValue: interceptedGetValue,
     };
