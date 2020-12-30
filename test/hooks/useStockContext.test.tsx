@@ -42,9 +42,9 @@ describe('Test "useStockContext" hook', () => {
 
         const proxy = new DummyProxy('asdf');
 
-        const observe = jest.fn();
+        const watch = jest.fn();
 
-        proxy.observe = observe;
+        proxy.watch = watch;
 
         proxy.activate();
 
@@ -59,11 +59,11 @@ describe('Test "useStockContext" hook', () => {
         const observer = jest.fn();
 
         act(() => {
-            result.current.observe('asdf', observer);
-            result.current.observe('aaaa', () => {});
+            result.current.watch('asdf', observer);
+            result.current.watch('aaaa', () => {});
         });
 
-        expect(observe).lastCalledWith('asdf', observer, expect.any(Function));
+        expect(watch).lastCalledWith('asdf', observer, expect.any(Function));
     });
 
     it('should take proxy from arguments', () => {
@@ -73,9 +73,9 @@ describe('Test "useStockContext" hook', () => {
 
         const proxy = new DummyProxy('asdf');
 
-        const observe = jest.fn();
+        const watch = jest.fn();
 
-        proxy.observe = observe;
+        proxy.watch = watch;
 
         proxy.activate();
 
@@ -86,10 +86,10 @@ describe('Test "useStockContext" hook', () => {
         const observer = jest.fn();
 
         act(() => {
-            result.current.observe('asdf', observer);
-            result.current.observe('aaaa', () => {});
+            result.current.watch('asdf', observer);
+            result.current.watch('aaaa', () => {});
         });
 
-        expect(observe).lastCalledWith('asdf', observer, expect.any(Function));
+        expect(watch).lastCalledWith('asdf', observer, expect.any(Function));
     });
 });

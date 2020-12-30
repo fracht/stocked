@@ -14,23 +14,13 @@ describe('Mapping proxy', () => {
 
         defaultObserve.mockReturnValue(0);
 
-        proxy.observe('asdf.hello', observer, defaultObserve);
+        proxy.watch('asdf.hello', observer, defaultObserve);
         expect(defaultObserve).toBeCalledWith('a.b.c', expect.any(Function));
 
         defaultObserve.mockClear();
 
-        proxy.observe('asdf.bye', observer, defaultObserve);
+        proxy.watch('asdf.bye', observer, defaultObserve);
         expect(defaultObserve).toBeCalledWith('a.b.d', expect.any(Function));
-
-        defaultObserve.mockClear();
-
-        proxy.stopObserving('asdf.hello', 0, defaultObserve);
-        expect(defaultObserve).toBeCalledWith('a.b.c', 0);
-
-        defaultObserve.mockClear();
-
-        proxy.stopObserving('asdf.bye', 0, defaultObserve);
-        expect(defaultObserve).toBeCalledWith('a.b.d', 0);
     });
 
     it('observe/stopObserving value (empty parent path)', () => {
@@ -41,23 +31,13 @@ describe('Mapping proxy', () => {
 
         defaultObserve.mockReturnValue(0);
 
-        proxy.observe('hello', observer, defaultObserve);
+        proxy.watch('hello', observer, defaultObserve);
         expect(defaultObserve).toBeCalledWith('a.d.c', expect.any(Function));
 
         defaultObserve.mockClear();
 
-        proxy.observe('bye', observer, defaultObserve);
+        proxy.watch('bye', observer, defaultObserve);
         expect(defaultObserve).toBeCalledWith('b.b.d', expect.any(Function));
-
-        defaultObserve.mockClear();
-
-        proxy.stopObserving('hello', 0, defaultObserve);
-        expect(defaultObserve).toBeCalledWith('a.d.c', 0);
-
-        defaultObserve.mockClear();
-
-        proxy.stopObserving('bye', 0, defaultObserve);
-        expect(defaultObserve).toBeCalledWith('b.b.d', 0);
     });
 
     it('observe/stopObserving (empty mapping path)', () => {
@@ -68,13 +48,10 @@ describe('Mapping proxy', () => {
 
         defaultObserve.mockReturnValue(0);
 
-        proxy.observe('asdf', observer, defaultObserve);
+        proxy.watch('asdf', observer, defaultObserve);
         expect(defaultObserve).toBeCalledWith('a.d.c', expect.any(Function));
 
         defaultObserve.mockClear();
-
-        proxy.stopObserving('asdf', 0, defaultObserve);
-        expect(defaultObserve).toBeCalledWith('a.d.c', 0);
     });
 
     it('calling observer fns', () => {
@@ -112,20 +89,23 @@ describe('Mapping proxy', () => {
 
         const observers: Observer<unknown>[] = [];
 
-        const defaultObserve = jest.fn((_, observer) => observers.push(observer));
+        const defaultObserve = jest.fn((_, observer) => {
+            observers.push(observer);
+            return () => observers.splice(observers.indexOf(observer), 1);
+        });
         const observer = jest.fn();
 
-        proxy.observe('registeredUser.personalData.name.firstName', observer, defaultObserve);
+        proxy.watch('registeredUser.personalData.name.firstName', observer, defaultObserve);
         expect(defaultObserve).toBeCalledWith('registeredUser.name', expect.any(Function));
 
         defaultObserve.mockClear();
 
-        proxy.observe('registeredUser.personalData.name', observer, defaultObserve);
+        proxy.watch('registeredUser.personalData.name', observer, defaultObserve);
         expect(defaultObserve).toBeCalledWith('registeredUser', expect.any(Function));
 
         defaultObserve.mockClear();
 
-        proxy.observe('registeredUser.personalData', observer, defaultObserve);
+        proxy.watch('registeredUser.personalData', observer, defaultObserve);
         expect(defaultObserve).toBeCalledWith('', expect.any(Function));
 
         observers[0](rawData.registeredUser.name);
@@ -198,15 +178,18 @@ describe('Mapping proxy', () => {
 
         const observers: Observer<unknown>[] = [];
 
-        const defaultObserve = jest.fn((_, observer) => observers.push(observer));
+        const defaultObserve = jest.fn((_, observer) => {
+            observers.push(observer);
+            return () => observers.splice(observers.indexOf(observer), 1);
+        });
         const observer = jest.fn();
 
-        proxy.observe('truck.owner.contacts[0]', observer, defaultObserve);
+        proxy.watch('truck.owner.contacts[0]', observer, defaultObserve);
         expect(defaultObserve).toBeCalledWith('', expect.any(Function));
 
         defaultObserve.mockClear();
 
-        proxy.observe('truck.info', observer, defaultObserve);
+        proxy.watch('truck.info', observer, defaultObserve);
         expect(defaultObserve).toBeCalledWith('', expect.any(Function));
 
         observers[0](rawData);

@@ -238,7 +238,7 @@ describe('Value setting and getting', () => {
         const newValues = ['val3', 'val4'];
 
         act(() => {
-            result.current.observe('arr', observer);
+            result.current.watch('arr', observer);
             result.current.setValue('arr', newValues);
         });
 
@@ -278,7 +278,7 @@ describe('Value setting and getting', () => {
         const { result } = renderUseStockHook(initialValues);
 
         act(() => {
-            result.current.observe('second', observer);
+            result.current.watch('second', observer);
             result.current.setValue('second', { third: 'new' });
             result.current.resetValues();
         });

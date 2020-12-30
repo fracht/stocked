@@ -10,7 +10,7 @@ describe('Observer tests', () => {
         const observer = jest.fn();
 
         act(() => {
-            result.current.observe('b', observer);
+            result.current.watch('b', observer);
             result.current.notifySubTree('b', {
                 b: 0,
             });
@@ -25,7 +25,7 @@ describe('Observer tests', () => {
         const observer = jest.fn();
 
         act(() => {
-            result.current.observe('parent', observer);
+            result.current.watch('parent', observer);
             result.current.notifySubTree('parent.child', {
                 parent: {
                     child: 0,
@@ -42,7 +42,7 @@ describe('Observer tests', () => {
         const observer = jest.fn();
 
         act(() => {
-            result.current.observe('parent.child', observer);
+            result.current.watch('parent.child', observer);
             result.current.notifySubTree('parent', { parent: { child: 'b' } });
         });
 
@@ -55,9 +55,9 @@ describe('Observer tests', () => {
         const observer = jest.fn();
 
         act(() => {
-            result.current.observe('parent', observer);
-            result.current.observe('parent.child', observer);
-            result.current.observe('parent.child.value', observer);
+            result.current.watch('parent', observer);
+            result.current.watch('parent.child', observer);
+            result.current.watch('parent.child.value', observer);
             result.current.notifySubTree('parent.child.value', {
                 parent: {
                     child: {
@@ -76,9 +76,9 @@ describe('Observer tests', () => {
         const oberver = jest.fn();
 
         act(() => {
-            result.current.observe('parent', oberver);
-            result.current.observe('parent.child', oberver);
-            result.current.observe('parent.child.value', oberver);
+            result.current.watch('parent', oberver);
+            result.current.watch('parent.child', oberver);
+            result.current.watch('parent.child.value', oberver);
             result.current.notifyAll({ parent: { child: { value: 'b' } } });
         });
 
@@ -91,7 +91,7 @@ describe('Observer tests', () => {
         const observer = jest.fn();
 
         act(() => {
-            result.current.observe('parent.notInBranch', observer);
+            result.current.watch('parent.notInBranch', observer);
             result.current.notifySubTree('parent.child.value', {
                 parent: {
                     child: {
@@ -116,8 +116,8 @@ describe('Observer tests', () => {
         const childObserver = jest.fn();
 
         act(() => {
-            result.current.observe('parent', parentObserver);
-            result.current.observe('parent.child', childObserver);
+            result.current.watch('parent', parentObserver);
+            result.current.watch('parent.child', childObserver);
             result.current.notifySubTree('parent.child', {
                 parent: {
                     child: value,
@@ -135,7 +135,7 @@ describe('Is observed test', () => {
         const { result } = renderUseObserversHook();
 
         act(() => {
-            result.current.observe('value', jest.fn());
+            result.current.watch('value', jest.fn());
         });
 
         expect(result.current.isObserved('value')).toBeTruthy();
@@ -145,7 +145,7 @@ describe('Is observed test', () => {
         const { result } = renderUseObserversHook();
 
         act(() => {
-            result.current.observe('arr[0]', jest.fn());
+            result.current.watch('arr[0]', jest.fn());
         });
 
         expect(result.current.isObserved('arr[0]')).toBeTruthy();
@@ -161,11 +161,11 @@ describe('Removing observers test', () => {
         const observer = jest.fn();
 
         act(() => {
-            const key = result.current.observe('value', observer);
+            const cleanup = result.current.watch('value', observer);
 
             result.current.notifySubTree('value', { value: '2' });
 
-            result.current.stopObserving('value', key);
+            cleanup();
 
             result.current.notifySubTree('value', { value: '3' });
         });
@@ -179,12 +179,12 @@ describe('Removing observers test', () => {
         const observer = jest.fn();
 
         act(() => {
-            const key = result.current.observe('arr[0]', observer);
+            const cleanup = result.current.watch('arr[0]', observer);
 
             result.current.notifySubTree('arr.0', { arr: [0] });
             result.current.notifySubTree('arr[0]', { arr: [1] });
 
-            result.current.stopObserving('arr[0]', key);
+            cleanup();
 
             result.current.notifySubTree('arr.0', { arr: [2] });
             result.current.notifySubTree('arr[0]', { arr: [3] });
@@ -201,7 +201,7 @@ describe('Batch observers tests', () => {
         const observer = jest.fn();
 
         act(() => {
-            result.current.observeBatchUpdates(observer);
+            result.current.watchBatchUpdates(observer);
 
             result.current.notifySubTree('value', {
                 value: '2',
@@ -217,10 +217,10 @@ describe('Batch observers tests', () => {
         const observer = jest.fn();
 
         act(() => {
-            result.current.observeBatchUpdates(observer);
-            result.current.observe('parent.child', jest.fn());
-            result.current.observe('parent', jest.fn());
-            result.current.observe('value', jest.fn());
+            result.current.watchBatchUpdates(observer);
+            result.current.watch('parent.child', jest.fn());
+            result.current.watch('parent', jest.fn());
+            result.current.watch('value', jest.fn());
 
             result.current.notifySubTree('parent.child.hello', {
                 value: 'asdf',
@@ -252,13 +252,13 @@ describe('Batch observers tests', () => {
         const observer = jest.fn();
 
         act(() => {
-            const key = result.current.observeBatchUpdates(observer);
+            const cleanup = result.current.watchBatchUpdates(observer);
 
             result.current.notifySubTree('value', {
                 value: '2',
             });
 
-            result.current.stopObservingBatchUpdates(key);
+            cleanup();
 
             result.current.notifySubTree('value', {
                 value: 'h',
