@@ -1,10 +1,4 @@
-import { StockProxy } from '../../src/typings';
-
-class DummyProxy extends StockProxy {
-    public setValue = () => {};
-    public observe = () => 0;
-    public stopObserving = () => {};
-}
+import { DummyProxy } from '../DummyProxy';
 
 describe('Proxy activation', () => {
     it('should activate proxy', () => {

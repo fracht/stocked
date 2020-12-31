@@ -1,4 +1,3 @@
-import { ObserverKey } from '../utils/ObserverArray';
 import { Observer } from './Observer';
 
 /**
@@ -20,19 +19,15 @@ export abstract class StockProxy {
         defaultSetValue: (path: string, value: unknown) => void
     ) => void;
 
-    /** Function for observing proxied value. */
-    public abstract observe: <V>(
+    /** Function for watching proxied value. Should return cleanup. */
+    public abstract watch: <V>(
         path: string,
         observer: Observer<V>,
-        defaultObserve: (path: string, observer: Observer<V>) => ObserverKey
-    ) => ObserverKey;
+        defaultWatch: (path: string, observer: Observer<V>) => () => void
+    ) => () => void;
 
-    /** Function for stop observing proxied value. */
-    public abstract stopObserving: (
-        path: string,
-        key: ObserverKey,
-        defaultStopObserving: (path: string, key: ObserverKey) => void
-    ) => void;
+    /** Function to access proxied value. */
+    public abstract getValue: <V>(path: string, defaultGetValue: <U>(path: string) => U) => V;
 
     /** Activate proxy. After activation, you cannot modify proxy. */
     public activate = () => Object.freeze(this);

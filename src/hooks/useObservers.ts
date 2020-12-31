@@ -6,20 +6,16 @@ import { getOrReturn, isInnerPath, normalizePath } from '../utils/pathUtils';
 import { useLazyRef } from '../utils/useLazyRef';
 
 export type ObserversControl<T> = {
-    /** Register function, which will be called every time value was changed. */
-    observe: <V>(path: string, observer: Observer<V>) => ObserverKey;
-    /** Unregister observing function. */
-    stopObserving: (path: string, observerKey: ObserverKey) => void;
+    /** Watch stock value. Returns cleanup function. */
+    watch: <V>(path: string, observer: Observer<V>) => () => void;
     /** Check if value is observed or not. */
     isObserved: (path: string) => boolean;
     /** Notify all observers, which are children of specified path */
     notifySubTree: (path: string, values: T) => void;
     /** Notify all observers */
     notifyAll: (values: T) => void;
-    /** "stocked" updates values in batches, so you can subscribe to batch updates. */
-    observeBatchUpdates: (observer: Observer<BatchUpdate<T>>) => ObserverKey;
-    /** stop observing batch updates. */
-    stopObservingBatchUpdates: (observerKey: ObserverKey) => void;
+    /** "stocked" updates values in batches, so you can subscribe to batch updates. Returns cleanup. */
+    watchBatchUpdates: (observer: Observer<BatchUpdate<T>>) => () => void;
 };
 
 /** Hook, wraps functionality of observers storage (add, remove, notify tree of observers, etc.) */
@@ -62,6 +58,22 @@ export const useObservers = <T>(): ObserversControl<T> => {
         if (currentObservers.isEmpty()) delete observers.current[path];
     }, []);
 
+    const watch = useCallback(
+        <V>(path: string, observer: Observer<V>) => {
+            const key = observe(path, observer);
+            return () => stopObserving(path, key);
+        },
+        [observe, stopObserving]
+    );
+
+    const watchBatchUpdates = useCallback(
+        (observer: Observer<BatchUpdate<T>>) => {
+            const key = observeBatchUpdates(observer);
+            return () => stopObservingBatchUpdates(key);
+        },
+        [observeBatchUpdates, stopObservingBatchUpdates]
+    );
+
     const isObserved = useCallback(
         (path: string) => Object.prototype.hasOwnProperty.call(observers.current, normalizePath(path)),
         []
@@ -93,12 +105,10 @@ export const useObservers = <T>(): ObserversControl<T> => {
     const notifyAll = useCallback((values: T) => notifyPaths(Object.keys(observers.current), values), [notifyPaths]);
 
     return {
-        observe,
-        stopObserving,
+        watch,
+        watchBatchUpdates,
         isObserved,
         notifySubTree,
         notifyAll,
-        observeBatchUpdates,
-        stopObservingBatchUpdates,
     };
 };

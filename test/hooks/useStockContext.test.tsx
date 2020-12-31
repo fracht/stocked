@@ -1,13 +1,8 @@
 import React from 'react';
-import { useStockContext, StockContext, useStock, StockProxy } from '../../src';
+import { useStockContext, StockContext, useStock } from '../../src';
 import { act, renderHook } from '@testing-library/react-hooks';
 import { ProxyContext } from '../../src/components/ProxyContext';
-
-class DummyProxy extends StockProxy {
-    public setValue = () => {};
-    public observe = () => 0;
-    public stopObserving = () => {};
-}
+import { DummyProxy } from '../DummyProxy';
 
 describe('Test "useStockContext" hook', () => {
     it('should throw error', () => {
@@ -47,9 +42,9 @@ describe('Test "useStockContext" hook', () => {
 
         const proxy = new DummyProxy('asdf');
 
-        const observe = jest.fn();
+        const watch = jest.fn();
 
-        proxy.observe = observe;
+        proxy.watch = watch;
 
         proxy.activate();
 
@@ -64,11 +59,11 @@ describe('Test "useStockContext" hook', () => {
         const observer = jest.fn();
 
         act(() => {
-            result.current.observe('asdf', observer);
-            result.current.observe('aaaa', () => {});
+            result.current.watch('asdf', observer);
+            result.current.watch('aaaa', () => {});
         });
 
-        expect(observe).lastCalledWith('asdf', observer, expect.any(Function));
+        expect(watch).lastCalledWith('asdf', observer, expect.any(Function));
     });
 
     it('should take proxy from arguments', () => {
@@ -78,9 +73,9 @@ describe('Test "useStockContext" hook', () => {
 
         const proxy = new DummyProxy('asdf');
 
-        const observe = jest.fn();
+        const watch = jest.fn();
 
-        proxy.observe = observe;
+        proxy.watch = watch;
 
         proxy.activate();
 
@@ -91,10 +86,10 @@ describe('Test "useStockContext" hook', () => {
         const observer = jest.fn();
 
         act(() => {
-            result.current.observe('asdf', observer);
-            result.current.observe('aaaa', () => {});
+            result.current.watch('asdf', observer);
+            result.current.watch('aaaa', () => {});
         });
 
-        expect(observe).lastCalledWith('asdf', observer, expect.any(Function));
+        expect(watch).lastCalledWith('asdf', observer, expect.any(Function));
     });
 });

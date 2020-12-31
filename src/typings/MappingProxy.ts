@@ -1,5 +1,4 @@
 import invariant from 'tiny-invariant';
-import { ObserverKey } from '../utils/ObserverArray';
 import {
     getOrReturn,
     isInnerPath,
@@ -39,22 +38,21 @@ export class MappingProxy extends StockProxy {
             .forEach(([to, from]) => defaultSetValue(from, getOrReturn(value, relativePath(path, to))));
     };
 
-    public observe = <V>(
+    public watch = <V>(
         path: string,
         observer: Observer<V>,
-        defaultObserve: (path: string, observer: Observer<V>) => ObserverKey
-    ): ObserverKey => {
+        defaultWatch: (path: string, observer: Observer<V>) => () => void
+    ) => {
         const proxiedPath = this.getProxiedPath(path);
-        return defaultObserve(proxiedPath, value => observer(this.getValue(value, path, proxiedPath) as V));
+        return defaultWatch(proxiedPath, value => observer(this.mapValue(value, path, proxiedPath) as V));
     };
 
-    public stopObserving = (
-        path: string,
-        key: ObserverKey,
-        defaultStopObserving: (path: string, key: ObserverKey) => void
-    ) => defaultStopObserving(this.getProxiedPath(path), key);
+    public getValue = <V>(path: string, defaultGetValue: <U>(path: string) => U): V => {
+        const proxiedPath = this.getProxiedPath(path);
+        return this.mapValue(defaultGetValue(proxiedPath), path, proxiedPath) as V;
+    };
 
-    private getValue = (value: unknown, path: string, proxiedPath: string): unknown => {
+    private mapValue = (value: unknown, path: string, proxiedPath: string): unknown => {
         path = relativePath(this.path, path);
         const innerPaths = Object.entries(this.map).filter(([to]) => isInnerPath(path, to) || path === to);
         return innerPaths.reduce<unknown>(
