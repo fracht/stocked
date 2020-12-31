@@ -1,5 +1,5 @@
 import React, { useReducer } from 'react';
-import { StockRoot, useStockContext, useStockState, useStockValue } from 'stocked';
+import { StockRoot, useStockState, useStockValue } from 'stocked';
 
 const StockInput = ({ name, ...oth }: React.InputHTMLAttributes<HTMLInputElement> & { name: string }) => {
     const [value, setValue] = useStockState<string>(name);
@@ -14,14 +14,14 @@ const DisplayValue = ({ name }: { name: string }) => {
 };
 
 const AllValuesDisplayer = () => {
-    const { values } = useStockContext();
+    // const { values } = useStockContext();
 
     const [, forceUpdate] = useReducer(value => value + 1, 0);
 
     return (
         <div>
             <button onClick={forceUpdate}>Request all values</button>
-            {JSON.stringify(values.current, undefined, 4)}
+            {/* {JSON.stringify(values.current, undefined, 4)} */}
         </div>
     );
 };
