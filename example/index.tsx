@@ -2,7 +2,7 @@ import 'react-app-polyfill/ie11';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Example1 } from './components/Example1';
-import { ProxyExample } from './components/ProxyExample';
+import { ProxyExample } from './components/ProxyExample/ProxyExample';
 
 const App = () => {
     return (
