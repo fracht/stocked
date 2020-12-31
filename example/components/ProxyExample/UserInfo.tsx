@@ -7,7 +7,7 @@ const UserInfo = () => {
     const regNo = useStockValue<number>('regNo');
     return (
         <div>
-            <h3>And actual stock values changes on form submit</h3>
+            <h3>Actual "stocked" values changes after form was submitted</h3>
             <div>Values in another component (not proxied):</div>
             <div>name: {name}</div>
             <div>surname: {surname}</div>
