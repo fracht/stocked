@@ -1,17 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ProxyContext, useStockContext } from 'stocked';
 import { proxyContext } from './ProxyExample';
 
 const UserInfoForm = () => {
-    const context = useStockContext();
+    // Get proxied context (ProxyContext)
+    const { getValue, setValue } = useStockContext();
 
+    // Proxied paths to values
     const proxiedNamePath = 'userInfo.name';
     const proxiedSurnamePath = 'userInfo.surname';
     const proxiedRegNoPath = 'userInfo.regData.no';
 
-    const [name, setName] = React.useState<string>(context.getValue<string>(proxiedNamePath));
-    const [surname, setSurname] = React.useState<string>(context.getValue<string>(proxiedSurnamePath));
-    const [regNo, setRegNo] = React.useState<number>(context.getValue<number>(proxiedRegNoPath));
+    // States for values in form
+    const [name, setName] = useState<string>(getValue<string>(proxiedNamePath));
+    const [surname, setSurname] = useState<string>(getValue<string>(proxiedSurnamePath));
+    const [regNo, setRegNo] = useState<number>(getValue<number>(proxiedRegNoPath));
 
     return (
         <div>
@@ -19,9 +22,9 @@ const UserInfoForm = () => {
                 style={{ display: 'flex', flexDirection: 'column' }}
                 onSubmit={e => {
                     e.preventDefault();
-                    context.setValue(proxiedNamePath, name);
-                    context.setValue(proxiedSurnamePath, surname);
-                    context.setValue(proxiedRegNoPath, regNo);
+                    setValue(proxiedNamePath, name);
+                    setValue(proxiedSurnamePath, surname);
+                    setValue(proxiedRegNoPath, regNo);
                 }}
             >
                 <h3>Form uses proxied values</h3>

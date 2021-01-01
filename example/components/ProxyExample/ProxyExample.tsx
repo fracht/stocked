@@ -18,7 +18,8 @@ interface ProxiedUserInfo {
     };
 }
 
-interface RealUserInfo {
+export interface RealValues {
+    countryName: string;
     userInfo: {
         user: {
             firstName: string;
@@ -27,6 +28,10 @@ interface RealUserInfo {
         regDate: Date;
     };
     regNo: number;
+    companyInfo: {
+        name: string;
+        foundationYear: number;
+    };
 }
 
 // Using MappingProxy you need to define accordances between real and proxied values (see two interfaces above)
@@ -40,7 +45,7 @@ export const proxyContext = new MappingProxy(
     'userInfo'
 );
 
-const initialValues = {
+const initialValues: RealValues = {
     countryName: 'USA',
     userInfo: {
         user: {
