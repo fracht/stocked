@@ -49,6 +49,24 @@ describe('Testing "useStockValue" with context stock', () => {
 
         expect(result.current).toBe(newValue);
     });
+
+    it('Should update value with empty path string', async () => {
+        const { result, waitForNextUpdate } = renderUseStockValue('');
+
+        expect(result.current).toEqual(initialValues);
+
+        const promise = act(async () => {
+            await waitForNextUpdate({ timeout: 1000 });
+        });
+
+        const newValue = { newValue: 42 };
+
+        stock.setValue('', newValue);
+
+        await promise;
+
+        expect(result.current).toBe(newValue);
+    });
 });
 
 describe('Testing "useStockValue" with provided stock', () => {

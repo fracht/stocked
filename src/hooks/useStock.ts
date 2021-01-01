@@ -44,7 +44,8 @@ export const useStock = <T extends object>({ initialValues }: StockConfig<T>): S
 
             const value = isFunction(action) ? action(getOrReturn(values.current, path)) : action;
 
-            set(values.current, path, value);
+            if (path === '') values.current = value;
+            else set(values.current, path, value);
 
             notifySubTree(path, values.current);
         },
