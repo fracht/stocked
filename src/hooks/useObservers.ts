@@ -10,7 +10,7 @@ export const ALL_VALUES = Symbol('values');
 export type ObserversControl<T> = {
     /** Watch stock value. Returns cleanup function. */
     watch: <V>(path: string | symbol, observer: Observer<V>) => () => void;
-    /** Watch all stock values. Returns "watch" function, passing in it valuesSymbol as path */
+    /** Watch all stock values. Returns "watch" function, passing in it ALL_VALUES symbol as path */
     watchAll: (observer: Observer<T>) => () => void;
     /** Check if value is observed or not. */
     isObserved: (path: string | symbol) => boolean;
