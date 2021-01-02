@@ -1,4 +1,4 @@
-import { ROOT_VALUES, useObservers } from '../../src';
+import { ROOT_PATH, useObservers } from '../../src';
 import { renderHook, act } from '@testing-library/react-hooks';
 
 const renderUseObserversHook = () => renderHook(() => useObservers());
@@ -30,7 +30,7 @@ describe('Observer tests', () => {
         });
 
         expect(observer).toBeCalled();
-        expect(result.current.isObserved((ROOT_VALUES as unknown) as string)).toBe(true);
+        expect(result.current.isObserved((ROOT_PATH as unknown) as string)).toBe(true);
     });
 
     it('should call parent observer', () => {

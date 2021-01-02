@@ -2,7 +2,7 @@ import toPath from 'lodash/toPath';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import invariant from 'tiny-invariant';
-import { ROOT_VALUES } from '../hooks';
+import { ROOT_PATH } from '../hooks';
 
 /**
  * Function, which normalizes path.
@@ -33,7 +33,7 @@ export const normalizePath = (path: string | symbol) =>
  * @param _path - path, which is probably child of _basePath
  */
 export const isInnerPath = (_basePath: string | symbol, _path: string | symbol) => {
-    if (_basePath === ROOT_VALUES || _path === ROOT_VALUES) return true;
+    if (_basePath === ROOT_PATH || _path === ROOT_PATH) return true;
     const path = normalizePath(_path);
     const basePath = normalizePath(_basePath);
     return path.indexOf(basePath + '.') === 0 && path.replace(basePath, '').trim().length > 0;

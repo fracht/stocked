@@ -5,7 +5,7 @@ import { ObserverArray, ObserverKey } from '../utils/ObserverArray';
 import { getOrReturn, isInnerPath, normalizePath } from '../utils/pathUtils';
 import { useLazyRef } from '../utils/useLazyRef';
 
-export const ROOT_VALUES = Symbol('values');
+export const ROOT_PATH = Symbol('values');
 
 export type ObserversControl<T> = {
     /** Watch stock value. Returns cleanup function. */
@@ -70,9 +70,7 @@ export const useObservers = <T>(): ObserversControl<T> => {
         [observe, stopObserving]
     );
 
-    const watchAll = useCallback((observer: Observer<T>) => watch((ROOT_VALUES as unknown) as string, observer), [
-        watch,
-    ]);
+    const watchAll = useCallback((observer: Observer<T>) => watch((ROOT_PATH as unknown) as string, observer), [watch]);
 
     const watchBatchUpdates = useCallback(
         (observer: Observer<BatchUpdate<T>>) => {
