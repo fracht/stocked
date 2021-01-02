@@ -32,7 +32,7 @@ beforeEach(() => {
 });
 
 describe('Testing "useStockValues" with context stock', () => {
-    it('Should return new values after update', async () => {
+    it('Should return new values after update using setValues', async () => {
         const { result, waitForNextUpdate } = renderUseStockValues();
 
         expect(result.current).toEqual(initialValues);
@@ -59,5 +59,22 @@ describe('Testing "useStockValues" with context stock', () => {
         await promise;
 
         expect(result.current).toEqual(newValue);
+    });
+    it('Should return new values after update using setValue', async () => {
+        const { result, waitForNextUpdate } = renderUseStockValues();
+
+        expect(result.current).toEqual(initialValues);
+
+        const promise = act(async () => {
+            await waitForNextUpdate({ timeout: 1000 });
+        });
+
+        const newValue = [1, 42];
+
+        stock.setValue('array', newValue);
+
+        await promise;
+
+        expect(result.current.array).toEqual(newValue);
     });
 });

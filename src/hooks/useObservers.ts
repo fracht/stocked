@@ -5,17 +5,17 @@ import { ObserverArray, ObserverKey } from '../utils/ObserverArray';
 import { getOrReturn, isInnerPath, normalizePath } from '../utils/pathUtils';
 import { useLazyRef } from '../utils/useLazyRef';
 
-export const ALL_VALUES = Symbol('values');
+export const ROOT_VALUES = Symbol('values');
 
 export type ObserversControl<T> = {
     /** Watch stock value. Returns cleanup function. */
-    watch: <V>(path: string | symbol, observer: Observer<V>) => () => void;
-    /** Watch all stock values. Returns "watch" function, passing in it ALL_VALUES symbol as path */
+    watch: <V>(path: string, observer: Observer<V>) => () => void;
+    /** Watch all stock values. Returns cleanup function. */
     watchAll: (observer: Observer<T>) => () => void;
     /** Check if value is observed or not. */
-    isObserved: (path: string | symbol) => boolean;
+    isObserved: (path: string) => boolean;
     /** Notify all observers, which are children of specified path */
-    notifySubTree: (path: string | symbol, values: T) => void;
+    notifySubTree: (path: string, values: T) => void;
     /** Notify all observers */
     notifyAll: (values: T) => void;
     /** "stocked" updates values in batches, so you can subscribe to batch updates. Returns cleanup. */
@@ -43,7 +43,7 @@ export const useObservers = <T>(): ObserversControl<T> => {
         batchUpdateObservers,
     ]);
 
-    const observe = useCallback(<V>(path: string | symbol, observer: Observer<V>) => {
+    const observe = useCallback(<V>(path: string, observer: Observer<V>) => {
         path = normalizePath(path);
         if (!Object.prototype.hasOwnProperty.call(observers.current, path)) {
             observers.current[path] = new ObserverArray();
@@ -51,7 +51,7 @@ export const useObservers = <T>(): ObserversControl<T> => {
         return observers.current[path].add(observer as Observer<unknown>);
     }, []);
 
-    const stopObserving = useCallback((path: string | symbol, observerKey: ObserverKey) => {
+    const stopObserving = useCallback((path: string, observerKey: ObserverKey) => {
         path = normalizePath(path);
         const currentObservers = observers.current[path];
 
@@ -63,14 +63,16 @@ export const useObservers = <T>(): ObserversControl<T> => {
     }, []);
 
     const watch = useCallback(
-        <V>(path: string | symbol, observer: Observer<V>) => {
+        <V>(path: string, observer: Observer<V>) => {
             const key = observe(path, observer);
             return () => stopObserving(path, key);
         },
         [observe, stopObserving]
     );
 
-    const watchAll = useCallback((observer: Observer<T>) => watch(ALL_VALUES, observer), [watch]);
+    const watchAll = useCallback((observer: Observer<T>) => watch((ROOT_VALUES as unknown) as string, observer), [
+        watch,
+    ]);
 
     const watchBatchUpdates = useCallback(
         (observer: Observer<BatchUpdate<T>>) => {
@@ -81,42 +83,43 @@ export const useObservers = <T>(): ObserversControl<T> => {
     );
 
     const isObserved = useCallback(
-        (path: string | symbol) => Object.prototype.hasOwnProperty.call(observers.current, normalizePath(path)),
+        (path: string) => Object.prototype.hasOwnProperty.call(observers.current, normalizePath(path)),
         []
     );
 
     const notifyPaths = useCallback(
-        (paths: Array<string | symbol>, values: T) => {
+        (paths: Array<string>, values: T) => {
             batchUpdate({ paths, values });
             paths.forEach(path => {
                 const observer = observers.current[(path as unknown) as string];
-                if (observer) {
-                    const subValue = getOrReturn(values, path);
-                    observer.call(subValue);
-                }
+                const subValue = getOrReturn(values, path);
+                observer.call(subValue);
             });
         },
         [batchUpdate]
     );
 
     const notifySubTree = useCallback(
-        (path: string | symbol, values: T) => {
+        (path: string, values: T) => {
             path = normalizePath(path);
-            const subPaths: Array<string | symbol> = Object.keys(observers.current).filter(
-                tempPath => isInnerPath(path, tempPath) || path === tempPath || isInnerPath(tempPath, path)
-            );
-            subPaths.push(ALL_VALUES);
-            notifyPaths(subPaths, values);
+            const subPaths = [
+                ...Object.keys(observers.current),
+                ...Object.getOwnPropertySymbols(observers.current),
+            ].filter(tempPath => isInnerPath(path, tempPath) || path === tempPath || isInnerPath(tempPath, path));
+            notifyPaths((subPaths as unknown) as string[], values);
         },
         [notifyPaths]
     );
 
     const notifyAll = useCallback(
-        (values: T) => {
-            const paths: Array<string | symbol> = Object.keys(observers.current);
-            paths.push(ALL_VALUES);
-            notifyPaths(paths, values);
-        },
+        (values: T) =>
+            notifyPaths(
+                [
+                    ...Object.keys(observers.current),
+                    ...((Object.getOwnPropertySymbols(observers.current) as unknown) as string[]),
+                ],
+                values
+            ),
         [notifyPaths]
     );
 

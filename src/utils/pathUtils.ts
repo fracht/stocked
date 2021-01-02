@@ -2,6 +2,7 @@ import toPath from 'lodash/toPath';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import invariant from 'tiny-invariant';
+import { ROOT_VALUES } from '../hooks';
 
 /**
  * Function, which normalizes path.
@@ -32,12 +33,13 @@ export const normalizePath = (path: string | symbol) =>
  * @param _path - path, which is probably child of _basePath
  */
 export const isInnerPath = (_basePath: string | symbol, _path: string | symbol) => {
+    if (_basePath === ROOT_VALUES || _path === ROOT_VALUES) return true;
     const path = normalizePath(_path);
     const basePath = normalizePath(_basePath);
     return path.indexOf(basePath + '.') === 0 && path.replace(basePath, '').trim().length > 0;
 };
 
-const shouldReturnAllObject = (path: string | symbol) =>
+const shouldReturnWholeObject = (path: string | symbol) =>
     (typeof path === 'string' && path.trim().length === 0) || typeof path === 'symbol';
 
 /**
@@ -47,7 +49,7 @@ const shouldReturnAllObject = (path: string | symbol) =>
  * @param path - path to deep variable
  */
 export const getOrReturn = (object: unknown, path: string | symbol) => {
-    if (shouldReturnAllObject(path)) {
+    if (shouldReturnWholeObject(path)) {
         return object;
     } else {
         return get(object, path);
@@ -62,7 +64,7 @@ export const getOrReturn = (object: unknown, path: string | symbol) => {
  * @param value - value to set
  */
 export const setOrReturn = (object: object, path: string | symbol, value: unknown) => {
-    if (shouldReturnAllObject(path)) {
+    if (shouldReturnWholeObject(path)) {
         return value;
     } else {
         return set(object, path, value);
