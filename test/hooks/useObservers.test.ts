@@ -1,4 +1,4 @@
-import { useObservers } from '../../src';
+import { ROOT_VALUES, useObservers } from '../../src';
 import { renderHook, act } from '@testing-library/react-hooks';
 
 const renderUseObserversHook = () => renderHook(() => useObservers());
@@ -17,6 +17,20 @@ describe('Observer tests', () => {
         });
 
         expect(observer).toBeCalled();
+    });
+
+    it('Should call all values observer', () => {
+        const { result } = renderUseObserversHook();
+
+        const observer = jest.fn();
+
+        act(() => {
+            result.current.watchAll(observer);
+            result.current.notifySubTree('b', { b: 0 });
+        });
+
+        expect(observer).toBeCalled();
+        expect(result.current.isObserved((ROOT_VALUES as unknown) as string)).toBe(true);
     });
 
     it('should call parent observer', () => {

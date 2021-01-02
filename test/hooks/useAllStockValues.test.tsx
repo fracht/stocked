@@ -35,7 +35,7 @@ describe('Testing "useStockValues" with context stock', () => {
     it('Should return new values after update using setValues', async () => {
         const { result, waitForNextUpdate } = renderUseStockValues();
 
-        expect(result.current).toEqual(initialValues);
+        expect(result.current).toStrictEqual(initialValues);
 
         const promise = act(async () => {
             await waitForNextUpdate({ timeout: 1000 });
@@ -58,12 +58,12 @@ describe('Testing "useStockValues" with context stock', () => {
 
         await promise;
 
-        expect(result.current).toEqual(newValue);
+        expect(result.current).toStrictEqual(newValue);
     });
     it('Should return new values after update using setValue', async () => {
         const { result, waitForNextUpdate } = renderUseStockValues();
 
-        expect(result.current).toEqual(initialValues);
+        expect(result.current).toStrictEqual(initialValues);
 
         const promise = act(async () => {
             await waitForNextUpdate({ timeout: 1000 });
@@ -75,6 +75,6 @@ describe('Testing "useStockValues" with context stock', () => {
 
         await promise;
 
-        expect(result.current.array).toEqual(newValue);
+        expect(result.current.array).toStrictEqual(newValue);
     });
 });

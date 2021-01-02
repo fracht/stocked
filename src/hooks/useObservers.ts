@@ -88,7 +88,7 @@ export const useObservers = <T>(): ObserversControl<T> => {
     );
 
     const notifyPaths = useCallback(
-        (paths: Array<string>, values: T) => {
+        (paths: string[], values: T) => {
             batchUpdate({ paths, values });
             paths.forEach(path => {
                 const observer = observers.current[(path as unknown) as string];
