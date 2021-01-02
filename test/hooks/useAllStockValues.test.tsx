@@ -1,0 +1,63 @@
+import React from 'react';
+import { renderHook, act } from '@testing-library/react-hooks';
+import { Stock, useAllStockValues, useStock, StockContext } from '../../src';
+
+const initialValues = {
+    hello: 'test',
+    parent: {
+        child: 'value',
+    },
+    array: [
+        1,
+        {
+            value: 'second',
+        },
+    ],
+};
+
+let stock: Stock<typeof initialValues>;
+
+const wrapper: React.FC = ({ children }) => (
+    <StockContext.Provider value={(stock as unknown) as Stock<object>}>{children}</StockContext.Provider>
+);
+
+const renderUseStockValues = () =>
+    renderHook(() => useAllStockValues(stock), {
+        wrapper,
+    });
+
+beforeEach(() => {
+    const { result } = renderHook(() => useStock({ initialValues }), { wrapper });
+    stock = result.current;
+});
+
+describe('Testing "useStockValues" with context stock', () => {
+    it('Should return new values after update', async () => {
+        const { result, waitForNextUpdate } = renderUseStockValues();
+
+        expect(result.current).toEqual(initialValues);
+
+        const promise = act(async () => {
+            await waitForNextUpdate({ timeout: 1000 });
+        });
+
+        const newValue = {
+            hello: 'changed',
+            parent: {
+                child: 'changed',
+            },
+            array: [
+                42,
+                {
+                    value: 'changed',
+                },
+            ],
+        };
+
+        stock.setValues(newValue);
+
+        await promise;
+
+        expect(result.current).toEqual(newValue);
+    });
+});

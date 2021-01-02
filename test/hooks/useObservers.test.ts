@@ -1,4 +1,4 @@
-import { useObservers } from '../../src';
+import { useObservers, ALL_VALUES } from '../../src';
 import { renderHook, act } from '@testing-library/react-hooks';
 
 const renderUseObserversHook = () => renderHook(() => useObservers());
@@ -141,6 +141,16 @@ describe('Is observed test', () => {
         expect(result.current.isObserved('value')).toBeTruthy();
         expect(result.current.isObserved('asdf')).toBeFalsy();
     });
+    it('observer with symbol key should be observed', () => {
+        const { result } = renderUseObserversHook();
+
+        act(() => {
+            result.current.watchAll(jest.fn());
+        });
+
+        expect(result.current.isObserved(ALL_VALUES)).toBeTruthy();
+        expect(result.current.isObserved('asdf')).toBeFalsy();
+    });
     it('should be observed denormalized path', () => {
         const { result } = renderUseObserversHook();
 
@@ -234,7 +244,7 @@ describe('Batch observers tests', () => {
 
         expect(observer).toBeCalled();
         expect(observer).toBeCalledWith({
-            paths: ['parent.child', 'parent'],
+            paths: ['parent.child', 'parent', ALL_VALUES],
             values: {
                 value: 'asdf',
                 parent: {

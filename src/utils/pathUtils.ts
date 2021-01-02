@@ -13,10 +13,12 @@ import invariant from 'tiny-invariant';
  *
  * @param path - path to normalize
  */
-export const normalizePath = (path: string) =>
-    toPath(path)
-        .join('.')
-        .trim();
+export const normalizePath = (path: string | symbol) =>
+    typeof path === 'string'
+        ? toPath(path)
+              .join('.')
+              .trim()
+        : ((path as unknown) as string);
 
 /**
  * Function, which indicates, if path is child of another or not.
@@ -29,11 +31,14 @@ export const normalizePath = (path: string) =>
  * @param _basePath - path, which is probably parent
  * @param _path - path, which is probably child of _basePath
  */
-export const isInnerPath = (_basePath: string, _path: string) => {
+export const isInnerPath = (_basePath: string | symbol, _path: string | symbol) => {
     const path = normalizePath(_path);
     const basePath = normalizePath(_basePath);
     return path.indexOf(basePath + '.') === 0 && path.replace(basePath, '').trim().length > 0;
 };
+
+const shouldReturnAllObject = (path: string | symbol) =>
+    (typeof path === 'string' && path.trim().length === 0) || typeof path === 'symbol';
 
 /**
  * Provides same functionality, as @see https://lodash.com/docs/4.17.15#get
@@ -41,8 +46,8 @@ export const isInnerPath = (_basePath: string, _path: string) => {
  * @param object - object, where should be value taken
  * @param path - path to deep variable
  */
-export const getOrReturn = (object: unknown, path: string) => {
-    if (path.trim().length === 0) {
+export const getOrReturn = (object: unknown, path: string | symbol) => {
+    if (shouldReturnAllObject(path)) {
         return object;
     } else {
         return get(object, path);
@@ -56,8 +61,8 @@ export const getOrReturn = (object: unknown, path: string) => {
  * @param path - path to set deep variable
  * @param value - value to set
  */
-export const setOrReturn = (object: object, path: string, value: unknown) => {
-    if (path.trim().length === 0) {
+export const setOrReturn = (object: object, path: string | symbol, value: unknown) => {
+    if (shouldReturnAllObject(path)) {
         return value;
     } else {
         return set(object, path, value);
