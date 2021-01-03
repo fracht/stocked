@@ -1,5 +1,5 @@
 import { Stock } from './useStock';
-import { StockProxy } from '../typings';
+import { StockProxy } from '../typings/StockProxy';
 import { useStockValue } from './useStockValue';
 import { ROOT_PATH } from './useObservers';
 
