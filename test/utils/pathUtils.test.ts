@@ -35,7 +35,7 @@ describe('isInnerPath', () => {
 });
 
 describe('getOrReturn', () => {
-    it('should return value', () => {
+    it('should get value on empty path', () => {
         const value = { hello: 'asdf', '': 42 };
         expect(getOrReturn(cloneDeep(value), '')).toStrictEqual(42);
     });
@@ -43,16 +43,25 @@ describe('getOrReturn', () => {
         const value = { asdf: 'basd' };
         expect(getOrReturn(cloneDeep(value), 'asdf')).toBe('basd');
     });
+    it('should return all values on ROOT_PATH', () => {
+        const value = { asdf: 42, array: [1, 2] };
+        expect(getOrReturn(value, ROOT_PATH)).toStrictEqual(value);
+    });
 });
 
 describe('setOrReturn', () => {
-    it('should return value', () => {
+    it('should set value on empty path', () => {
         const value = { hello: 'asdf' };
         expect(setOrReturn(cloneDeep(value), '', { a: 'asdf' })).toStrictEqual({ '': { a: 'asdf' }, hello: 'asdf' });
     });
     it('should set value', () => {
         const value = { asdf: 'basd' };
         expect(setOrReturn(cloneDeep(value), 'asdf', 'HELLO')).toStrictEqual({ asdf: 'HELLO' });
+    });
+    it('should return all values on ROOT_PATH', () => {
+        const value = { asdf: 42, array: [1, 2] };
+        const newValue = { hello: 'world' };
+        expect(setOrReturn(cloneDeep(value), ROOT_PATH, newValue)).toStrictEqual(newValue);
     });
 });
 

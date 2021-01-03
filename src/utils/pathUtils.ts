@@ -33,7 +33,8 @@ export const normalizePath = (path: string | typeof ROOT_PATH) =>
  * @param _path - path, which is probably child of _basePath
  */
 export const isInnerPath = (_basePath: string | typeof ROOT_PATH, _path: string | typeof ROOT_PATH) => {
-    if (_basePath === ROOT_PATH || _path === ROOT_PATH) return true;
+    if (_basePath === ROOT_PATH) return true;
+    if (_path === ROOT_PATH) return false;
     const path = normalizePath(_path);
     const basePath = normalizePath(_basePath);
     return path.indexOf(basePath + '.') === 0 && path.replace(basePath, '').trim().length > 0;
