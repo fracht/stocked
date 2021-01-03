@@ -5,7 +5,7 @@ import { ObserverArray, ObserverKey } from '../utils/ObserverArray';
 import { getOrReturn, isInnerPath, normalizePath } from '../utils/pathUtils';
 import { useLazyRef } from '../utils/useLazyRef';
 
-export const ROOT_PATH = Symbol('values');
+export const ROOT_PATH = Symbol();
 
 export type ObserversControl<T> = {
     /** Watch stock value. Returns cleanup function. */
@@ -89,7 +89,7 @@ export const useObservers = <T>(): ObserversControl<T> => {
         (paths: string[], values: T) => {
             batchUpdate({ paths, values });
             paths.forEach(path => {
-                const observer = observers.current[(path as unknown) as string];
+                const observer = observers.current[path];
                 const subValue = getOrReturn(values, path);
                 observer.call(subValue);
             });
@@ -102,9 +102,9 @@ export const useObservers = <T>(): ObserversControl<T> => {
             path = normalizePath(path);
             const subPaths = [
                 ...Object.keys(observers.current),
-                ...Object.getOwnPropertySymbols(observers.current),
+                ...((Object.getOwnPropertySymbols(observers.current) as unknown) as string[]),
             ].filter(tempPath => isInnerPath(path, tempPath) || path === tempPath || isInnerPath(tempPath, path));
-            notifyPaths((subPaths as unknown) as string[], values);
+            notifyPaths(subPaths, values);
         },
         [notifyPaths]
     );

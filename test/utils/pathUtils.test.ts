@@ -1,4 +1,5 @@
 import { cloneDeep, shuffle } from 'lodash';
+import { ROOT_PATH } from '../../src/hooks';
 import {
     getOrReturn,
     isInnerPath,
@@ -35,8 +36,8 @@ describe('isInnerPath', () => {
 
 describe('getOrReturn', () => {
     it('should return value', () => {
-        const value = { hello: 'asdf' };
-        expect(getOrReturn(cloneDeep(value), '')).toStrictEqual(value);
+        const value = { hello: 'asdf', '': 42 };
+        expect(getOrReturn(cloneDeep(value), '')).toStrictEqual(42);
     });
     it('should get deep value', () => {
         const value = { asdf: 'basd' };
@@ -47,7 +48,7 @@ describe('getOrReturn', () => {
 describe('setOrReturn', () => {
     it('should return value', () => {
         const value = { hello: 'asdf' };
-        expect(setOrReturn(cloneDeep(value), '', { a: 'asdf' })).toStrictEqual({ a: 'asdf' });
+        expect(setOrReturn(cloneDeep(value), '', { a: 'asdf' })).toStrictEqual({ '': { a: 'asdf' }, hello: 'asdf' });
     });
     it('should set value', () => {
         const value = { asdf: 'basd' };
@@ -79,7 +80,7 @@ describe('relativePath', () => {
         expect(() =>
             relativePath('hello.world.this.is.not.parent.path', 'hello.world.this.is.not.nested.path')
         ).toThrow();
-        expect(relativePath('hello.world[0].same', 'hello["world"].0.same')).toBe('');
+        expect(relativePath('hello.world[0].same', 'hello["world"].0.same')).toBe(ROOT_PATH);
     });
     it('simple cases', () => {
         expect(relativePath('hello.world', 'hello.world.nested.path')).toBe('nested.path');

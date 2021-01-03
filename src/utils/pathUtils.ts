@@ -14,12 +14,12 @@ import { ROOT_PATH } from '../hooks';
  *
  * @param path - path to normalize
  */
-export const normalizePath = (path: string | symbol) =>
-    typeof path === 'string'
-        ? toPath(path)
+export const normalizePath = (path: string | typeof ROOT_PATH) =>
+    path === ROOT_PATH
+        ? ((path as unknown) as string)
+        : toPath(path)
               .join('.')
-              .trim()
-        : ((path as unknown) as string);
+              .trim();
 
 /**
  * Function, which indicates, if path is child of another or not.
@@ -32,24 +32,20 @@ export const normalizePath = (path: string | symbol) =>
  * @param _basePath - path, which is probably parent
  * @param _path - path, which is probably child of _basePath
  */
-export const isInnerPath = (_basePath: string | symbol, _path: string | symbol) => {
+export const isInnerPath = (_basePath: string | typeof ROOT_PATH, _path: string | typeof ROOT_PATH) => {
     if (_basePath === ROOT_PATH || _path === ROOT_PATH) return true;
     const path = normalizePath(_path);
     const basePath = normalizePath(_basePath);
     return path.indexOf(basePath + '.') === 0 && path.replace(basePath, '').trim().length > 0;
 };
 
-const shouldReturnWholeObject = (path: string | symbol) =>
-    (typeof path === 'string' && path.trim().length === 0) || typeof path === 'symbol';
-
 /**
  * Provides same functionality, as @see https://lodash.com/docs/4.17.15#get
- * If path is empty, it will return whole object.
  * @param object - object, where should be value taken
  * @param path - path to deep variable
  */
-export const getOrReturn = (object: unknown, path: string | symbol) => {
-    if (shouldReturnWholeObject(path)) {
+export const getOrReturn = (object: unknown, path: string | typeof ROOT_PATH) => {
+    if (path === ROOT_PATH) {
         return object;
     } else {
         return get(object, path);
@@ -58,13 +54,12 @@ export const getOrReturn = (object: unknown, path: string | symbol) => {
 
 /**
  * Provides same functionality, as @see https://lodash.com/docs/4.17.15#set
- * If path is empty, it will return whole object.
  * @param object - object, where should be set
  * @param path - path to set deep variable
  * @param value - value to set
  */
-export const setOrReturn = (object: object, path: string | symbol, value: unknown) => {
-    if (shouldReturnWholeObject(path)) {
+export const setOrReturn = (object: object, path: string | typeof ROOT_PATH, value: unknown) => {
+    if (path === ROOT_PATH) {
         return value;
     } else {
         return set(object, path, value);
@@ -107,7 +102,7 @@ export const relativePath = (_basePath: string, _subPath: string) => {
     invariant(subPath.indexOf(basePath) === 0, `"${subPath}" is not sub path of "${basePath}"`);
 
     if (basePath === subPath) {
-        return '';
+        return (ROOT_PATH as unknown) as string;
     } else {
         return subPath.replace(basePath + '.', '');
     }
