@@ -75,6 +75,12 @@ describe('Testing "useStockValues" with context stock', () => {
 
         await promise;
 
-        expect(result.current.array).toStrictEqual(newValue);
+        expect(result.current).toStrictEqual({
+            hello: 'test',
+            parent: {
+                child: 'value',
+            },
+            array: [1, 42],
+        });
     });
 });
