@@ -5,9 +5,13 @@ import { ObserverArray, ObserverKey } from '../utils/ObserverArray';
 import { getOrReturn, isInnerPath, normalizePath } from '../utils/pathUtils';
 import { useLazyRef } from '../utils/useLazyRef';
 
+export const ROOT_PATH = Symbol();
+
 export type ObserversControl<T> = {
     /** Watch stock value. Returns cleanup function. */
     watch: <V>(path: string, observer: Observer<V>) => () => void;
+    /** Watch all stock values. Returns cleanup function. */
+    watchAll: (observer: Observer<T>) => () => void;
     /** Check if value is observed or not. */
     isObserved: (path: string) => boolean;
     /** Notify all observers, which are children of specified path */
@@ -22,6 +26,14 @@ export type ObserversControl<T> = {
 export const useObservers = <T>(): ObserversControl<T> => {
     const observers = useRef<Record<string, ObserverArray<unknown>>>({});
     const batchUpdateObservers = useLazyRef<ObserverArray<BatchUpdate<T>>>(() => new ObserverArray());
+
+    const getObserversKeys = useCallback(
+        () => [
+            ...Object.keys(observers.current),
+            ...((Object.getOwnPropertySymbols(observers.current) as unknown) as string[]),
+        ],
+        []
+    );
 
     const batchUpdate = useCallback(
         (update: BatchUpdate<T>) => {
@@ -66,6 +78,8 @@ export const useObservers = <T>(): ObserversControl<T> => {
         [observe, stopObserving]
     );
 
+    const watchAll = useCallback((observer: Observer<T>) => watch((ROOT_PATH as unknown) as string, observer), [watch]);
+
     const watchBatchUpdates = useCallback(
         (observer: Observer<BatchUpdate<T>>) => {
             const key = observeBatchUpdates(observer);
@@ -94,18 +108,22 @@ export const useObservers = <T>(): ObserversControl<T> => {
     const notifySubTree = useCallback(
         (path: string, values: T) => {
             path = normalizePath(path);
-            const subPaths = Object.keys(observers.current).filter(
+            const subPaths = getObserversKeys().filter(
                 tempPath => isInnerPath(path, tempPath) || path === tempPath || isInnerPath(tempPath, path)
             );
             notifyPaths(subPaths, values);
         },
-        [notifyPaths]
+        [notifyPaths, getObserversKeys]
     );
 
-    const notifyAll = useCallback((values: T) => notifyPaths(Object.keys(observers.current), values), [notifyPaths]);
+    const notifyAll = useCallback((values: T) => notifyPaths(getObserversKeys(), values), [
+        notifyPaths,
+        getObserversKeys,
+    ]);
 
     return {
         watch,
+        watchAll,
         watchBatchUpdates,
         isObserved,
         notifySubTree,
