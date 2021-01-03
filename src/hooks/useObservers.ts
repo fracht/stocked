@@ -27,6 +27,14 @@ export const useObservers = <T>(): ObserversControl<T> => {
     const observers = useRef<Record<string, ObserverArray<unknown>>>({});
     const batchUpdateObservers = useLazyRef<ObserverArray<BatchUpdate<T>>>(() => new ObserverArray());
 
+    const getObserversKeys = useCallback(
+        () => [
+            ...Object.keys(observers.current),
+            ...((Object.getOwnPropertySymbols(observers.current) as unknown) as string[]),
+        ],
+        []
+    );
+
     const batchUpdate = useCallback(
         (update: BatchUpdate<T>) => {
             batchUpdateObservers.current.call(update);
@@ -100,26 +108,18 @@ export const useObservers = <T>(): ObserversControl<T> => {
     const notifySubTree = useCallback(
         (path: string, values: T) => {
             path = normalizePath(path);
-            const subPaths = [
-                ...Object.keys(observers.current),
-                ...((Object.getOwnPropertySymbols(observers.current) as unknown) as string[]),
-            ].filter(tempPath => isInnerPath(path, tempPath) || path === tempPath || isInnerPath(tempPath, path));
+            const subPaths = getObserversKeys().filter(
+                tempPath => isInnerPath(path, tempPath) || path === tempPath || isInnerPath(tempPath, path)
+            );
             notifyPaths(subPaths, values);
         },
-        [notifyPaths]
+        [notifyPaths, getObserversKeys]
     );
 
-    const notifyAll = useCallback(
-        (values: T) =>
-            notifyPaths(
-                [
-                    ...Object.keys(observers.current),
-                    ...((Object.getOwnPropertySymbols(observers.current) as unknown) as string[]),
-                ],
-                values
-            ),
-        [notifyPaths]
-    );
+    const notifyAll = useCallback((values: T) => notifyPaths(getObserversKeys(), values), [
+        notifyPaths,
+        getObserversKeys,
+    ]);
 
     return {
         watch,
