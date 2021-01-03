@@ -1,12 +1,9 @@
 import React from 'react';
-import { useStockValue } from 'stocked';
+import { useAllStockValues } from 'stocked';
 import { RealValues } from './ProxyExample';
 
 const UserInfo = () => {
-    // const name = useStockValue<string>('userInfo.user.firstName');
-    // const surname = useStockValue<string>('userInfo.user.lastName');
-    // const regNo = useStockValue<number>('regNo');
-    const values = useStockValue<RealValues>('');
+    const values = useAllStockValues<RealValues>();
     return (
         <div>
             <h3>Actual "stocked" values changes after form was submitted</h3>

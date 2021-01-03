@@ -2,23 +2,23 @@ import 'react-app-polyfill/ie11';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter, Link, Route } from 'react-router-dom';
-import { Example1 } from './components/Example1';
+import { StockExample } from './components/StockExample';
 import { ProxyExample } from './components/ProxyExample/ProxyExample';
 
 const App = () => {
     return (
         <BrowserRouter>
             <menu>
-                <div>
+                <li>
                     <Link to="/StockExample">Stock example</Link>
-                </div>
-                <div>
+                </li>
+                <li>
                     <Link to="/ProxyExample">Proxy example</Link>
-                </div>
+                </li>
             </menu>
 
             <Route path="/StockExample">
-                <Example1 />
+                <StockExample />
             </Route>
             <Route path="/ProxyExample">
                 <ProxyExample />
