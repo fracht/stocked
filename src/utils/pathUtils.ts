@@ -2,7 +2,7 @@ import toPath from 'lodash/toPath';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import invariant from 'tiny-invariant';
-import { ROOT_PATH } from '../hooks';
+import { ROOT_PATH } from '../hooks/useObservers';
 
 /**
  * Function, which normalizes path.

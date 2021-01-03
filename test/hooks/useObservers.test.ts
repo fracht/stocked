@@ -1,6 +1,5 @@
 import { ROOT_PATH, useObservers } from '../../src';
 import { renderHook, act } from '@testing-library/react-hooks';
-import { useEffect } from 'react';
 
 const renderUseObserversHook = () => renderHook(() => useObservers());
 
@@ -20,24 +19,20 @@ describe('Observer tests', () => {
         expect(observer).toBeCalled();
     });
 
-    it('Should call all values observer', () => {
+    it('Should call all values observer', async () => {
+        const { result } = renderUseObserversHook();
+
         const observer = jest.fn();
-
-        const { result, unmount } = renderHook(() => {
-            const observersControl = useObservers();
-
-            useEffect(() => observersControl.watchAll(observer), [observersControl]);
-
-            return observersControl;
-        });
+        let cleanup: () => void = () => {};
 
         act(() => {
+            cleanup = result.current.watchAll(observer);
             result.current.notifySubTree('b', { b: 0 });
         });
 
         expect(observer).toBeCalled();
         expect(result.current.isObserved((ROOT_PATH as unknown) as string)).toBe(true);
-        unmount();
+        cleanup();
         expect(result.current.isObserved((ROOT_PATH as unknown) as string)).toBe(false);
     });
 
