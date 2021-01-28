@@ -27,13 +27,7 @@ export const useObservers = <T>(): ObserversControl<T> => {
     const observers = useRef<Record<string, ObserverArray<unknown>>>({});
     const batchUpdateObservers = useLazyRef<ObserverArray<BatchUpdate<T>>>(() => new ObserverArray());
 
-    const getObserversKeys = useCallback(
-        () => [
-            ...Object.keys(observers.current),
-            ...((Object.getOwnPropertySymbols(observers.current) as unknown) as string[]),
-        ],
-        []
-    );
+    const getObserversKeys = useCallback(() => [...((Reflect.ownKeys(observers.current) as unknown) as string[])], []);
 
     const batchUpdate = useCallback(
         (update: BatchUpdate<T>) => {
