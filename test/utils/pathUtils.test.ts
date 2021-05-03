@@ -67,7 +67,7 @@ describe('setOrReturn', () => {
 
 describe('longestCommonPath', () => {
     it('hit cases', () => {
-        expect(longestCommonPath([])).toBe('');
+        expect(longestCommonPath([])).toBe(ROOT_PATH);
         expect(longestCommonPath([''])).toBe('');
         expect(longestCommonPath(['asdf'])).toBe('asdf');
     });
@@ -76,20 +76,24 @@ describe('longestCommonPath', () => {
         expect(longestCommonPath(['hello.this.is.world', 'hello.this.is.bye', 'hello.this.is'])).toBe('hello.this.is');
     });
     it('no common paths', () => {
-        expect(longestCommonPath(shuffle(['asdf', 'asdf.hello', 'asdf.bye', 'asdf.hello.bye', 'b']))).toBe('');
+        expect(longestCommonPath(shuffle(['asdf', 'asdf.hello', 'asdf.bye', 'asdf.hello.bye', 'b']))).toBe(ROOT_PATH);
         expect(
             longestCommonPath(shuffle(['hello.this.is.world', 'hello.this.is.bye', 'hello.this.is', 'ahello']))
-        ).toBe('');
+        ).toBe(ROOT_PATH);
     });
 });
 
 describe('relativePath', () => {
     it('hit cases', () => {
-        expect(relativePath('      ', 'hello.world.this')).toBe('hello.world.this');
+        expect(() => relativePath('      ', 'hello.world.this')).toThrow();
         expect(() =>
             relativePath('hello.world.this.is.not.parent.path', 'hello.world.this.is.not.nested.path')
         ).toThrow();
         expect(relativePath('hello.world[0].same', 'hello["world"].0.same')).toBe(ROOT_PATH);
+        expect(relativePath(ROOT_PATH, ROOT_PATH)).toBe(ROOT_PATH);
+        expect(relativePath(ROOT_PATH, 'nested.path')).toBe('nested.path');
+        expect(() => relativePath('helo', ROOT_PATH)).toThrow();
+        expect(relativePath('..asdf', '            .[]asdf.lol')).toBe('lol');
     });
     it('simple cases', () => {
         expect(relativePath('hello.world', 'hello.world.nested.path')).toBe('nested.path');

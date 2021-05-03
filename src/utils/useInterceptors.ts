@@ -1,12 +1,15 @@
 import { useCallback, useEffect } from 'react';
 import invariant from 'tiny-invariant';
+import { ROOT_PATH } from '../hooks';
 import { Stock } from '../hooks/useStock';
 import { Observer } from '../typings';
 import { StockProxy } from '../typings/StockProxy';
 import { isInnerPath, normalizePath } from './pathUtils';
 
-const shouldUseProxy = (proxy: StockProxy | undefined, path: string) =>
-    proxy && (isInnerPath(proxy.path, path) || normalizePath(proxy.path).trim() === normalizePath(path).trim());
+const shouldUseProxy = (proxy: StockProxy | undefined, path: string | typeof ROOT_PATH) =>
+    proxy &&
+    (isInnerPath(proxy.path, path) ||
+        normalizePath(proxy.path as string).trim?.() === normalizePath(path as string).trim?.());
 
 /**
  * Helper function. Calls `standardCallback` if `proxy` is undefined, or if `path` isn't inner path of `proxy.path` variable.
@@ -15,7 +18,7 @@ const shouldUseProxy = (proxy: StockProxy | undefined, path: string) =>
  */
 export const intercept = <T extends (...args: any[]) => any>(
     proxy: StockProxy | undefined,
-    path: string,
+    path: string | typeof ROOT_PATH,
     standardCallback: T,
     proxiedCallback: T,
     args: Parameters<T>
@@ -41,29 +44,34 @@ export const useInterceptors = <T extends object>(stock: Stock<T>, proxy?: Stock
     );
 
     const interceptedWatch = useCallback(
-        <V>(path: string, observer: Observer<V>) =>
+        <V>(path: string | typeof ROOT_PATH, observer: Observer<V>) =>
             intercept(
                 proxy,
                 path,
                 watch,
-                (path: string, observer: Observer<V>) => proxy!.watch<V>(path, observer, watch),
+                (path: string | typeof ROOT_PATH, observer: Observer<V>) => proxy!.watch<V>(path, observer, watch),
                 [path, observer]
             ),
         [watch, proxy]
     );
 
     const interceptedSetValue = useCallback(
-        (path: string, value: unknown) =>
-            intercept(proxy, path, setValue, (path: string, value: unknown) => proxy!.setValue(path, value, setValue), [
+        (path: string | typeof ROOT_PATH, value: unknown) =>
+            intercept(
+                proxy,
                 path,
-                value,
-            ]),
+                setValue,
+                (path: string | typeof ROOT_PATH, value: unknown) => proxy!.setValue(path, value, setValue),
+                [path, value]
+            ),
         [proxy, setValue]
     );
 
     const interceptedGetValue = useCallback(
-        <V>(path: string) =>
-            intercept(proxy, path, getValue, (path: string) => proxy!.getValue<V>(path, getValue), [path]),
+        <V>(path: string | typeof ROOT_PATH) =>
+            intercept(proxy, path, getValue, (path: string | typeof ROOT_PATH) => proxy!.getValue<V>(path, getValue), [
+                path,
+            ]),
         [proxy, getValue]
     );
 

@@ -14,12 +14,16 @@ import { ROOT_PATH } from '../hooks/useObservers';
  *
  * @param path - path to normalize
  */
-export const normalizePath = (path: string | typeof ROOT_PATH) =>
-    path === ROOT_PATH
-        ? ((path as unknown) as string)
+export function normalizePath(path: string): string;
+export function normalizePath(path: typeof ROOT_PATH): typeof ROOT_PATH;
+
+export function normalizePath(path: string | typeof ROOT_PATH) {
+    return path === ROOT_PATH
+        ? path
         : toPath(path)
               .join('.')
               .trim();
+}
 
 /**
  * Function, which indicates, if path is child of another or not.
@@ -71,17 +75,17 @@ export const setOrReturn = (object: object, path: string | typeof ROOT_PATH, val
  * Finds longest common path.
  * @example
  * ['hello.world', 'hello.world.yes', 'hello.world.bye.asdf'] -> 'hello.world'
- * ['a', 'b', 'c'] -> ''
+ * ['a', 'b', 'c'] -> ROOT_PATH
  */
 export const longestCommonPath = (paths: string[]) => {
-    if (paths.length === 0) return '';
+    if (paths.length === 0) return ROOT_PATH;
     if (paths.length === 1) return normalizePath(paths[0]);
     const sortedPaths = paths.sort();
     const firstPath = toPath(sortedPaths[0]);
     const lastPath = toPath(sortedPaths[sortedPaths.length - 1]);
     for (let i = 0; i < firstPath.length; i++) {
         if (firstPath[i] !== lastPath[i]) {
-            return firstPath.slice(0, i).join('.');
+            return firstPath.slice(0, i).join('.') || ROOT_PATH;
         }
     }
     return firstPath.join('.');
@@ -94,13 +98,22 @@ export const longestCommonPath = (paths: string[]) => {
  * relativePath('a.b.c', 'a.b.c.d.e') -> 'd.e',
  * relativePath('a', 'b') -> Error
  */
-export const relativePath = (_basePath: string, _subPath: string) => {
+export const relativePath = (_basePath: string | typeof ROOT_PATH, _subPath: string | typeof ROOT_PATH) => {
+    if (_basePath === ROOT_PATH && _subPath === ROOT_PATH) {
+        return ROOT_PATH;
+    }
+
+    if (_basePath === ROOT_PATH) {
+        return _subPath;
+    }
+
     const basePath = normalizePath(_basePath);
-    const subPath = normalizePath(_subPath);
 
-    if (basePath.trim().length === 0) return _subPath;
+    invariant(_subPath !== ROOT_PATH, `ROOT_PATH symbol cannot be sub path of any path ("${basePath}")`);
 
-    invariant(subPath.indexOf(basePath) === 0, `"${subPath}" is not sub path of "${basePath}"`);
+    const subPath = normalizePath(_subPath as string);
+
+    invariant(basePath.length > 0 && subPath.indexOf(basePath) === 0, `"${subPath}" is not sub path of "${basePath}"`);
 
     if (basePath === subPath) {
         return (ROOT_PATH as unknown) as string;
