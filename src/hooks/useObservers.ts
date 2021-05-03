@@ -9,7 +9,7 @@ export const ROOT_PATH = Symbol();
 
 export type ObserversControl<T> = {
     /** Watch stock value. Returns cleanup function. */
-    watch: <V>(path: string, observer: Observer<V>) => () => void;
+    watch: <V>(path: string | typeof ROOT_PATH, observer: Observer<V>) => () => void;
     /** Watch all stock values. Returns cleanup function. */
     watchAll: (observer: Observer<T>) => () => void;
     /** Check if value is observed or not. */
@@ -51,16 +51,16 @@ export const useObservers = <T>(): ObserversControl<T> => {
         batchUpdateObservers,
     ]);
 
-    const observe = useCallback(<V>(path: string, observer: Observer<V>) => {
-        path = normalizePath(path);
+    const observe = useCallback(<V>(path: string | typeof ROOT_PATH, observer: Observer<V>) => {
+        path = normalizePath(path as string);
         if (!Object.prototype.hasOwnProperty.call(observers.current, path)) {
             observers.current[path] = new ObserverArray();
         }
         return observers.current[path].add(observer as Observer<unknown>);
     }, []);
 
-    const stopObserving = useCallback((path: string, observerKey: ObserverKey) => {
-        path = normalizePath(path);
+    const stopObserving = useCallback((path: string | typeof ROOT_PATH, observerKey: ObserverKey) => {
+        path = normalizePath(path as string);
         const currentObservers = observers.current[path];
 
         invariant(currentObservers, 'Cannot remove observer from value, which is not observing');
@@ -71,7 +71,7 @@ export const useObservers = <T>(): ObserversControl<T> => {
     }, []);
 
     const watch = useCallback(
-        <V>(path: string, observer: Observer<V>) => {
+        <V>(path: string | typeof ROOT_PATH, observer: Observer<V>) => {
             const key = observe(path, observer);
             return () => stopObserving(path, key);
         },
