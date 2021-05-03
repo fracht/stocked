@@ -13,7 +13,7 @@ jobs:
             CI_JOB_NUMBER: 1
         steps:
             - uses: actions/checkout@v1
-            - uses: artiomtr/jest-coverage-report-action@v1.0
+            - uses: artiomtr/jest-coverage-report-action@v1.2
               with:
                   github_token: ${{ secrets.GITHUB_TOKEN }}
                   test_script: npm run test:coverage
