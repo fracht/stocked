@@ -5,16 +5,16 @@ import isFunction from 'lodash/isFunction';
 
 import { useLazyRef } from '../utils/useLazyRef';
 import { SetStateAction } from '../typings/SetStateAction';
-import { ObserversControl, useObservers } from './useObservers';
+import { ObserversControl, ROOT_PATH, useObservers } from './useObservers';
 import { getOrReturn, normalizePath } from '../utils/pathUtils';
 
 export type Stock<T extends object> = {
     /** Function for setting value. Deeply sets value, using path to variable. @see https://lodash.com/docs/4.17.15#set */
-    setValue: (path: string, value: unknown) => void;
+    setValue: (path: string | typeof ROOT_PATH, value: unknown) => void;
     /** Function for setting all values. */
     setValues: (values: T) => void;
     /** Get actual value from stock. */
-    getValue: <V>(path: string) => V;
+    getValue: <V>(path: string | typeof ROOT_PATH) => V;
     /** Get all values from stock */
     getValues: () => T;
     /** Function for resetting values to initial state */
@@ -39,8 +39,8 @@ export const useStock = <T extends object>({ initialValues }: StockConfig<T>): S
     const { notifySubTree, notifyAll, ...other } = useObservers<T>();
 
     const setValue = useCallback(
-        (path: string, action: SetStateAction<unknown>) => {
-            path = normalizePath(path);
+        (path: string | typeof ROOT_PATH, action: SetStateAction<unknown>) => {
+            path = normalizePath(path as string);
 
             const value = isFunction(action) ? action(getOrReturn(values.current, path)) : action;
 
@@ -59,7 +59,9 @@ export const useStock = <T extends object>({ initialValues }: StockConfig<T>): S
         [values, notifyAll]
     );
 
-    const getValue = useCallback(<V>(path: string) => getOrReturn(values.current, path) as V, [values]);
+    const getValue = useCallback(<V>(path: string | typeof ROOT_PATH) => getOrReturn(values.current, path) as V, [
+        values,
+    ]);
 
     const getValues = useCallback(() => values.current, [values]);
 

@@ -1,5 +1,5 @@
 {
-    "version": "1.0.0-beta.1",
+    "version": "1.0.0-beta.3",
     "license": "MIT",
     "main": "dist/index.js",
     "typings": "dist/index.d.ts",
@@ -18,7 +18,8 @@
         "build": "tsdx build",
         "test": "tsdx test --passWithNoTests",
         "test:watch": "npm run test -- --watch",
-        "test:coverage": "npm run test -- --coverage",
+        "test:coverage": "npm run test -- --silent --ci --coverage --coverageReporters=\"text\" --coverageReporters=\"text-summary\"",
+        "test:lcov": "npm run test -- --silent --ci --coverage",
         "lint": "tsdx lint",
         "lint:config": "npm run lint -- --write-file",
         "prepare": "tsdx build",
@@ -70,7 +71,7 @@
         "react-test-renderer": "^17.0.1",
         "size-limit": "^4.6.2",
         "tsdx": "^0.14.1",
-        "tslib": "^2.0.3",
+        "tslib": "^2.2.0",
         "typescript": "^4.1.2"
     },
     "dependencies": {
