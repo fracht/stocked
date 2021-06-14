@@ -18,7 +18,7 @@
         "build": "tsdx build",
         "test": "tsdx test --passWithNoTests",
         "test:watch": "npm run test -- --watch",
-        "test:coverage": "npm run test -- --silent --ci --coverage --coverageReporters=\"text\" --coverageReporters=\"text-summary\"",
+        "test:coverage": "npm run test -- --silent --ci --coverage --json --outputFile=report.json",
         "test:lcov": "npm run test -- --silent --ci --coverage",
         "lint": "tsdx lint",
         "lint:config": "npm run lint -- --write-file",
