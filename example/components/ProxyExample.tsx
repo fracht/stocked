@@ -1,6 +1,23 @@
 import React from 'react';
 import { MappingProxy, ProxyContext, StockRoot, useAllStockValues, useStockState } from 'stocked';
 
+type FieldProps = {
+    name: string;
+    label: string;
+    type?: string;
+};
+
+const Field = ({ name, label, type = 'text' }: FieldProps) => {
+    const [value, setValue] = useStockState<string>(name);
+
+    return (
+        <div>
+            <label htmlFor={name}>{label}:</label>
+            <input id={name} type={type} value={value} onChange={e => setValue(e.target.value)} />
+        </div>
+    );
+};
+
 interface ProxiedUserInfo {
     name: string;
     surname: string;
@@ -66,60 +83,24 @@ export const ProxyExample = () => {
 };
 
 const UserInfo = () => {
-    const {
-        userInfo: {
-            user: { firstName, lastName },
-        },
-        regNo,
-    } = useAllStockValues<RealValues>();
-
     return (
         <div>
             <h3>Actual "stocked" values changes</h3>
-            <div>Values in another component (not proxied):</div>
-            <div>name: {firstName}</div>
-            <div>surname: {lastName}</div>
-            <div>regNo: {regNo}</div>
+            <Field name="userInfo.user.firstName" label="First name (userInfo.user.firstName)" />
+            <Field name="userInfo.user.lastName" label="Last name (userInfo.user.lastName)" />
+            <Field name="regNo" label="Registration number (regNo)" type="number" />
         </div>
     );
 };
 
 const UserInfoForm = () => {
-    // This form uses proxied paths
-    const [name, setName] = useStockState<string>('userInfo.name');
-    const [surname, setSurname] = useStockState<string>('userInfo.surname');
-    const [regNo, setRegNo] = useStockState<number>('userInfo.regData.no');
-
     return (
         <div>
-            <form
-                style={{ display: 'flex', flexDirection: 'column' }}
-                onSubmit={e => {
-                    e.preventDefault();
-                    setName(name);
-                    setSurname(surname);
-                    setRegNo(regNo);
-                }}
-            >
-                <h3>Form uses proxied values</h3>
-                <div>
-                    <label htmlFor="name">Name:</label>
-                    <input id="name" type="text" value={name} onChange={e => setName(e.target.value)} />
-                </div>
-
-                <div>
-                    <label htmlFor="surname">Surname:</label>
-                    <input id="surname" type="text" value={surname} onChange={e => setSurname(e.target.value)} />
-                </div>
-
-                <div>
-                    <label htmlFor="regNo">Registration number:</label>
-                    <input id="regNo" type="number" value={regNo} onChange={e => setRegNo(+e.target.value)} />
-                </div>
-
-                <button style={{ width: 100 }} type="submit">
-                    Submit
-                </button>
+            <form style={{ display: 'flex', flexDirection: 'column' }}>
+                <h3>Casted values to another shape</h3>
+                <Field name="userInfo.name" label="Name (userInfo.name)" />
+                <Field name="userInfo.surname" label="Surname (userInfo.surname)" />
+                <Field name="userInfo.regData.no" label="Registration number (userInfo.regData.no)" type="number" />
             </form>
         </div>
     );
