@@ -3,7 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter, Link, Route } from 'react-router-dom';
 import { StockExample } from './components/StockExample';
-import { ProxyExample } from './components/ProxyExample/ProxyExample';
+import { ProxyExample } from './components/ProxyExample';
 
 const App = () => {
     return (
