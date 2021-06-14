@@ -75,7 +75,7 @@ const UserInfo = () => {
 
     return (
         <div>
-            <h3>Actual "stocked" values changes after form was submitted</h3>
+            <h3>Actual "stocked" values changes</h3>
             <div>Values in another component (not proxied):</div>
             <div>name: {firstName}</div>
             <div>surname: {lastName}</div>
