@@ -30,7 +30,7 @@ const initialValues = {
     hello: 'Dummy value',
 };
 
-export const Example1 = () => (
+export const StockExample = () => (
     <StockRoot initialValues={initialValues}>
         <h1>Hello world example!</h1>
         <div>
