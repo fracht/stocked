@@ -1,0 +1,51 @@
+---
+sidebar_position: 1
+---
+
+# Getting started
+
+> On this page, you'll find general information about stocked.
+
+## Motivation
+
+If you need to share state between your components, you'll face the performance issue. Saving all your app state into context isn't good solution, because changing value causes whole app rerender.
+
+:::tip Pro tip!
+
+You can highlight updates when component render with [React developer tools](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?hl=ru).
+
+:::
+
+## Installation
+
+Stocked is available from [NPM](https://www.npmjs.com/) or [Yarn](https://yarnpkg.com/).
+
+### NPM
+
+```sh
+npm install stocked
+```
+
+### Yarn
+
+```sh
+yarn add stocked
+```
+
+## Examples
+
+The following examples will help you understand the essence of this library.
+
+### Performance
+
+This is an example todo-list app. It shows, how you can easily create performant apps with stocked.
+
+You can add hunderds of todos at the same time, without drammatic decrease of performance. Try it out by entering the title of new todo and count.
+
+<iframe
+    src="https://codesandbox.io/embed/stocked-todo-ldebz?fontsize=14&hidenavigation=1&theme=dark"
+    style={{ width: '100%', height: 500, border: 0, borderRadius: 4, overflow: 'hidden' }}
+    title="stocked-todo"
+    allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+    sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+/>
