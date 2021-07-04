@@ -24,7 +24,7 @@ module.exports = {
                     type: 'doc',
                     docId: 'getting-started',
                     position: 'left',
-                    label: 'Tutorial',
+                    label: 'Docs',
                 },
                 {
                     href: 'https://github.com/ArtiomTr/stocked',

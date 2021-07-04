@@ -10,11 +10,17 @@ sidebar_position: 1
 
 If you need to share state between your components, you'll face the performance issue. Saving all your app state into context isn't good solution, because changing value causes whole app rerender.
 
+`stocked` adds a little functionality for handling global state. Changing this state not rerenders all your app, it rerenders only components, which use it.
+
 :::tip Pro tip!
 
 You can highlight updates when component render with [React developer tools](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?hl=ru).
 
 :::
+
+## Inspiration
+
+This library was inspired by the speed and greatness of [Recoil](https://github.com/facebookexperimental/Recoil).
 
 ## Installation
 
@@ -35,6 +41,20 @@ yarn add stocked
 ## Examples
 
 The following examples will help you understand the essence of this library.
+
+### Simplicity
+
+You don't need to have any additional deep knowledge of React to start using stocked.
+
+Using stocked is as simple as using the `useState` hook in React.
+
+<iframe
+    src="https://codesandbox.io/embed/floral-sun-3fwcu?fontsize=14&hidenavigation=1&theme=dark"
+    style={{ width: '100%', height: 500, border: 0, borderRadius: 4, overflow: 'hidden' }}
+    title="floral-sun-3fwcu"
+    allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+    sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+/>
 
 ### Performance
 
