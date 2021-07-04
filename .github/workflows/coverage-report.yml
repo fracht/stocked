@@ -13,8 +13,8 @@ jobs:
             CI_JOB_NUMBER: 1
         steps:
             - uses: actions/checkout@v1
-            - uses: artiomtr/jest-coverage-report-action@master
+            - uses: artiomtr/jest-coverage-report-action@2.0-rc.2
               with:
-                  github_token: ${{ secrets.GITHUB_TOKEN }}
-                  test_script: npm run test:coverage
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  test-script: npm run test:coverage
                   threshold: 90
