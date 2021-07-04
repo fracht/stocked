@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from 'react';
 import unset from 'lodash/unset';
+import cloneDeep from 'lodash/cloneDeep';
 import invariant from 'tiny-invariant';
 import { ROOT_PATH } from '../hooks';
 import { Stock } from '../hooks/useStock';
@@ -77,7 +78,7 @@ export const useInterceptors = <T extends object>(stock: Stock<T>, proxy?: Stock
     );
 
     const interceptedGetValues = useCallback(() => {
-        const allValues = getValues();
+        const allValues = cloneDeep(getValues());
 
         const proxiedValue = proxy!.getValue(proxy!.path, getValue);
 
