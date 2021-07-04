@@ -225,6 +225,28 @@ describe('Mapping proxy', () => {
 
         expect(defaultSetValue).toBeCalledWith('registeredUser.name', 'As');
         expect(defaultSetValue).toBeCalledWith('registeredUser.surname', 'Df');
+
+        defaultSetValue.mockClear();
+
+        proxy.setValue(
+            'registeredUser',
+            {
+                personalData: {
+                    name: {
+                        firstName: 'A',
+                        lastName: 'B',
+                    },
+                    birthday: new Date(),
+                },
+                registrationDate: new Date(),
+            },
+            defaultSetValue
+        );
+
+        expect(defaultSetValue).toBeCalledWith('registeredUser.name', 'A');
+        expect(defaultSetValue).toBeCalledWith('registeredUser.surname', 'B');
+        expect(defaultSetValue).toBeCalledWith('dateOfBirth', expect.any(Date));
+        expect(defaultSetValue).toBeCalledWith('registeredUser.dates.registration', expect.any(Date));
     });
 
     it('should get proxied value', () => {
@@ -237,7 +259,6 @@ describe('Mapping proxy', () => {
                 birthday: new Date('2020.12.26'),
             },
             registrationDate: new Date('2020.12.31'),
-            notify: true,
         };
         const rawData = {
             registeredUser: {
@@ -271,5 +292,6 @@ describe('Mapping proxy', () => {
         expect(proxy.getValue('registeredUser.personalData.birthday', defaultGet)).toStrictEqual(
             fullUser.personalData.birthday
         );
+        expect(proxy.getValue('registeredUser', defaultGet)).toStrictEqual(fullUser);
     });
 });
