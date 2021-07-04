@@ -1,5 +1,5 @@
 import { act, renderHook } from '@testing-library/react-hooks';
-import { Stock, StockProxy, useStock } from '../../src';
+import { ROOT_PATH, Stock, StockProxy, useStock } from '../../src';
 import { intercept, useInterceptors } from '../../src/utils/useInterceptors';
 import { DummyProxy } from '../DummyProxy';
 
@@ -37,7 +37,7 @@ describe('hit cases', () => {
         expect(observer).toBeCalledWith('asdf');
     });
     it('non activated proxy', () => {
-        // expect(() => renderUseInterceptorsHook(new DummyProxy('asdf'))).toThrowError();
+        expect(() => renderUseInterceptorsHook(new DummyProxy('asdf'))).toThrowError();
     });
 });
 
@@ -108,5 +108,54 @@ describe('proxy', () => {
         expect(setValue).toBeCalledTimes(1);
         expect(getValue).toBeCalledWith('dest', expect.any(Function));
         expect(getValue).toBeCalledTimes(1);
+    });
+
+    it('should handle setValues / getValues properly', () => {
+        const proxy = new DummyProxy('dest');
+
+        const watch = jest.fn(() => () => {});
+        const setValue = jest.fn();
+        const getValue = jest.fn(() => 'Test get value');
+
+        proxy.watch = watch;
+        proxy.setValue = setValue;
+        proxy.getValue = getValue as <V>(
+            path: string | typeof ROOT_PATH,
+            defaultGetValue: (path: string | typeof ROOT_PATH) => unknown
+        ) => V;
+        proxy.activate();
+        const { result } = renderUseInterceptorsHook(proxy);
+
+        let values: any = {};
+
+        act(() => {
+            result.current.setValues({
+                hello: 'asdf',
+                dest: {
+                    bye: '',
+                    l: 15,
+                },
+            });
+
+            values = result.current.getValues();
+        });
+
+        expect(setValue).toBeCalledWith(
+            'dest',
+            {
+                bye: '',
+                l: 15,
+            },
+            expect.any(Function)
+        );
+        expect(setValue).toBeCalledTimes(1);
+
+        expect(getValue).toBeCalledWith('dest', expect.any(Function));
+        expect(getValue).toBeCalledTimes(1);
+
+        expect(values).toStrictEqual({
+            hello: 'asdf',
+            dest: 'Test get value',
+        });
     });
 });
