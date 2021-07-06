@@ -13,6 +13,13 @@ module.exports = {
     organizationName: 'ArtiomTr',
     projectName: 'stocked',
     themeConfig: {
+        announcementBar: {
+            id: 'development_only',
+            content: 'This library currently is not ready for the production use. Be careful!',
+            backgroundColor: 'var(--ifm-color-danger-darkest)',
+            textColor: '#FFF',
+            isCloseable: false,
+        },
         navbar: {
             title: 'stocked',
             logo: {
@@ -22,7 +29,7 @@ module.exports = {
             items: [
                 {
                     type: 'doc',
-                    docId: 'getting-started',
+                    docId: 'intro/getting-started',
                     position: 'left',
                     label: 'Docs',
                 },
