@@ -12,13 +12,60 @@ If you are familiar with lodash's [deep set / get functions](https://lodash.com/
 
 ## Data
 
-Data is saved as one object. Value set / get is done via deep set / get functions.
+Data is saved as one, **non-circular** object.
 
 :::caution
 
 Be careful! `stocked` does not support circular objects.
 
 :::
+
+### Standard API
+
+To change value, you need to call deep set or get functions. For example:
+
+```js
+stock.setValue('path.to.value', 'testValue');
+```
+
+To get deep value, you can use function `getValue`:
+
+```js
+stock.getValue('path.to.value');
+```
+
+To observe value changes, use `watch` function:
+
+```js
+const cleanup = stock.watch('path.to.value', newValue => {
+    // your code...
+});
+
+// call cleanup when your component unmounts
+cleanup();
+```
+
+### React-like API
+
+If you're fan of React hooks, you can use some helper hooks from `stocked` for easier state manipulation. For example:
+
+```js
+const value = useStockValue('path.to.value');
+```
+
+This hook will return actual value for you. No observers and cleanups - everything is built-in!
+
+If you like React `useState` hook, `stocked` also has something for you:
+
+```js
+const [value, setValue] = useStockState('path.to.value');
+```
+
+## Playgrounds
+
+Here is a list of playgrounds, where you can try `stocked`:
+
+-
 
 ### Deep get / set playground
 
