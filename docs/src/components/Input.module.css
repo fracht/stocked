@@ -1,0 +1,22 @@
+.input {
+    background-color: var(--ifm-code-background);
+    border-radius: var(--ifm-alert-border-radius);
+    border: none;
+    outline: none;
+    color: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    padding: 7px;
+    opacity: 0.9;
+    transition-duration: 200ms;
+    transition-property: opacity, background-color, box-shadow;
+}
+
+.input:hover {
+    opacity: 1;
+}
+
+.input:focus {
+    background-color: var(--ifm-background-color);
+    box-shadow: 0 0 0 2px var(--ifm-color-primary);
+}

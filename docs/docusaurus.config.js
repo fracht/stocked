@@ -4,7 +4,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
     title: 'stocked',
-    tagline: 'Tiny state management library for react',
+    tagline: 'Tiny state management library for React',
     url: 'https://artiomtr.github.io',
     baseUrl: '/',
     onBrokenLinks: 'throw',

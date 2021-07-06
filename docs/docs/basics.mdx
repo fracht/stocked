@@ -1,0 +1,48 @@
+---
+sidebar_position: 2
+---
+
+# Basics
+
+If you are familiar with lodash's [deep set / get functions](https://lodash.com/docs/4.17.15#set) or the [formik](https://formik.org/) library, most of the functionality will be clear to you.
+
+## Overview
+
+`stocked` keeps all data in context. After that, you can watch the value changes using the `useStockValue` (if you don't want to edit the value), `useStockState` hooks or using `watch` function.
+
+## Data
+
+Data is saved as one object. Value set / get is done via deep set / get functions.
+
+:::caution
+
+Be careful! `stocked` does not support circular objects.
+
+:::
+
+### Deep get / set playground
+
+> Try to specify path to the deep variable in the input below to see the instant result!
+
+import { DeepPathPreview } from '../src/components/DeepPathPreview';
+
+<DeepPathPreview
+    object={{
+        hello: {
+            asdf: 'hello',
+            co: 'asdf',
+            c: {
+                hello: 0,
+            },
+        },
+        arr: [
+            'asdf',
+            {
+                h: {
+                    d: 'asdf',
+                },
+            },
+        ],
+    }}
+    initialPath="hello"
+/>
