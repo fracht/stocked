@@ -1,0 +1,96 @@
+---
+sidebar_position: 2
+---
+
+# Basics
+
+If you are familiar with lodash's [deep set / get functions](https://lodash.com/docs/4.17.15#set) or the [formik](https://formik.org/) library, most of the functionality will be clear to you.
+
+## Overview
+
+`stocked` keeps all data in context. After that, you can watch the value changes using the `useStockValue` (if you don't want to edit the value), `useStockState` hooks or using `watch` function.
+
+## Data
+
+Data is saved as one, **non-circular** object.
+
+:::caution
+
+Be careful! `stocked` does not support circular objects.
+
+:::
+
+### Standard API
+
+To change value, you need to call deep set or get functions. For example:
+
+```js
+stock.setValue('path.to.value', 'testValue');
+```
+
+To get deep value, you can use function `getValue`:
+
+```js
+stock.getValue('path.to.value');
+```
+
+To observe value changes, use `watch` function:
+
+```js
+const cleanup = stock.watch('path.to.value', newValue => {
+    // your code...
+});
+
+// call cleanup when your component unmounts
+cleanup();
+```
+
+### Hooks API
+
+If you're fan of React hooks, you can use some helper hooks from `stocked` for easier state manipulation. For example:
+
+```js
+const value = useStockValue('path.to.value');
+```
+
+This hook will return actual value for you. No observers and cleanups - everything works out of the box!
+
+If you like React `useState` hook, `stocked` also has something for you:
+
+```js
+const [value, setValue] = useStockState('path.to.value');
+```
+
+## Playgrounds
+
+You can play with `stocked` in your web browser with these live online playgrounds:
+
+-   [CodeSandbox](https://codesandbox.io/s/competent-smoke-l3cd1?file=/src/App.tsx)
+-   [Stackblitz](https://stackblitz.com/edit/stocked-playground?file=App.tsx)
+
+### Deep get / set playground
+
+> Try to specify path to the deep variable in the input below to see the instant result!
+
+import { DeepPathPreview } from '../../src/components/DeepPathPreview';
+
+<DeepPathPreview
+    object={{
+        hello: {
+            asdf: 'hello',
+            co: 'asdf',
+            c: {
+                hello: 0,
+            },
+        },
+        arr: [
+            'asdf',
+            {
+                h: {
+                    d: 'asdf',
+                },
+            },
+        ],
+    }}
+    initialPath="hello"
+/>

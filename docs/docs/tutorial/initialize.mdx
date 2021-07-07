@@ -1,0 +1,124 @@
+---
+sidebar_position: 2
+---
+
+# Initialize project
+
+> In this part you'll learn how to create new app with stocked
+
+## Create React App
+
+Let's create a new project using [create-react-app](https://github.com/facebook/create-react-app#readme) utility. Run this command in your terminal
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs
+    defaultValue="npm"
+    groupId="package-manager"
+    values={[
+        { label: 'npm', value: 'npm' },
+        { label: 'yarn', value: 'yarn' }
+    ]}
+>
+<TabItem value="npm">
+
+```bash
+npx create-react-app my-app
+```
+
+</TabItem>
+<TabItem value="yarn">
+
+```bash
+yarn create react-app my-app
+```
+
+</TabItem>
+</Tabs>
+
+:::tip Pro tip!
+
+If you want to use typescript in your project, specify one more flag to the create-react-app: `--template typescript`.
+
+:::
+
+## Install dependencies
+
+To install latest `stocked` stable version, run this command:
+
+<Tabs
+    defaultValue="npm"
+    groupId="package-manager"
+    values={[
+        { label: 'npm', value: 'npm' },
+        { label: 'yarn', value: 'yarn' }
+    ]}
+>
+<TabItem value="npm">
+
+```bash
+npm install stocked
+```
+
+</TabItem>
+<TabItem value="yarn">
+
+```bash
+yarn add stocked
+```
+
+</TabItem>
+</Tabs>
+
+## Create app state
+
+<Tabs
+    defaultValue="js"
+    groupId="language"
+    values={[
+        { label: 'JavaScript', value: 'js' },
+        { label: 'TypeScript', value: 'ts' }
+    ]}
+>
+<TabItem value="js">
+
+Delete everything from your `./src/App.jsx` and wrap your app content with `StockRoot` component:
+
+```jsx title=./src/App.jsx
+import { StockRoot } from 'stocked';
+
+function App() {
+    return (
+        <StockRoot initialValues={{}}>
+            <h1>Todo list!</h1>
+        </StockRoot>
+    );
+}
+
+export default App;
+```
+
+</TabItem>
+<TabItem value="ts">
+
+Delete everything from your `./src/App.tsx` and wrap your app content with `StockRoot` component:
+
+```jsx title=./src/App.tsx
+import { StockRoot } from 'stocked';
+
+function App() {
+    return (
+        <StockRoot initialValues={{}}>
+            <h1>Todo list!</h1>
+        </StockRoot>
+    );
+}
+
+export default App;
+```
+
+</TabItem>
+</Tabs>
+
+And that's it! You've initialized your first app with `stocked`! Continue to the next section to complete this tutorial!

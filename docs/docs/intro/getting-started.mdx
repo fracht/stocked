@@ -1,0 +1,86 @@
+---
+sidebar_position: 1
+---
+
+# Getting started
+
+> On this page, you'll find general information about stocked.
+
+## Motivation
+
+If you need to share state between your components, you'll face the performance issue. Saving all your app state into context isn't good solution, because changing value causes whole app rerender.
+
+`stocked` adds a little functionality for handling global state. Changing this state not rerenders all your app, it rerenders only components, which use it.
+
+:::tip Pro tip!
+
+You can highlight updates when component render with [React developer tools](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?hl=ru).
+
+:::
+
+## Inspiration
+
+This library was inspired by the speed and greatness of [Recoil](https://github.com/facebookexperimental/Recoil).
+
+## Installation
+
+Stocked is available from [NPM](https://www.npmjs.com/) or [Yarn](https://yarnpkg.com/).
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs
+    defaultValue="npm"
+    groupId="package-manager"
+    values={[
+        { label: 'npm', value: 'npm' },
+        { label: 'yarn', value: 'yarn' }
+    ]}
+>
+<TabItem value="npm">
+
+```bash
+npm install stocked
+```
+
+</TabItem>
+<TabItem value="yarn">
+
+```bash
+yarn add stocked
+```
+
+</TabItem>
+</Tabs>
+
+## Examples
+
+The following examples will help you understand the essence of this library.
+
+### Simplicity
+
+You don't need to have any additional deep knowledge of React to start using stocked.
+
+Using stocked is as simple as using the `useState` hook in React.
+
+<iframe
+    src="https://codesandbox.io/embed/floral-sun-3fwcu?fontsize=14&hidenavigation=1&theme=dark"
+    style={{ width: '100%', height: 500, border: 0, borderRadius: 4, overflow: 'hidden' }}
+    title="floral-sun-3fwcu"
+    allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+    sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+/>
+
+### Performance
+
+This is an example todo-list app. It shows, how you can easily create performant apps with stocked.
+
+You can add hunderds of todos at the same time, without drammatic decrease of performance. Try it out by entering the title of new todo and count.
+
+<iframe
+    src="https://codesandbox.io/embed/stocked-todo-ldebz?fontsize=14&hidenavigation=1&theme=dark"
+    style={{ width: '100%', height: 500, border: 0, borderRadius: 4, overflow: 'hidden' }}
+    title="stocked-todo"
+    allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+    sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+/>

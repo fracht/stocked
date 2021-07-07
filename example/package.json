@@ -8,6 +8,7 @@
         "build": "parcel build index.html"
     },
     "dependencies": {
+        "@types/react-router-dom": "^5.1.7",
         "components": "^0.1.0",
         "react": "file:../node_modules/react",
         "react-app-polyfill": "^1.0.0",
