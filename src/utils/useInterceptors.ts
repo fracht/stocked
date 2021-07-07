@@ -1,10 +1,12 @@
 import { useCallback, useEffect } from 'react';
+import unset from 'lodash/unset';
+import cloneDeep from 'lodash/cloneDeep';
 import invariant from 'tiny-invariant';
 import { ROOT_PATH } from '../hooks';
 import { Stock } from '../hooks/useStock';
 import { Observer } from '../typings';
 import { StockProxy } from '../typings/StockProxy';
-import { isInnerPath, normalizePath } from './pathUtils';
+import { getOrReturn, isInnerPath, normalizePath, setOrReturn } from './pathUtils';
 
 const shouldUseProxy = (proxy: StockProxy | undefined, path: string | typeof ROOT_PATH) =>
     proxy &&
@@ -32,7 +34,7 @@ export const intercept = <T extends (...args: any[]) => any>(
 
 /** Intercepts stock's `observe`, `stopObserving` and `setValue` functions, if proxy is provided. */
 export const useInterceptors = <T extends object>(stock: Stock<T>, proxy?: StockProxy): Stock<T> => {
-    const { watch, setValue, getValue } = stock;
+    const { watch, setValue, getValue, setValues, getValues } = stock;
 
     useEffect(
         () =>
@@ -75,12 +77,41 @@ export const useInterceptors = <T extends object>(stock: Stock<T>, proxy?: Stock
         [proxy, getValue]
     );
 
-    if (!proxy) return stock;
+    const interceptedGetValues = useCallback(() => {
+        const allValues = cloneDeep(getValues());
+
+        const proxiedValue = proxy!.getValue(proxy!.path, getValue);
+
+        setOrReturn(allValues, proxy!.path, proxiedValue);
+
+        return allValues;
+    }, [proxy, getValues, getValue]);
+
+    const interceptedSetValues = useCallback(
+        (values: T) => {
+            const proxiedValue = getOrReturn(values, proxy!.path);
+
+            unset(values, proxy!.path);
+
+            proxy!.setValue(proxy!.path, proxiedValue, (path, value) => {
+                setOrReturn(values, path, value);
+            });
+
+            setValues(values);
+        },
+        [proxy, setValues]
+    );
+
+    if (!proxy) {
+        return stock;
+    }
 
     return {
         ...stock,
         watch: interceptedWatch,
         setValue: interceptedSetValue,
         getValue: interceptedGetValue,
+        getValues: interceptedGetValues,
+        setValues: interceptedSetValues,
     };
 };
