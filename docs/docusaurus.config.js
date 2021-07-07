@@ -6,7 +6,7 @@ module.exports = {
     title: 'stocked',
     tagline: 'Tiny state management library for React',
     url: 'https://artiomtr.github.io',
-    baseUrl: '/',
+    baseUrl: process.env.NODE_ENV === 'production' ? '/stocked/' : '/',
     onBrokenLinks: 'throw',
     onBrokenMarkdownLinks: 'warn',
     favicon: 'img/favicon.ico',
