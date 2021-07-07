@@ -26,17 +26,32 @@ This library was inspired by the speed and greatness of [Recoil](https://github.
 
 Stocked is available from [NPM](https://www.npmjs.com/) or [Yarn](https://yarnpkg.com/).
 
-### NPM
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-```sh
+<Tabs
+    defaultValue="npm"
+    groupId="package-manager"
+    values={[
+        { label: 'npm', value: 'npm' },
+        { label: 'yarn', value: 'yarn' }
+    ]}
+>
+<TabItem value="npm">
+
+```bash
 npm install stocked
 ```
 
-### Yarn
+</TabItem>
+<TabItem value="yarn">
 
-```sh
+```bash
 yarn add stocked
 ```
+
+</TabItem>
+</Tabs>
 
 ## Examples
 

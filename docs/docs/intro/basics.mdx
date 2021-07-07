@@ -45,7 +45,7 @@ const cleanup = stock.watch('path.to.value', newValue => {
 cleanup();
 ```
 
-### React-like API
+### Hooks API
 
 If you're fan of React hooks, you can use some helper hooks from `stocked` for easier state manipulation. For example:
 
@@ -53,7 +53,7 @@ If you're fan of React hooks, you can use some helper hooks from `stocked` for e
 const value = useStockValue('path.to.value');
 ```
 
-This hook will return actual value for you. No observers and cleanups - everything is built-in!
+This hook will return actual value for you. No observers and cleanups - everything works out of the box!
 
 If you like React `useState` hook, `stocked` also has something for you:
 
