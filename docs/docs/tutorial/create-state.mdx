@@ -142,6 +142,7 @@ Now, we'll create a component - `TodoList.jsx`. This component will render list 
 <TabItem value="js">
 
 ```jsx title=./src/TodoList.jsx
+import { useStockValue } from 'stocked';
 export const TodoList = () => {
     const todos = useStockValue('todos');
 
@@ -159,7 +160,8 @@ export const TodoList = () => {
 <TabItem value="ts">
 
 ```tsx title=./src/TodoList.tsx
-import { TodoItem } from './App'
+import { useStockValue } from 'stocked';
+import { TodoItem } from './App';
 
 export const TodoList = () => {
     const todos = useStockValue<TodoItem[]>('todos');
@@ -190,6 +192,8 @@ As you can see, we're using array of todos from the stock. Every time when todos
 <TabItem value="js">
 
 ```jsx title=./src/App.jsx
+import { TodoList } from './TodoList';
+
 // ...
 
 function App() {
@@ -211,6 +215,8 @@ export default App;
 <TabItem value="ts">
 
 ```tsx title=./src/App.tsx
+import { TodoList } from './TodoList';
+
 // ...
 
 function App() {
@@ -230,3 +236,15 @@ export default App;
 
 </TabItem>
 </Tabs>
+
+## Intermediate result
+
+And this is what we have at the moment:
+
+<p align="center">
+
+![Result](img/tutorial-create-state-result.jpg)
+
+</p>
+
+Let's move on.
