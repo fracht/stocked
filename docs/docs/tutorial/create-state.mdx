@@ -53,7 +53,6 @@ function App() {
                         completed: false,
                     },
                 ],
-                filters: {},
                 // highlight-end
             }}
         >
@@ -72,16 +71,13 @@ export default App;
 import { StockRoot } from 'stocked';
 
 // highlight-start
-export type TodoItem = {
+export type TodoItemData = {
     title: string;
     completed: boolean;
 };
 
-type Filters = {};
-
 type AppState = {
-    todos: TodoItem[];
-    filters: Filters;
+    todos: TodoItemData[];
 };
 // highlight-end
 
@@ -107,12 +103,7 @@ function App() {
                         title: 'Filter todos',
                         completed: false,
                     },
-                    {
-                        title: 'Optimize',
-                        completed: false,
-                    },
                 ],
-                filters: {},
                 // highlight-end
             }}
         >
@@ -161,10 +152,10 @@ export const TodoList = () => {
 
 ```tsx title=./src/TodoList.tsx
 import { useStockValue } from 'stocked';
-import { TodoItem } from './App';
+import { TodoItemData } from './App';
 
 export const TodoList = () => {
-    const todos = useStockValue<TodoItem[]>('todos');
+    const todos = useStockValue<TodoItemData[]>('todos');
 
     return (
         <ul>
