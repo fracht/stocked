@@ -10,7 +10,7 @@ import { getOrReturn, normalizePath } from '../utils/pathUtils';
 
 export type Stock<T extends object> = {
     /** Function for setting value. Deeply sets value, using path to variable. @see https://lodash.com/docs/4.17.15#set */
-    setValue: (path: string | typeof ROOT_PATH, value: unknown) => void;
+    setValue: (path: string | typeof ROOT_PATH, value: SetStateAction<unknown>) => void;
     /** Function for setting all values. */
     setValues: (values: T) => void;
     /** Get actual value from stock. */
