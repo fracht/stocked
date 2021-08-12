@@ -4,6 +4,16 @@ import set from 'lodash/set';
 import invariant from 'tiny-invariant';
 import { ROOT_PATH } from '../hooks/useObservers';
 
+export const joinPaths = (...segments: (string | typeof ROOT_PATH)[]) => {
+    const filteredSegments = segments.filter(segment => segment !== ROOT_PATH);
+
+    if (filteredSegments.length === 0) {
+        return ROOT_PATH;
+    }
+
+    return filteredSegments.join('.');
+};
+
 /**
  * Function, which normalizes path.
  *
@@ -77,7 +87,7 @@ export const setOrReturn = (object: object, path: string | typeof ROOT_PATH, val
  * ['hello.world', 'hello.world.yes', 'hello.world.bye.asdf'] -> 'hello.world'
  * ['a', 'b', 'c'] -> ROOT_PATH
  */
-export const longestCommonPath = (paths: string[]) => {
+export const longestCommonPath = (paths: string[]): string | typeof ROOT_PATH => {
     if (paths.length === 0) return ROOT_PATH;
     if (paths.length === 1) return normalizePath(paths[0]);
     const sortedPaths = paths.sort();

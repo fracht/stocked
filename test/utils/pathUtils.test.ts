@@ -3,11 +3,21 @@ import { ROOT_PATH } from '../../src/hooks';
 import {
     getOrReturn,
     isInnerPath,
+    joinPaths,
     longestCommonPath,
     normalizePath,
     relativePath,
     setOrReturn,
 } from '../../src/utils/pathUtils';
+
+describe('joinPaths', () => {
+    it('should join paths', () => {
+        expect(joinPaths('hello', 'world')).toBe('hello.world');
+        expect(joinPaths(ROOT_PATH, ROOT_PATH)).toBe(ROOT_PATH);
+        expect(joinPaths(ROOT_PATH, 'hello')).toBe('hello');
+        expect(joinPaths(ROOT_PATH, 'hello', 'world')).toBe('hello.world');
+    });
+});
 
 describe('normalizePath', () => {
     it('"   hello.tst[0].b   " = "hello.tst.0.b"', () => {

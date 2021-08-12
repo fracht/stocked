@@ -272,4 +272,36 @@ describe('Mapping proxy', () => {
             fullUser.personalData.birthday
         );
     });
+
+    it('should return normal path from proxied path', () => {
+        const proxy = new MappingProxy(
+            {
+                'personalData.name.firstName': 'registeredUser.name',
+                'personalData.name.lastName': 'registeredUser.surname',
+                'personalData.birthday': 'dateOfBirth',
+                registrationDate: 'registeredUser.dates.registration',
+            },
+            'registeredUser'
+        );
+
+        expect(proxy.getNormalPath('registeredUser.personalData')).toBe(ROOT_PATH);
+        expect(proxy.getNormalPath('registeredUser.registrationDate')).toBe('registeredUser.dates.registration');
+        expect(proxy.getNormalPath('registeredUser.personalData.name')).toBe('registeredUser');
+    });
+
+    it('should return proxied path from normal path', () => {
+        const proxy = new MappingProxy(
+            {
+                'personalData.name.firstName': 'registeredUser.name',
+                'personalData.name.lastName': 'registeredUser.surname',
+                'personalData.birthday': 'dateOfBirth',
+                registrationDate: 'registeredUser.dates.registration',
+            },
+            'registeredUser'
+        );
+
+        expect(proxy.getProxiedPath('registeredUser.dates.registration')).toBe('registeredUser.registrationDate');
+        expect(proxy.getProxiedPath('registeredUser.name')).toBe('registeredUser.personalData.name.firstName');
+        expect(() => proxy.getProxiedPath('registeredUser.personalData')).toThrow();
+    });
 });

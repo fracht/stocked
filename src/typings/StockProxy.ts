@@ -33,6 +33,12 @@ export abstract class StockProxy {
         defaultGetValue: <U>(path: string | typeof ROOT_PATH) => U
     ) => V;
 
+    /** Function for getting proxied path from normal path. */
+    public abstract getProxiedPath: (path: string | typeof ROOT_PATH) => string | typeof ROOT_PATH;
+
+    /** Function for getting normal path from proxied path */
+    public abstract getNormalPath: (path: string | typeof ROOT_PATH) => string | typeof ROOT_PATH;
+
     /** Activate proxy. After activation, you cannot modify proxy. */
     public activate = () => Object.freeze(this);
 
