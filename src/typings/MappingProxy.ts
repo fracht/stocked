@@ -1,3 +1,4 @@
+import isNil from 'lodash/isNil';
 import invariant from 'tiny-invariant';
 import { ROOT_PATH } from '../hooks';
 import {
@@ -7,6 +8,7 @@ import {
     normalizePath,
     relativePath,
     setOrReturn,
+    joinPaths,
 } from '../utils/pathUtils';
 import { Observer } from './Observer';
 import { StockProxy } from './StockProxy';
@@ -53,7 +55,7 @@ export class MappingProxy extends StockProxy {
         observer: Observer<V>,
         defaultWatch: (path: string | typeof ROOT_PATH, observer: Observer<V>) => () => void
     ) => {
-        const proxiedPath = this.getProxiedPath(path);
+        const proxiedPath = this.getNormalPath(path);
         return defaultWatch(proxiedPath!, value => observer(this.mapValue(value, path, proxiedPath!) as V));
     };
 
@@ -61,7 +63,7 @@ export class MappingProxy extends StockProxy {
         path: string | typeof ROOT_PATH,
         defaultGetValue: <U>(path: string | typeof ROOT_PATH) => U
     ): V => {
-        const proxiedPath = this.getProxiedPath(path);
+        const proxiedPath = this.getNormalPath(path);
         return this.mapValue(defaultGetValue(proxiedPath!), path, proxiedPath!) as V;
     };
 
@@ -83,10 +85,23 @@ export class MappingProxy extends StockProxy {
         );
     };
 
-    private getProxiedPath = (path: string | typeof ROOT_PATH) => {
+    public getProxiedPath = (path: string | typeof ROOT_PATH): string | typeof ROOT_PATH => {
+        const proxiedPath = normalizePath(path as string);
+
+        const normalPath = Object.entries(this.map).find(([_, from]) => from === proxiedPath)?.[0];
+
+        invariant(
+            !isNil(normalPath),
+            'Mapping proxy error: trying to get normal path of proxied path, which is not defined in proxy map'
+        );
+
+        return joinPaths(this.path, normalPath);
+    };
+
+    public getNormalPath = (path: string | typeof ROOT_PATH): string | typeof ROOT_PATH => {
         const normalPath = relativePath(this.path, path);
 
-        const isIndependent = Object.prototype.hasOwnProperty.call(this.map, normalPath);
+        const isIndependent = normalPath in this.map;
 
         invariant(
             isIndependent ||
@@ -95,7 +110,7 @@ export class MappingProxy extends StockProxy {
         );
 
         return isIndependent
-            ? this.map[normalPath]
+            ? this.map[normalPath]!
             : longestCommonPath(
                   Object.entries(this.map)
                       .filter(([to]) => isInnerPath(normalPath, to))
