@@ -1,0 +1,5 @@
+{
+    "buildOptions": {
+        "target": ["es2019", "chrome58", "firefox57", "safari11", "node12"]
+    }
+}
