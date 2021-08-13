@@ -1,15 +1,5 @@
-[
-    {
-        "input": "./src/index.ts",
-        "buildOptions": {
-            "target": ["es2019", "chrome58", "firefox57", "safari11", "node12"]
-        }
-    },
-    {
-        "input": "./src/internal.ts",
-        "buildOptions": {
-            "target": ["es2019", "chrome58", "firefox57", "safari11", "node12"]
-        },
-        "outdir": "dist/.internal"
+{
+    "buildOptions": {
+        "target": ["es2019", "chrome58", "firefox57", "safari11", "node12"]
     }
-]
+}
