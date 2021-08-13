@@ -1,10 +1,11 @@
 import { useContext } from 'react';
 import invariant from 'tiny-invariant';
+
+import { Stock } from './useStock';
 import { StockContext } from '../components';
 import { ProxyContext } from '../components/ProxyContext';
 import { StockProxy } from '../typings';
 import { useInterceptors } from '../utils/useInterceptors';
-import { Stock } from './useStock';
 
 /**
  * Function to access stock, with automatically applying proxy. By default, will pick stock and proxy from context.

@@ -1,5 +1,5 @@
 import React from 'react';
-import { MappingProxy, ProxyContext, StockRoot, useAllStockValues, useStockState } from 'stocked';
+import { MappingProxy, ProxyContext, StockRoot, useStockState } from 'stocked';
 
 type FieldProps = {
     name: string;
@@ -18,6 +18,7 @@ const Field = ({ name, label, type = 'text' }: FieldProps) => {
     );
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface ProxiedUserInfo {
     name: string;
     surname: string;

@@ -1,9 +1,10 @@
 import { useCallback } from 'react';
+
 import { Stock } from './useStock';
-import { useStockValue } from './useStockValue';
-import { Dispatch, SetStateAction } from '../typings/SetStateAction';
-import { StockProxy } from '../typings';
 import { useStockContext } from './useStockContext';
+import { useStockValue } from './useStockValue';
+import { StockProxy } from '../typings';
+import { Dispatch, SetStateAction } from '../typings/SetStateAction';
 
 /**
  * Hook, returns tuple of value and value set action.

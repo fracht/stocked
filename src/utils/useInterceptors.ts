@@ -1,12 +1,13 @@
 import { useCallback, useEffect } from 'react';
-import unset from 'lodash/unset';
 import cloneDeep from 'lodash/cloneDeep';
+import unset from 'lodash/unset';
 import invariant from 'tiny-invariant';
+
+import { getOrReturn, isInnerPath, normalizePath, setOrReturn } from './pathUtils';
 import { ROOT_PATH } from '../hooks';
 import { Stock } from '../hooks/useStock';
 import { Observer } from '../typings';
 import { StockProxy } from '../typings/StockProxy';
-import { getOrReturn, isInnerPath, normalizePath, setOrReturn } from './pathUtils';
 
 const shouldUseProxy = (proxy: StockProxy | undefined, path: string | typeof ROOT_PATH) =>
     proxy &&
@@ -18,6 +19,7 @@ const shouldUseProxy = (proxy: StockProxy | undefined, path: string | typeof ROO
  * Otherwise, calls `proxiedCallback`.
  * Passes args into function.
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const intercept = <T extends (...args: any[]) => any>(
     proxy: StockProxy | undefined,
     path: string | typeof ROOT_PATH,

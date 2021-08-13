@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
-import { MappingProxy } from '../typings';
+
 import { ROOT_PATH } from './useObservers';
+import { MappingProxy } from '../typings';
 
 export const useMappingProxy = (map: Record<string, string>, path: string | typeof ROOT_PATH) => {
     return useMemo(() => {

@@ -1,5 +1,6 @@
 import { useCallback, useRef } from 'react';
 import invariant from 'tiny-invariant';
+
 import { BatchUpdate, Observer } from '../typings';
 import { ObserverArray, ObserverKey } from '../utils/ObserverArray';
 import { getOrReturn, isInnerPath, normalizePath } from '../utils/pathUtils';

@@ -1,6 +1,7 @@
 import React from 'react';
-import { useStockContext, StockContext, useStock } from '../../src';
 import { act, renderHook } from '@testing-library/react-hooks';
+
+import { StockContext, useStock, useStockContext } from '../../src';
 import { ProxyContext } from '../../src/components/ProxyContext';
 import { DummyProxy } from '../DummyProxy';
 

@@ -1,5 +1,6 @@
-import { useLazyRef } from '../../src/utils/useLazyRef';
 import { renderHook } from '@testing-library/react-hooks';
+
+import { useLazyRef } from '../../src/utils/useLazyRef';
 
 describe('Lazy initializing test', () => {
     it('should initialize once', () => {

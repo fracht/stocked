@@ -1,9 +1,9 @@
 import { useEffect, useReducer } from 'react';
 
 import { Stock } from './useStock';
-import { useLazyRef } from '../utils/useLazyRef';
 import { useStockContext } from './useStockContext';
 import { StockProxy } from '../typings';
+import { useLazyRef } from '../utils/useLazyRef';
 
 /**
  * Hook, which returns *actual* stock value.

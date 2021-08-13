@@ -1,6 +1,8 @@
 import React from 'react';
 import clsx from 'clsx';
+
 import { HighlightWordPart } from './HighlightWordPart';
+
 import classes from './Tree.module.css';
 
 export type TreeItemProps = {
