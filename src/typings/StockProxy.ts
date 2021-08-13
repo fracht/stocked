@@ -1,5 +1,5 @@
-import { ROOT_PATH } from '../hooks';
 import { Observer } from './Observer';
+import { ROOT_PATH } from '../hooks';
 
 /**
  * Abstract class of "stocked" proxy

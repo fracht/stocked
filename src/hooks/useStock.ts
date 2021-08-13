@@ -1,12 +1,12 @@
 import { useCallback } from 'react';
 import cloneDeep from 'lodash/cloneDeep';
-import set from 'lodash/set';
 import isFunction from 'lodash/isFunction';
+import set from 'lodash/set';
 
-import { useLazyRef } from '../utils/useLazyRef';
-import { SetStateAction } from '../typings/SetStateAction';
 import { ObserversControl, ROOT_PATH, useObservers } from './useObservers';
+import { SetStateAction } from '../typings/SetStateAction';
 import { getOrReturn, normalizePath } from '../utils/pathUtils';
+import { useLazyRef } from '../utils/useLazyRef';
 
 export type Stock<T extends object> = {
     /** Function for setting value. Deeply sets value, using path to variable. @see https://lodash.com/docs/4.17.15#set */

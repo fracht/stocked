@@ -1,8 +1,9 @@
 import React, { PropsWithChildren } from 'react';
-import { useStockContext } from '../hooks';
-import { StockProxy } from '../typings';
+
 import { ProxyContext } from './ProxyContext';
 import { StockContext } from './StockContext';
+import { useStockContext } from '../hooks';
+import { StockProxy } from '../typings';
 
 export type ProxyProviderProps = PropsWithChildren<{
     proxy: StockProxy;

@@ -1,5 +1,6 @@
+import { act, renderHook } from '@testing-library/react-hooks';
+
 import { ROOT_PATH, useObservers } from '../../src';
-import { renderHook, act } from '@testing-library/react-hooks';
 
 const renderUseObserversHook = () => renderHook(() => useObservers());
 

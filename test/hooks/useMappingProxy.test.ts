@@ -1,4 +1,5 @@
 import { act, renderHook } from '@testing-library/react-hooks';
+
 import { useMappingProxy } from '../../src';
 
 const renderUseMappingProxyHook = (path: string, map: Record<string, string>) =>

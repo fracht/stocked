@@ -1,17 +1,18 @@
 import isNil from 'lodash/isNil';
 import invariant from 'tiny-invariant';
+
+import { Observer } from './Observer';
+import { StockProxy } from './StockProxy';
 import { ROOT_PATH } from '../hooks';
 import {
     getOrReturn,
     isInnerPath,
+    joinPaths,
     longestCommonPath,
     normalizePath,
     relativePath,
     setOrReturn,
-    joinPaths,
 } from '../utils/pathUtils';
-import { Observer } from './Observer';
-import { StockProxy } from './StockProxy';
 
 /**
  * Simple example of StockProxy.
@@ -88,7 +89,7 @@ export class MappingProxy extends StockProxy {
     public getProxiedPath = (path: string | typeof ROOT_PATH): string | typeof ROOT_PATH => {
         const proxiedPath = normalizePath(path as string);
 
-        const normalPath = Object.entries(this.map).find(([_, from]) => from === proxiedPath)?.[0];
+        const normalPath = Object.entries(this.map).find(([, from]) => from === proxiedPath)?.[0];
 
         invariant(
             !isNil(normalPath),

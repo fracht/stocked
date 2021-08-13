@@ -1,4 +1,4 @@
-import React, { useCallback, useReducer, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { StockRoot, useStockContext, useStockState, useStockValue } from 'stocked';
 
 const StockInput = ({ name, ...oth }: React.InputHTMLAttributes<HTMLInputElement> & { name: string }) => {
@@ -19,7 +19,7 @@ const AllValuesDisplayer = () => {
     const [values, setValues] = useState<unknown>();
 
     const update = useCallback(() => {
-        setValues(getValues())
+        setValues(getValues());
     }, []);
 
     return (

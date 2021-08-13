@@ -1,8 +1,11 @@
 {
+    "name": "stocked",
+    "author": "Artiom Tretjakovas",
     "version": "1.0.0-beta.8",
     "license": "MIT",
     "main": "dist/index.js",
-    "typings": "dist/index.d.ts",
+    "typings": "dist/stocked.d.ts",
+    "module": "dist/stocked.esm.js",
     "description": "Tiny state management library for react.",
     "repository": {
         "url": "https://github.com/ArtiomTr/stocked"
@@ -14,15 +17,15 @@
         "node": ">=10"
     },
     "scripts": {
-        "start": "tsdx watch",
-        "build": "tsdx build",
-        "test": "tsdx test --passWithNoTests",
+        "start": "aqu watch",
+        "build": "aqu build",
+        "test": "aqu test --passWithNoTests",
         "test:watch": "npm run test -- --watch",
         "test:coverage": "npm run test -- --silent --ci --coverage --json --outputFile=report.json",
         "test:lcov": "npm run test -- --silent --ci --coverage",
-        "lint": "tsdx lint",
+        "lint": "eslint .",
         "lint:config": "npm run lint -- --write-file",
-        "prepare": "tsdx build",
+        "prepublishOnly": "aqu build",
         "size": "size-limit",
         "analyze": "size-limit --why",
         "release": "np"
@@ -30,16 +33,6 @@
     "peerDependencies": {
         "react": ">=16"
     },
-    "prettier": {
-        "printWidth": 120,
-        "semi": true,
-        "tabWidth": 4,
-        "singleQuote": true,
-        "trailingComma": "es5"
-    },
-    "name": "stocked",
-    "author": "Artiom Tretjakovas",
-    "module": "dist/stocked.esm.js",
     "size-limit": [
         {
             "path": "dist/stocked.cjs.production.min.js",
@@ -53,21 +46,26 @@
     "devDependencies": {
         "@size-limit/preset-small-lib": "^4.6.2",
         "@testing-library/react-hooks": "^3.4.2",
+        "@types/jest": "^27.0.1",
         "@types/lodash": "^4.14.162",
         "@types/react": "^16.9.53",
         "@types/react-dom": "^16.9.8",
         "@typescript-eslint/eslint-plugin": "^4.9.0",
         "@typescript-eslint/parser": "^4.9.0",
+        "aqu": "^0.2.2",
+        "eslint-config-prettier": "^8.3.0",
+        "eslint-config-react-app": "^6.0.0",
         "eslint-plugin-react-hooks": "^4.2.0",
+        "jest": "^26.6.3",
         "np": "^6.5.0",
         "prettier": "^1.19.1",
         "react": "^17.0.1",
         "react-dom": "^17.0.1",
         "react-test-renderer": "^17.0.1",
         "size-limit": "^4.6.2",
-        "tsdx": "^0.14.1",
-        "tslib": "^2.2.0",
-        "typescript": "^4.1.2"
+        "ts-jest": "^26.5.6",
+        "tslib": "^2.3.1",
+        "typescript": "^4.3.5"
     },
     "dependencies": {
         "lodash": "^4.17.20",

@@ -1,7 +1,9 @@
-import React, { useState, useCallback, ChangeEvent } from 'react';
+import React, { ChangeEvent, useCallback, useState } from 'react';
 import toPath from 'lodash/toPath';
-import { Tree } from './Tree';
+
 import { Input } from './Input';
+import { Tree } from './Tree';
+
 import classes from './DeepPathPreview.module.css';
 
 export type DeepPathPreviewProps = {

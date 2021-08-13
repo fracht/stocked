@@ -1,11 +1,12 @@
 import invariant from 'tiny-invariant';
+
 import { Observer } from '../typings/Observer';
 
 export type ObserverKey = number;
 
 export class ObserverArray<V> {
     private readonly observers: Record<ObserverKey, Observer<V>> = {};
-    private counter: number = 0;
+    private counter = 0;
 
     /**
      * Calls all observers in the array.

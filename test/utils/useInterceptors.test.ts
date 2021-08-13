@@ -1,4 +1,5 @@
 import { act, renderHook } from '@testing-library/react-hooks';
+
 import { ROOT_PATH, Stock, StockProxy, useStock } from '../../src';
 import { intercept, useInterceptors } from '../../src/utils/useInterceptors';
 import { DummyProxy } from '../DummyProxy';

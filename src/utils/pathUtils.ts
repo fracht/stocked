@@ -1,7 +1,8 @@
-import toPath from 'lodash/toPath';
 import get from 'lodash/get';
 import set from 'lodash/set';
+import toPath from 'lodash/toPath';
 import invariant from 'tiny-invariant';
+
 import { ROOT_PATH } from '../hooks/useObservers';
 
 export const joinPaths = (...segments: (string | typeof ROOT_PATH)[]) => {

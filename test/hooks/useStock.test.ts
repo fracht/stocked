@@ -1,5 +1,6 @@
+import { act, renderHook } from '@testing-library/react-hooks';
+
 import { StockConfig, useStock } from '../../src';
-import { renderHook, act } from '@testing-library/react-hooks';
 
 const renderUseStockHook = (initialValues: object) =>
     renderHook((props: StockConfig<object>) => useStock(props), {

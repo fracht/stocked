@@ -1,6 +1,7 @@
 import React from 'react';
-import { useStockValue, StockContext, Stock, useStock } from '../../src';
-import { renderHook, act } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react-hooks';
+
+import { Stock, StockContext, useStock, useStockValue } from '../../src';
 
 const initialValues = {
     hello: 'test',

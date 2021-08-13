@@ -1,6 +1,7 @@
 import React from 'react';
-import { Stock, StockConfig, useStock } from '../hooks/useStock';
+
 import { StockContext } from './StockContext';
+import { Stock, StockConfig, useStock } from '../hooks/useStock';
 
 export type StockRootProps<Values extends object> = StockConfig<Values> & {
     children: React.ReactNode;
