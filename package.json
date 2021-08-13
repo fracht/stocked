@@ -1,4 +1,6 @@
 {
+    "name": "stocked",
+    "author": "Artiom Tretjakovas",
     "version": "1.0.0-beta.8",
     "license": "MIT",
     "main": "dist/index.js",
@@ -31,8 +33,6 @@
     "peerDependencies": {
         "react": ">=16"
     },
-    "name": "stocked",
-    "author": "Artiom Tretjakovas",
     "size-limit": [
         {
             "path": "dist/stocked.cjs.production.min.js",
@@ -52,7 +52,7 @@
         "@types/react-dom": "^16.9.8",
         "@typescript-eslint/eslint-plugin": "^4.9.0",
         "@typescript-eslint/parser": "^4.9.0",
-        "aqu": "^0.2.1",
+        "aqu": "^0.2.2",
         "eslint-config-prettier": "^8.3.0",
         "eslint-config-react-app": "^6.0.0",
         "eslint-plugin-react-hooks": "^4.2.0",
