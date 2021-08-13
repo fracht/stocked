@@ -23,7 +23,7 @@
         "test:lcov": "npm run test -- --silent --ci --coverage",
         "lint": "eslint .",
         "lint:config": "npm run lint -- --write-file",
-        "prepare": "aqu build",
+        "prepublishOnly": "aqu build",
         "size": "size-limit",
         "analyze": "size-limit --why",
         "release": "np"
