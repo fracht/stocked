@@ -252,6 +252,7 @@ describe('Batch observers tests', () => {
 
         expect(observer).toBeCalled();
         expect(observer).toBeCalledWith({
+            origin: 'parent.child.hello',
             paths: ['parent.child', 'parent'],
             values: {
                 value: 'asdf',

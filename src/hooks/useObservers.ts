@@ -95,8 +95,8 @@ export const useObservers = <T>(): ObserversControl<T> => {
     );
 
     const notifyPaths = useCallback(
-        (paths: string[], values: T) => {
-            batchUpdate({ paths, values });
+        (origin: string | typeof ROOT_PATH, paths: string[], values: T) => {
+            batchUpdate({ paths, origin, values });
             paths.forEach(path => {
                 const observer = observers.current[path];
                 const subValue = getOrReturn(values, path);
@@ -112,12 +112,12 @@ export const useObservers = <T>(): ObserversControl<T> => {
             const subPaths = getObserversKeys().filter(
                 tempPath => isInnerPath(path, tempPath) || path === tempPath || isInnerPath(tempPath, path)
             );
-            notifyPaths(subPaths, values);
+            notifyPaths(path, subPaths, values);
         },
         [notifyPaths, getObserversKeys]
     );
 
-    const notifyAll = useCallback((values: T) => notifyPaths(getObserversKeys(), values), [
+    const notifyAll = useCallback((values: T) => notifyPaths(ROOT_PATH, getObserversKeys(), values), [
         notifyPaths,
         getObserversKeys,
     ]);
