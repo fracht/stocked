@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 import isFunction from 'lodash/isFunction';
 
@@ -35,7 +35,7 @@ export type StockConfig<T extends object> = {
  */
 export const useStock = <T extends object>({ initialValues }: StockConfig<T>): Stock<T> => {
     const values = useLazyRef<T>(() => cloneDeep(initialValues));
-    const { notifySubTree, notifyAll, ...other } = useObservers<T>();
+    const { notifySubTree, notifyAll, watch, watchAll, watchBatchUpdates, isObserved } = useObservers<T>();
 
     const setValue = useCallback(
         (path: string | typeof ROOT_PATH, action: SetStateAction<unknown>) => {
@@ -66,12 +66,20 @@ export const useStock = <T extends object>({ initialValues }: StockConfig<T>): S
 
     const resetValues = useCallback(() => setValues(cloneDeep(initialValues)), [initialValues, setValues]);
 
-    return {
-        getValue,
-        getValues,
-        setValue,
-        setValues,
-        resetValues,
-        ...other,
-    };
+    const stock: Stock<T> = useMemo(
+        () => ({
+            getValue,
+            getValues,
+            setValue,
+            setValues,
+            resetValues,
+            watch,
+            watchAll,
+            watchBatchUpdates,
+            isObserved,
+        }),
+        [getValue, getValues, setValue, setValues, resetValues, watch, watchAll, watchBatchUpdates, isObserved]
+    );
+
+    return stock;
 };
