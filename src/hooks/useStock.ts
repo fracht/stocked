@@ -1,11 +1,10 @@
 import { useCallback } from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 import isFunction from 'lodash/isFunction';
-import set from 'lodash/set';
 
 import { ObserversControl, ROOT_PATH, useObservers } from './useObservers';
 import { SetStateAction } from '../typings/SetStateAction';
-import { getOrReturn, normalizePath } from '../utils/pathUtils';
+import { getOrReturn, normalizePath, setOrReturn } from '../utils/pathUtils';
 import { useLazyRef } from '../utils/useLazyRef';
 
 export type Stock<T extends object> = {
@@ -44,7 +43,7 @@ export const useStock = <T extends object>({ initialValues }: StockConfig<T>): S
 
             const value = isFunction(action) ? action(getOrReturn(values.current, path)) : action;
 
-            set(values.current, path, value);
+            values.current = setOrReturn(values.current, path, value) as T;
 
             notifySubTree(path, values.current);
         },
