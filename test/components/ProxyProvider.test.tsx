@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, unmountComponentAtNode } from 'react-dom';
 import { act } from 'react-dom/test-utils';
+import { createPxth } from 'pxth';
 
 import { MappingProxy, ProxyProvider, Stock, StockRoot, useStockContext } from '../../src';
 
@@ -31,9 +32,9 @@ describe('ProxyProvider', () => {
     it('should provide proxy', () => {
         const proxy = new MappingProxy(
             {
-                surname: 'user.name',
+                surname: createPxth(['user', 'name']),
             },
-            'user'
+            createPxth(['user'])
         );
 
         proxy.activate();
@@ -51,7 +52,7 @@ describe('ProxyProvider', () => {
             );
         });
 
-        expect(stock!.getValue('user')).toStrictEqual({
+        expect(stock!.getValue(createPxth(['user']))).toStrictEqual({
             surname: 'hello',
         });
     });
@@ -59,16 +60,16 @@ describe('ProxyProvider', () => {
     it('should handle nested proxies', () => {
         const proxy = new MappingProxy(
             {
-                surname: 'user.name',
+                surname: createPxth(['user', 'name']),
             },
-            'user'
+            createPxth(['user'])
         );
 
         const proxy2 = new MappingProxy(
             {
-                'name.surname': 'user.surname',
+                'name.surname': createPxth(['user', 'surname']),
             },
-            'user'
+            createPxth(['user'])
         );
 
         proxy.activate();
@@ -89,7 +90,7 @@ describe('ProxyProvider', () => {
             );
         });
 
-        expect(stock!.getValue('user')).toStrictEqual({
+        expect(stock!.getValue(createPxth(['user']))).toStrictEqual({
             name: {
                 surname: 'hello',
             },

@@ -1,19 +1,19 @@
 import { useCallback, useMemo } from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 import isFunction from 'lodash/isFunction';
+import { deepGet, deepSet, Pxth } from 'pxth';
 
-import { ObserversControl, ROOT_PATH, useObservers } from './useObservers';
+import { ObserversControl, useObservers } from './useObservers';
 import { SetStateAction } from '../typings/SetStateAction';
-import { getOrReturn, normalizePath, setOrReturn } from '../utils/pathUtils';
 import { useLazyRef } from '../utils/useLazyRef';
 
 export type Stock<T extends object> = {
     /** Function for setting value. Deeply sets value, using path to variable. @see https://lodash.com/docs/4.17.15#set */
-    setValue: (path: string | typeof ROOT_PATH, value: SetStateAction<unknown>) => void;
+    setValue: <V>(path: Pxth<V>, value: SetStateAction<V>) => void;
     /** Function for setting all values. */
     setValues: (values: T) => void;
     /** Get actual value from stock. */
-    getValue: <V>(path: string | typeof ROOT_PATH) => V;
+    getValue: <V>(path: Pxth<V>) => V;
     /** Get all values from stock */
     getValues: () => T;
     /** Function for resetting values to initial state */
@@ -38,12 +38,12 @@ export const useStock = <T extends object>({ initialValues }: StockConfig<T>): S
     const { notifySubTree, notifyAll, watch, watchAll, watchBatchUpdates, isObserved } = useObservers<T>();
 
     const setValue = useCallback(
-        (path: string | typeof ROOT_PATH, action: SetStateAction<unknown>) => {
-            path = normalizePath(path as string);
+        <V>(path: Pxth<V>, action: SetStateAction<V>) => {
+            // path = normalizePath(path as string);
 
-            const value = isFunction(action) ? action(getOrReturn(values.current, path)) : action;
+            const value = isFunction(action) ? action(deepGet(values.current, path)) : action;
 
-            values.current = setOrReturn(values.current, path, value) as T;
+            values.current = deepSet(values.current, path, value) as T;
 
             notifySubTree(path, values.current);
         },
@@ -58,9 +58,7 @@ export const useStock = <T extends object>({ initialValues }: StockConfig<T>): S
         [values, notifyAll]
     );
 
-    const getValue = useCallback(<V>(path: string | typeof ROOT_PATH) => getOrReturn(values.current, path) as V, [
-        values,
-    ]);
+    const getValue = useCallback(<V>(path: Pxth<V>) => deepGet(values.current, path) as V, [values]);
 
     const getValues = useCallback(() => values.current, [values]);
 

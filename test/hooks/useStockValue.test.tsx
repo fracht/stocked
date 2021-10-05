@@ -1,5 +1,6 @@
 import React from 'react';
 import { act, renderHook } from '@testing-library/react-hooks';
+import { createPxth, Pxth } from 'pxth';
 
 import { Stock, StockContext, useStock, useStockValue } from '../../src';
 
@@ -22,7 +23,7 @@ const wrapper: React.FC = ({ children }) => (
     <StockContext.Provider value={(stock as unknown) as Stock<object>}>{children}</StockContext.Provider>
 );
 
-const renderUseStockValue = (path: string, useContext = true) =>
+const renderUseStockValue = (path: Pxth<unknown>, useContext = true) =>
     renderHook(() => useStockValue(path, useContext ? undefined : stock), {
         wrapper: useContext ? wrapper : undefined,
     });
@@ -34,7 +35,7 @@ beforeEach(() => {
 
 describe('Testing "useStockValue" with context stock', () => {
     it('Should return new value after update', async () => {
-        const { result, waitForNextUpdate } = renderUseStockValue('hello');
+        const { result, waitForNextUpdate } = renderUseStockValue(createPxth(['hello']));
 
         expect(result.current).toBe(initialValues.hello);
 
@@ -44,7 +45,7 @@ describe('Testing "useStockValue" with context stock', () => {
             await waitForNextUpdate({ timeout: 1000 });
         });
 
-        stock.setValue('hello', newValue);
+        stock.setValue(createPxth(['hello']), newValue);
 
         await promise;
 
@@ -54,7 +55,7 @@ describe('Testing "useStockValue" with context stock', () => {
 
 describe('Testing "useStockValue" with provided stock', () => {
     it('Should return new value after update', async () => {
-        const { result, waitForNextUpdate } = renderUseStockValue('hello', false);
+        const { result, waitForNextUpdate } = renderUseStockValue(createPxth(['hello']), false);
 
         expect(result.current).toBe(initialValues.hello);
 
@@ -64,7 +65,7 @@ describe('Testing "useStockValue" with provided stock', () => {
             await waitForNextUpdate({ timeout: 1000 });
         });
 
-        stock.setValue('hello', newValue);
+        stock.setValue(createPxth(['hello']), newValue);
 
         await promise;
 

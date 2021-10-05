@@ -1,5 +1,6 @@
 import React from 'react';
 import { act, renderHook } from '@testing-library/react-hooks';
+import { createPxth, Pxth } from 'pxth';
 
 import { Stock, StockContext, useStock, useStockState } from '../../src';
 
@@ -23,7 +24,7 @@ const wrapper: React.FC = ({ children }) => (
     <StockContext.Provider value={(stock as unknown) as Stock<object>}>{children}</StockContext.Provider>
 );
 
-const renderUseStockState = (path: string, useContext = true) =>
+const renderUseStockState = (path: Pxth<unknown>, useContext = true) =>
     renderHook(() => useStockState(path, useContext ? undefined : stock), {
         wrapper: useContext ? wrapper : undefined,
     });
@@ -36,7 +37,7 @@ beforeEach(() => {
 const testWrapper = (testName: string, useContext: boolean) => {
     describe(testName, () => {
         it('Should set value via setter', async () => {
-            const { result, waitForNextUpdate } = renderUseStockState('parent.child', useContext);
+            const { result, waitForNextUpdate } = renderUseStockState(createPxth(['parent', 'child']), useContext);
 
             const newValue = 'newValue';
 
@@ -50,7 +51,7 @@ const testWrapper = (testName: string, useContext: boolean) => {
         });
 
         it('Should set value via updater function', async () => {
-            const { result, waitForNextUpdate } = renderUseStockState('parent.child', useContext);
+            const { result, waitForNextUpdate } = renderUseStockState(createPxth(['parent', 'child']), useContext);
 
             await act(async () => {
                 const [, setValue] = result.current;
@@ -62,7 +63,7 @@ const testWrapper = (testName: string, useContext: boolean) => {
         });
 
         it('Value updater should receive actual value', async () => {
-            const { result, waitForNextUpdate } = renderUseStockState('value', useContext);
+            const { result, waitForNextUpdate } = renderUseStockState(createPxth(['value']), useContext);
 
             await act(async () => {
                 const [, setValue] = result.current;
@@ -77,7 +78,7 @@ const testWrapper = (testName: string, useContext: boolean) => {
         });
 
         it('Should update when externally set value', async () => {
-            const { result, waitForNextUpdate } = renderUseStockState('hello', useContext);
+            const { result, waitForNextUpdate } = renderUseStockState(createPxth(['hello']), useContext);
 
             expect(result.current[0]).toBe(initialValues.hello);
 
@@ -87,7 +88,7 @@ const testWrapper = (testName: string, useContext: boolean) => {
                 await waitForNextUpdate({ timeout: 1000 });
             });
 
-            stock.setValue('hello', newValue);
+            stock.setValue(createPxth(['hello']), newValue);
 
             await promise;
 

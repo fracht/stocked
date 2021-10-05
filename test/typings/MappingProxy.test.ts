@@ -1,56 +1,63 @@
-import { ROOT_PATH } from '../../src/hooks';
+import { createPxth, deepGet, Pxth, pxthToString, RootPathToken } from 'pxth';
+
 import { MappingProxy, Observer } from '../../src/typings';
-import { getOrReturn } from '../../src/utils/pathUtils';
 
 describe('Mapping proxy', () => {
     it('should instantiate', () => {
-        expect(() => new MappingProxy({}, '')).not.toThrowError();
+        expect(() => new MappingProxy({}, createPxth(['']))).not.toThrowError();
     });
 
     it('observe/stopObserving value', () => {
-        const proxy = new MappingProxy({ hello: 'a.b.c', bye: 'a.b.d' }, 'asdf');
+        const proxy = new MappingProxy(
+            { hello: createPxth(['a', 'b', 'c']), bye: createPxth(['a', 'b', 'd']) },
+            createPxth(['asdf'])
+        );
 
         const defaultObserve = jest.fn();
         const observer = jest.fn();
 
         defaultObserve.mockReturnValue(0);
 
-        proxy.watch('asdf.hello', observer, defaultObserve);
-        expect(defaultObserve).toBeCalledWith('a.b.c', expect.any(Function));
+        proxy.watch(createPxth(['asdf', 'hello']), observer, defaultObserve);
+
+        expect(pxthToString(defaultObserve.mock.calls[0][0])).toBe(pxthToString(createPxth(['a', 'b', 'c'])));
 
         defaultObserve.mockClear();
 
-        proxy.watch('asdf.bye', observer, defaultObserve);
-        expect(defaultObserve).toBeCalledWith('a.b.d', expect.any(Function));
+        proxy.watch(createPxth(['asdf', 'bye']), observer, defaultObserve);
+        expect(pxthToString(defaultObserve.mock.calls[0][0])).toBe(pxthToString(createPxth(['a', 'b', 'd'])));
     });
 
     it('observe/stopObserving value (empty parent path)', () => {
-        const proxy = new MappingProxy({ hello: 'a.d.c', bye: 'b.b.d' }, ROOT_PATH);
+        const proxy = new MappingProxy(
+            { hello: createPxth(['a', 'd', 'c']), bye: createPxth(['b', 'b', 'd']) },
+            createPxth([])
+        );
 
         const defaultObserve = jest.fn();
         const observer = jest.fn();
 
         defaultObserve.mockReturnValue(0);
 
-        proxy.watch('hello', observer, defaultObserve);
-        expect(defaultObserve).toBeCalledWith('a.d.c', expect.any(Function));
+        proxy.watch(createPxth(['hello']), observer, defaultObserve);
+        expect(pxthToString(defaultObserve.mock.calls[0][0])).toBe(pxthToString(createPxth(['a', 'd', 'c'])));
 
         defaultObserve.mockClear();
 
-        proxy.watch('bye', observer, defaultObserve);
-        expect(defaultObserve).toBeCalledWith('b.b.d', expect.any(Function));
+        proxy.watch(createPxth(['bye']), observer, defaultObserve);
+        expect(pxthToString(defaultObserve.mock.calls[0][0])).toBe(pxthToString(createPxth(['b', 'b', 'd'])));
     });
 
     it('observe/stopObserving (empty mapping path)', () => {
-        const proxy = new MappingProxy({ '': 'a.d.c' }, 'asdf');
+        const proxy = new MappingProxy({ [RootPathToken]: createPxth(['a', 'd', 'c']) }, createPxth(['asdf']));
 
         const defaultObserve = jest.fn();
         const observer = jest.fn();
 
         defaultObserve.mockReturnValue(0);
 
-        proxy.watch('asdf', observer, defaultObserve);
-        expect(defaultObserve).toBeCalledWith('a.d.c', expect.any(Function));
+        proxy.watch(createPxth(['asdf']), observer, defaultObserve);
+        expect(pxthToString(defaultObserve.mock.calls[0][0])).toBe(pxthToString(createPxth(['a', 'd', 'c'])));
 
         defaultObserve.mockClear();
     });
@@ -80,12 +87,12 @@ describe('Mapping proxy', () => {
 
         const proxy = new MappingProxy(
             {
-                'personalData.name.firstName': 'registeredUser.name',
-                'personalData.name.lastName': 'registeredUser.surname',
-                'personalData.birthday': 'dateOfBirth',
-                registrationDate: 'registeredUser.dates.registration',
+                'personalData.name.firstName': createPxth(['registeredUser', 'name']),
+                'personalData.name.lastName': createPxth(['registeredUser', 'surname']),
+                'personalData.birthday': createPxth(['dateOfBirth']),
+                registrationDate: createPxth(['registeredUser', 'dates', 'registration']),
             },
-            'registeredUser'
+            createPxth(['registeredUser'])
         );
 
         const observers: Observer<unknown>[] = [];
@@ -96,20 +103,24 @@ describe('Mapping proxy', () => {
         });
         const observer = jest.fn();
 
-        proxy.watch('registeredUser.personalData.name.firstName', observer, defaultObserve);
-        expect(defaultObserve).toBeCalledWith('registeredUser.name', expect.any(Function));
+        proxy.watch(createPxth(['registeredUser', 'personalData', 'name', 'firstName']), observer, defaultObserve);
+
+        expect(pxthToString(defaultObserve.mock.calls[0][0])).toBe(
+            pxthToString(createPxth(['registeredUser', 'name']))
+        );
 
         defaultObserve.mockClear();
 
-        proxy.watch('registeredUser.personalData.name', observer, defaultObserve);
-        expect(defaultObserve).toBeCalledWith('registeredUser', expect.any(Function));
+        proxy.watch(createPxth(['registeredUser', 'personalData', 'name']), observer, defaultObserve);
+        expect(pxthToString(defaultObserve.mock.calls[0][0])).toBe(pxthToString(createPxth(['registeredUser'])));
 
         defaultObserve.mockClear();
 
-        proxy.watch('registeredUser.personalData', observer, defaultObserve);
-        expect(defaultObserve).toBeCalledWith(ROOT_PATH, expect.any(Function));
+        proxy.watch(createPxth(['registeredUser', 'personalData']), observer, defaultObserve);
+        expect(pxthToString(defaultObserve.mock.calls[0][0])).toBe(pxthToString(createPxth([])));
 
         observers[0](rawData.registeredUser.name);
+
         expect(observer).toBeCalledWith(fullUser.personalData.name.firstName);
 
         observer.mockClear();
@@ -167,14 +178,14 @@ describe('Mapping proxy', () => {
 
         const proxy = new MappingProxy(
             {
-                'info.truckNo': 'truck.plate_no',
-                'info.trailerNo': 'trailer.plate_no',
-                'owner.contacts[0].name': 'contact_name',
-                'owner.contacts[0].contactId': 'contact_id',
-                'owner.contacts[0].contactInfo.email': 'contact_email',
-                'owner.contacts[0].contactInfo.phone': 'contact_phone',
+                'info.truckNo': createPxth(['truck', 'plate_no']),
+                'info.trailerNo': createPxth(['trailer', 'plate_no']),
+                'owner.contacts[0].name': createPxth(['contact_name']),
+                'owner.contacts[0].contactId': createPxth(['contact_id']),
+                'owner.contacts[0].contactInfo.email': createPxth(['contact_email']),
+                'owner.contacts[0].contactInfo.phone': createPxth(['contact_phone']),
             },
-            'truck'
+            createPxth(['truck'])
         );
 
         const observers: Observer<unknown>[] = [];
@@ -185,13 +196,13 @@ describe('Mapping proxy', () => {
         });
         const observer = jest.fn();
 
-        proxy.watch('truck.owner.contacts[0]', observer, defaultObserve);
-        expect(defaultObserve).toBeCalledWith(ROOT_PATH, expect.any(Function));
+        proxy.watch(createPxth(['truck', 'owner', 'contacts', '0']), observer, defaultObserve);
+        expect(pxthToString(defaultObserve.mock.calls[0][0])).toBe(pxthToString(createPxth([])));
 
         defaultObserve.mockClear();
 
-        proxy.watch('truck.info', observer, defaultObserve);
-        expect(defaultObserve).toBeCalledWith(ROOT_PATH, expect.any(Function));
+        proxy.watch(createPxth(['truck', 'info']), observer, defaultObserve);
+        expect(pxthToString(defaultObserve.mock.calls[0][0])).toBe(pxthToString(createPxth([])));
 
         observers[0](rawData);
         expect(observer).toBeCalledWith(fullData.truck.owner.contacts[0]);
@@ -205,26 +216,44 @@ describe('Mapping proxy', () => {
     it('should set proxied value', () => {
         const proxy = new MappingProxy(
             {
-                'personalData.name.firstName': 'registeredUser.name',
-                'personalData.name.lastName': 'registeredUser.surname',
-                'personalData.birthday': 'dateOfBirth',
-                registrationDate: 'registeredUser.dates.registration',
+                'personalData.name.firstName': createPxth(['registeredUser', 'name']),
+                'personalData.name.lastName': createPxth(['registeredUser', 'surname']),
+                'personalData.birthday': createPxth(['dateOfBirth']),
+                registrationDate: createPxth(['registeredUser', 'dates', 'registration']),
             },
-            'registeredUser'
+            createPxth(['registeredUser'])
         );
 
         const defaultSetValue = jest.fn();
 
-        proxy.setValue('registeredUser.personalData.name.firstName', 'Hello', defaultSetValue);
+        proxy.setValue(createPxth(['registeredUser', 'personalData', 'name', 'firstName']), 'Hello', defaultSetValue);
 
-        expect(defaultSetValue).toBeCalledWith('registeredUser.name', 'Hello');
+        expect(pxthToString(defaultSetValue.mock.calls[0][0])).toBe(
+            pxthToString(createPxth(['registeredUser', 'name']))
+        );
+        expect(defaultSetValue).toBeCalledWith(expect.anything(), 'Hello');
 
         defaultSetValue.mockClear();
 
-        proxy.setValue('registeredUser.personalData.name', { firstName: 'As', lastName: 'Df' }, defaultSetValue);
+        proxy.setValue(
+            createPxth(['registeredUser', 'personalData', 'name']),
+            { firstName: 'As', lastName: 'Df' },
+            defaultSetValue
+        );
 
-        expect(defaultSetValue).toBeCalledWith('registeredUser.name', 'As');
-        expect(defaultSetValue).toBeCalledWith('registeredUser.surname', 'Df');
+        expect(
+            defaultSetValue.mock.calls.findIndex(
+                ([path, value]) =>
+                    pxthToString(path) === pxthToString(createPxth(['registeredUser', 'name'])) && value === 'As'
+            ) !== -1
+        ).toBeTruthy();
+
+        expect(
+            defaultSetValue.mock.calls.findIndex(
+                ([path, value]) =>
+                    pxthToString(path) === pxthToString(createPxth(['registeredUser', 'surname'])) && value === 'Df'
+            ) !== -1
+        ).toBeTruthy();
     });
 
     it('should get proxied value', () => {
@@ -252,23 +281,23 @@ describe('Mapping proxy', () => {
 
         const proxy = new MappingProxy(
             {
-                'personalData.name.firstName': 'registeredUser.name',
-                'personalData.name.lastName': 'registeredUser.surname',
-                'personalData.birthday': 'dateOfBirth',
-                registrationDate: 'registeredUser.dates.registration',
+                'personalData.name.firstName': createPxth(['registeredUser', 'name']),
+                'personalData.name.lastName': createPxth(['registeredUser', 'surname']),
+                'personalData.birthday': createPxth(['dateOfBirth']),
+                registrationDate: createPxth(['registeredUser', 'dates', 'registration']),
             },
-            'registeredUser'
+            createPxth(['registeredUser'])
         );
 
-        const defaultGet = (path: string | typeof ROOT_PATH) => getOrReturn(rawData, path);
+        const defaultGet = <V>(path: Pxth<V>) => deepGet(rawData, path);
 
-        expect(proxy.getValue('registeredUser.personalData.name.firstName', defaultGet)).toBe(
+        expect(proxy.getValue(createPxth(['registeredUser', 'personalData', 'name', 'firstName']), defaultGet)).toBe(
             fullUser.personalData.name.firstName
         );
-        expect(proxy.getValue('registeredUser.personalData.name', defaultGet)).toStrictEqual(
+        expect(proxy.getValue(createPxth(['registeredUser', 'personalData', 'name']), defaultGet)).toStrictEqual(
             fullUser.personalData.name
         );
-        expect(proxy.getValue('registeredUser.personalData.birthday', defaultGet)).toStrictEqual(
+        expect(proxy.getValue(createPxth(['registeredUser', 'personalData', 'birthday']), defaultGet)).toStrictEqual(
             fullUser.personalData.birthday
         );
     });
@@ -276,32 +305,42 @@ describe('Mapping proxy', () => {
     it('should return normal path from proxied path', () => {
         const proxy = new MappingProxy(
             {
-                'personalData.name.firstName': 'registeredUser.name',
-                'personalData.name.lastName': 'registeredUser.surname',
-                'personalData.birthday': 'dateOfBirth',
-                registrationDate: 'registeredUser.dates.registration',
+                'personalData.name.firstName': createPxth(['registeredUser', 'name']),
+                'personalData.name.lastName': createPxth(['registeredUser', 'surname']),
+                'personalData.birthday': createPxth(['dateOfBirth']),
+                registrationDate: createPxth(['registeredUser', 'dates', 'registration']),
             },
-            'registeredUser'
+            createPxth(['registeredUser'])
         );
 
-        expect(proxy.getNormalPath('registeredUser.personalData')).toBe(ROOT_PATH);
-        expect(proxy.getNormalPath('registeredUser.registrationDate')).toBe('registeredUser.dates.registration');
-        expect(proxy.getNormalPath('registeredUser.personalData.name')).toBe('registeredUser');
+        expect(pxthToString(proxy.getNormalPath(createPxth(['registeredUser', 'personalData'])))).toBe(
+            pxthToString(createPxth([]))
+        );
+        expect(pxthToString(proxy.getNormalPath(createPxth(['registeredUser', 'registrationDate'])))).toBe(
+            pxthToString(createPxth(['registeredUser', 'dates', 'registration']))
+        );
+        expect(pxthToString(proxy.getNormalPath(createPxth(['registeredUser', 'personalData', 'name'])))).toBe(
+            pxthToString(createPxth(['registeredUser']))
+        );
     });
 
     it('should return proxied path from normal path', () => {
         const proxy = new MappingProxy(
             {
-                'personalData.name.firstName': 'registeredUser.name',
-                'personalData.name.lastName': 'registeredUser.surname',
-                'personalData.birthday': 'dateOfBirth',
-                registrationDate: 'registeredUser.dates.registration',
+                'personalData.name.firstName': createPxth(['registeredUser', 'name']),
+                'personalData.name.lastName': createPxth(['registeredUser', 'surname']),
+                'personalData.birthday': createPxth(['dateOfBirth']),
+                registrationDate: createPxth(['registeredUser', 'dates', 'registration']),
             },
-            'registeredUser'
+            createPxth(['registeredUser'])
         );
 
-        expect(proxy.getProxiedPath('registeredUser.dates.registration')).toBe('registeredUser.registrationDate');
-        expect(proxy.getProxiedPath('registeredUser.name')).toBe('registeredUser.personalData.name.firstName');
-        expect(() => proxy.getProxiedPath('registeredUser.personalData')).toThrow();
+        expect(pxthToString(proxy.getProxiedPath(createPxth(['registeredUser', 'dates', 'registration'])))).toBe(
+            pxthToString(createPxth(['registeredUser', 'registrationDate']))
+        );
+        expect(pxthToString(proxy.getProxiedPath(createPxth(['registeredUser', 'name'])))).toBe(
+            pxthToString(createPxth(['registeredUser', 'personalData', 'name', 'firstName']))
+        );
+        expect(() => proxy.getProxiedPath(createPxth(['registeredUser', 'personalData']))).toThrow();
     });
 });

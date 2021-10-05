@@ -1,22 +1,14 @@
-import { cloneDeep, shuffle } from 'lodash';
+import { shuffle } from 'lodash';
+import { createPxth, pxthToString, RootPathToken } from 'pxth';
 
-import { ROOT_PATH } from '../../src/hooks';
-import {
-    getOrReturn,
-    isInnerPath,
-    joinPaths,
-    longestCommonPath,
-    normalizePath,
-    relativePath,
-    setOrReturn,
-} from '../../src/utils/pathUtils';
+import { isInnerPath, joinPaths, longestCommonPath, normalizePath, relativePath } from '../../src/utils/pathUtils';
 
 describe('joinPaths', () => {
     it('should join paths', () => {
         expect(joinPaths('hello', 'world')).toBe('hello.world');
-        expect(joinPaths(ROOT_PATH, ROOT_PATH)).toBe(ROOT_PATH);
-        expect(joinPaths(ROOT_PATH, 'hello')).toBe('hello');
-        expect(joinPaths(ROOT_PATH, 'hello', 'world')).toBe('hello.world');
+        expect(joinPaths(RootPathToken, RootPathToken)).toBe(RootPathToken);
+        expect(joinPaths(RootPathToken, 'hello')).toBe('hello');
+        expect(joinPaths(RootPathToken, 'hello', 'world')).toBe('hello.world');
     });
 });
 
@@ -45,40 +37,9 @@ describe('isInnerPath', () => {
     });
 });
 
-describe('getOrReturn', () => {
-    it('should get value on empty path', () => {
-        const value = { hello: 'asdf', '': 42 };
-        expect(getOrReturn(cloneDeep(value), '')).toStrictEqual(42);
-    });
-    it('should get deep value', () => {
-        const value = { asdf: 'basd' };
-        expect(getOrReturn(cloneDeep(value), 'asdf')).toBe('basd');
-    });
-    it('should return all values on ROOT_PATH', () => {
-        const value = { asdf: 42, array: [1, 2] };
-        expect(getOrReturn(value, ROOT_PATH)).toStrictEqual(value);
-    });
-});
-
-describe('setOrReturn', () => {
-    it('should set value on empty path', () => {
-        const value = { hello: 'asdf' };
-        expect(setOrReturn(cloneDeep(value), '', { a: 'asdf' })).toStrictEqual({ '': { a: 'asdf' }, hello: 'asdf' });
-    });
-    it('should set value', () => {
-        const value = { asdf: 'basd' };
-        expect(setOrReturn(cloneDeep(value), 'asdf', 'HELLO')).toStrictEqual({ asdf: 'HELLO' });
-    });
-    it('should return all values on ROOT_PATH', () => {
-        const value = { asdf: 42, array: [1, 2] };
-        const newValue = { hello: 'world' };
-        expect(setOrReturn(cloneDeep(value), ROOT_PATH, newValue)).toStrictEqual(newValue);
-    });
-});
-
 describe('longestCommonPath', () => {
     it('hit cases', () => {
-        expect(longestCommonPath([])).toBe(ROOT_PATH);
+        expect(longestCommonPath([])).toBe(RootPathToken);
         expect(longestCommonPath([''])).toBe('');
         expect(longestCommonPath(['asdf'])).toBe('asdf');
     });
@@ -87,27 +48,49 @@ describe('longestCommonPath', () => {
         expect(longestCommonPath(['hello.this.is.world', 'hello.this.is.bye', 'hello.this.is'])).toBe('hello.this.is');
     });
     it('no common paths', () => {
-        expect(longestCommonPath(shuffle(['asdf', 'asdf.hello', 'asdf.bye', 'asdf.hello.bye', 'b']))).toBe(ROOT_PATH);
+        expect(longestCommonPath(shuffle(['asdf', 'asdf.hello', 'asdf.bye', 'asdf.hello.bye', 'b']))).toBe(
+            RootPathToken
+        );
         expect(
             longestCommonPath(shuffle(['hello.this.is.world', 'hello.this.is.bye', 'hello.this.is', 'ahello']))
-        ).toBe(ROOT_PATH);
+        ).toBe(RootPathToken);
     });
 });
 
 describe('relativePath', () => {
     it('hit cases', () => {
-        expect(() => relativePath('      ', 'hello.world.this')).toThrow();
+        expect(() => relativePath(createPxth(['      ']), createPxth(['hello', 'world', 'this']))).toThrow();
         expect(() =>
-            relativePath('hello.world.this.is.not.parent.path', 'hello.world.this.is.not.nested.path')
+            relativePath(
+                createPxth(['hello', 'world', 'this', 'is', 'not', 'parent', 'path']),
+                createPxth(['hello', 'world', 'this', 'is', 'not', 'nested', 'path'])
+            )
         ).toThrow();
-        expect(relativePath('hello.world[0].same', 'hello["world"].0.same')).toBe(ROOT_PATH);
-        expect(relativePath(ROOT_PATH, ROOT_PATH)).toBe(ROOT_PATH);
-        expect(relativePath(ROOT_PATH, 'nested.path')).toBe('nested.path');
-        expect(() => relativePath('helo', ROOT_PATH)).toThrow();
-        expect(relativePath('..asdf', '            .[]asdf.lol')).toBe('lol');
+        expect(
+            pxthToString(
+                relativePath(createPxth(['hello', 'world', '0', 'same']), createPxth(['hello', 'world', '0', 'same']))
+            )
+        ).toBe(pxthToString(createPxth([])));
+        expect(pxthToString(relativePath(createPxth([]), createPxth([])))).toBe(pxthToString(createPxth([])));
+        expect(pxthToString(relativePath(createPxth([]), createPxth(['nested', 'path'])))).toBe(
+            pxthToString(createPxth(['nested', 'path']))
+        );
+        expect(() => relativePath(createPxth(['helo']), createPxth([]))).toThrow();
+        expect(pxthToString(relativePath(createPxth(['', '', 'asdf']), createPxth(['', '', 'asdf', 'lol'])))).toBe(
+            pxthToString(createPxth(['lol']))
+        );
     });
     it('simple cases', () => {
-        expect(relativePath('hello.world', 'hello.world.nested.path')).toBe('nested.path');
-        expect(relativePath('yes.this["is"][0]["some"].path', 'yes.this.is.0.some.path["asdf"].lol')).toBe('asdf.lol');
+        expect(
+            pxthToString(relativePath(createPxth(['hello', 'world']), createPxth(['hello', 'world', 'nested', 'path'])))
+        ).toBe(pxthToString(createPxth(['nested', 'path'])));
+        expect(
+            pxthToString(
+                relativePath(
+                    createPxth(['yes', 'this', 'is', '0', 'some', 'path']),
+                    createPxth(['yes', 'this', 'is', '0', 'some', 'path', 'asdf', 'lol'])
+                )
+            )
+        ).toBe(pxthToString(createPxth(['asdf', 'lol'])));
     });
 });

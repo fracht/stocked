@@ -1,22 +1,21 @@
 import { useCallback, useRef } from 'react';
+import { createPxth, deepGet, parseSegmentsFromString, Pxth, pxthToString, RootPath } from 'pxth';
 import invariant from 'tiny-invariant';
 
 import { BatchUpdate, Observer } from '../typings';
 import { ObserverArray, ObserverKey } from '../utils/ObserverArray';
-import { getOrReturn, isInnerPath, normalizePath } from '../utils/pathUtils';
+import { isInnerPath } from '../utils/pathUtils';
 import { useLazyRef } from '../utils/useLazyRef';
-
-export const ROOT_PATH = Symbol();
 
 export type ObserversControl<T> = {
     /** Watch stock value. Returns cleanup function. */
-    watch: <V>(path: string | typeof ROOT_PATH, observer: Observer<V>) => () => void;
+    watch: <V>(path: Pxth<V>, observer: Observer<V>) => () => void;
     /** Watch all stock values. Returns cleanup function. */
     watchAll: (observer: Observer<T>) => () => void;
     /** Check if value is observed or not. */
-    isObserved: (path: string) => boolean;
+    isObserved: <V>(path: Pxth<V>) => boolean;
     /** Notify all observers, which are children of specified path */
-    notifySubTree: (path: string, values: T) => void;
+    notifySubTree: <V>(path: Pxth<V>, values: T) => void;
     /** Notify all observers */
     notifyAll: (values: T) => void;
     /** "stocked" updates values in batches, so you can subscribe to batch updates. Returns cleanup. */
@@ -25,7 +24,9 @@ export type ObserversControl<T> = {
 
 /** Hook, wraps functionality of observers storage (add, remove, notify tree of observers, etc.) */
 export const useObservers = <T>(): ObserversControl<T> => {
-    const observers = useRef<Record<string, ObserverArray<unknown>>>({});
+    const observers = useRef<Record<string | RootPath, ObserverArray<unknown>>>(
+        {} as Record<string | RootPath, ObserverArray<unknown>>
+    );
     const batchUpdateObservers = useLazyRef<ObserverArray<BatchUpdate<T>>>(() => new ObserverArray());
 
     const getObserversKeys = useCallback(
@@ -52,54 +53,58 @@ export const useObservers = <T>(): ObserversControl<T> => {
         batchUpdateObservers,
     ]);
 
-    const observe = useCallback(<V>(path: string | typeof ROOT_PATH, observer: Observer<V>) => {
-        path = normalizePath(path as string);
-        if (!Object.prototype.hasOwnProperty.call(observers.current, path)) {
-            observers.current[path] = new ObserverArray();
+    const observe = useCallback(<V>(path: Pxth<V>, observer: Observer<V>) => {
+        const pathKey = pxthToString(path);
+
+        if (!Object.prototype.hasOwnProperty.call(observers.current, pathKey)) {
+            observers.current[pathKey] = new ObserverArray();
         }
-        return observers.current[path].add(observer as Observer<unknown>);
+
+        return observers.current[pathKey].add(observer as Observer<unknown>);
     }, []);
 
-    const stopObserving = useCallback((path: string | typeof ROOT_PATH, observerKey: ObserverKey) => {
-        path = normalizePath(path as string);
-        const currentObservers = observers.current[path];
+    const stopObserving = useCallback(<V>(path: Pxth<V>, observerKey: ObserverKey) => {
+        const pathKey = pxthToString(path);
+
+        const currentObservers = observers.current[pathKey];
 
         invariant(currentObservers, 'Cannot remove observer from value, which is not observing');
 
         currentObservers.remove(observerKey);
 
-        if (currentObservers.isEmpty()) delete observers.current[path];
+        if (currentObservers.isEmpty()) delete observers.current[pathKey];
     }, []);
 
     const watch = useCallback(
-        <V>(path: string | typeof ROOT_PATH, observer: Observer<V>) => {
+        <V>(path: Pxth<V>, observer: Observer<V>) => {
             const key = observe(path, observer);
             return () => stopObserving(path, key);
         },
         [observe, stopObserving]
     );
 
-    const watchAll = useCallback((observer: Observer<T>) => watch((ROOT_PATH as unknown) as string, observer), [watch]);
+    const watchAll = useCallback((observer: Observer<T>) => watch(createPxth<T>([]), observer), [watch]);
 
     const watchBatchUpdates = useCallback(
         (observer: Observer<BatchUpdate<T>>) => {
             const key = observeBatchUpdates(observer);
+
             return () => stopObservingBatchUpdates(key);
         },
         [observeBatchUpdates, stopObservingBatchUpdates]
     );
 
     const isObserved = useCallback(
-        (path: string) => Object.prototype.hasOwnProperty.call(observers.current, normalizePath(path)),
+        <V>(path: Pxth<V>) => Object.prototype.hasOwnProperty.call(observers.current, pxthToString(path)),
         []
     );
 
     const notifyPaths = useCallback(
-        (origin: string | typeof ROOT_PATH, paths: string[], values: T) => {
+        (origin: Pxth<unknown>, paths: string[], values: T) => {
             batchUpdate({ paths, origin, values });
             paths.forEach(path => {
                 const observer = observers.current[path];
-                const subValue = getOrReturn(values, path);
+                const subValue = deepGet(values, createPxth(parseSegmentsFromString(path)));
                 observer.call(subValue);
             });
         },
@@ -107,17 +112,22 @@ export const useObservers = <T>(): ObserversControl<T> => {
     );
 
     const notifySubTree = useCallback(
-        (path: string, values: T) => {
-            path = normalizePath(path);
+        <V>(path: Pxth<V>, values: T) => {
+            const stringifiedPath = pxthToString(path);
+
             const subPaths = getObserversKeys().filter(
-                tempPath => isInnerPath(path, tempPath) || path === tempPath || isInnerPath(tempPath, path)
+                tempPath =>
+                    isInnerPath(stringifiedPath, tempPath) ||
+                    stringifiedPath === tempPath ||
+                    isInnerPath(tempPath, stringifiedPath)
             );
-            notifyPaths(path, subPaths, values);
+
+            notifyPaths(path as Pxth<unknown>, subPaths, values);
         },
         [notifyPaths, getObserversKeys]
     );
 
-    const notifyAll = useCallback((values: T) => notifyPaths(ROOT_PATH, getObserversKeys(), values), [
+    const notifyAll = useCallback((values: T) => notifyPaths(createPxth([]), getObserversKeys(), values), [
         notifyPaths,
         getObserversKeys,
     ]);

@@ -1,43 +1,41 @@
+import { Pxth } from 'pxth';
+
 import { Observer } from './Observer';
-import { ROOT_PATH } from '../hooks';
 
 /**
  * Abstract class of "stocked" proxy
  * By inheriting this class, you can provide custom logic for proxing (casting) values.
  */
-export abstract class StockProxy {
+export abstract class StockProxy<T> {
     /** Path to variable, where proxy is attached. */
-    public readonly path: string | typeof ROOT_PATH;
+    public readonly path: Pxth<T>;
 
-    public constructor(path: string | typeof ROOT_PATH) {
+    public constructor(path: Pxth<T>) {
         this.path = path;
     }
 
     /** Function, which sets proxied value. It will be callen only if proxied value is changing. */
-    public abstract setValue: (
-        path: string | typeof ROOT_PATH,
-        value: unknown,
-        defaultSetValue: (path: string | typeof ROOT_PATH, value: unknown) => void
+    public abstract setValue: <V>(
+        path: Pxth<V>,
+        value: V,
+        defaultSetValue: <U>(path: Pxth<U>, value: U) => void
     ) => void;
 
     /** Function for watching proxied value. Should return cleanup. */
     public abstract watch: <V>(
-        path: string | typeof ROOT_PATH,
+        path: Pxth<V>,
         observer: Observer<V>,
-        defaultWatch: (path: string | typeof ROOT_PATH, observer: Observer<V>) => () => void
+        defaultWatch: <U>(path: Pxth<U>, observer: Observer<U>) => () => void
     ) => () => void;
 
     /** Function to access proxied value. */
-    public abstract getValue: <V>(
-        path: string | typeof ROOT_PATH,
-        defaultGetValue: <U>(path: string | typeof ROOT_PATH) => U
-    ) => V;
+    public abstract getValue: <V>(path: Pxth<V>, defaultGetValue: <U>(path: Pxth<U>) => U) => V;
 
     /** Function for getting proxied path from normal path. */
-    public abstract getProxiedPath: (path: string | typeof ROOT_PATH) => string | typeof ROOT_PATH;
+    public abstract getProxiedPath: <V>(path: Pxth<V>) => Pxth<V>;
 
     /** Function for getting normal path from proxied path */
-    public abstract getNormalPath: (path: string | typeof ROOT_PATH) => string | typeof ROOT_PATH;
+    public abstract getNormalPath: <V>(path: Pxth<V>) => Pxth<V>;
 
     /** Activate proxy. After activation, you cannot modify proxy. */
     public activate = () => Object.freeze(this);
