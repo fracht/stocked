@@ -6,7 +6,7 @@ import { useStockContext } from '../hooks';
 import { StockProxy } from '../typings';
 
 export type ProxyProviderProps = PropsWithChildren<{
-    proxy: StockProxy;
+    proxy: StockProxy<unknown>;
 }>;
 
 export const ProxyProvider = ({ proxy, children }: ProxyProviderProps) => {

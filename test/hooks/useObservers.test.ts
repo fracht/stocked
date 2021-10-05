@@ -1,6 +1,7 @@
 import { act, renderHook } from '@testing-library/react-hooks';
+import { createPxth, pxthToString } from 'pxth';
 
-import { ROOT_PATH, useObservers } from '../../src';
+import { useObservers } from '../../src';
 
 const renderUseObserversHook = () => renderHook(() => useObservers());
 
@@ -11,8 +12,8 @@ describe('Observer tests', () => {
         const observer = jest.fn();
 
         act(() => {
-            result.current.watch('b', observer);
-            result.current.notifySubTree('b', {
+            result.current.watch(createPxth(['b']), observer);
+            result.current.notifySubTree(createPxth(['b']), {
                 b: 0,
             });
         });
@@ -28,13 +29,13 @@ describe('Observer tests', () => {
 
         act(() => {
             cleanup = result.current.watchAll(observer);
-            result.current.notifySubTree('b', { b: 0 });
+            result.current.notifySubTree(createPxth(['b']), { b: 0 });
         });
 
         expect(observer).toBeCalled();
-        expect(result.current.isObserved((ROOT_PATH as unknown) as string)).toBe(true);
+        expect(result.current.isObserved(createPxth([]))).toBe(true);
         cleanup();
-        expect(result.current.isObserved((ROOT_PATH as unknown) as string)).toBe(false);
+        expect(result.current.isObserved(createPxth([]))).toBe(false);
     });
 
     it('should call parent observer', () => {
@@ -43,8 +44,8 @@ describe('Observer tests', () => {
         const observer = jest.fn();
 
         act(() => {
-            result.current.watch('parent', observer);
-            result.current.notifySubTree('parent.child', {
+            result.current.watch(createPxth(['parent']), observer);
+            result.current.notifySubTree(createPxth(['parent', 'child']), {
                 parent: {
                     child: 0,
                 },
@@ -60,8 +61,8 @@ describe('Observer tests', () => {
         const observer = jest.fn();
 
         act(() => {
-            result.current.watch('parent.child', observer);
-            result.current.notifySubTree('parent', { parent: { child: 'b' } });
+            result.current.watch(createPxth(['parent', 'child']), observer);
+            result.current.notifySubTree(createPxth(['parent']), { parent: { child: 'b' } });
         });
 
         expect(observer).toBeCalled();
@@ -73,10 +74,10 @@ describe('Observer tests', () => {
         const observer = jest.fn();
 
         act(() => {
-            result.current.watch('parent', observer);
-            result.current.watch('parent.child', observer);
-            result.current.watch('parent.child.value', observer);
-            result.current.notifySubTree('parent.child.value', {
+            result.current.watch(createPxth(['parent']), observer);
+            result.current.watch(createPxth(['parent', 'child']), observer);
+            result.current.watch(createPxth(['parent', 'child', 'value']), observer);
+            result.current.notifySubTree(createPxth(['parent', 'child', 'value']), {
                 parent: {
                     child: {
                         value: 'b',
@@ -94,9 +95,9 @@ describe('Observer tests', () => {
         const oberver = jest.fn();
 
         act(() => {
-            result.current.watch('parent', oberver);
-            result.current.watch('parent.child', oberver);
-            result.current.watch('parent.child.value', oberver);
+            result.current.watch(createPxth(['parent']), oberver);
+            result.current.watch(createPxth(['parent', 'child']), oberver);
+            result.current.watch(createPxth(['parent', 'child', 'value']), oberver);
             result.current.notifyAll({ parent: { child: { value: 'b' } } });
         });
 
@@ -109,8 +110,8 @@ describe('Observer tests', () => {
         const observer = jest.fn();
 
         act(() => {
-            result.current.watch('parent.notInBranch', observer);
-            result.current.notifySubTree('parent.child.value', {
+            result.current.watch(createPxth(['parent', 'notInBranch']), observer);
+            result.current.notifySubTree(createPxth(['parent', 'child', 'value']), {
                 parent: {
                     child: {
                         value: 'newValue',
@@ -134,9 +135,9 @@ describe('Observer tests', () => {
         const childObserver = jest.fn();
 
         act(() => {
-            result.current.watch('parent', parentObserver);
-            result.current.watch('parent.child', childObserver);
-            result.current.notifySubTree('parent.child', {
+            result.current.watch(createPxth(['parent']), parentObserver);
+            result.current.watch(createPxth(['parent', 'child']), childObserver);
+            result.current.notifySubTree(createPxth(['parent', 'child']), {
                 parent: {
                     child: value,
                 },
@@ -153,22 +154,21 @@ describe('Is observed test', () => {
         const { result } = renderUseObserversHook();
 
         act(() => {
-            result.current.watch('value', jest.fn());
+            result.current.watch(createPxth(['value']), jest.fn());
         });
 
-        expect(result.current.isObserved('value')).toBeTruthy();
-        expect(result.current.isObserved('asdf')).toBeFalsy();
+        expect(result.current.isObserved(createPxth(['value']))).toBeTruthy();
+        expect(result.current.isObserved(createPxth(['asdf']))).toBeFalsy();
     });
     it('should be observed denormalized path', () => {
         const { result } = renderUseObserversHook();
 
         act(() => {
-            result.current.watch('arr[0]', jest.fn());
+            result.current.watch(createPxth(['arr', '0']), jest.fn());
         });
 
-        expect(result.current.isObserved('arr[0]')).toBeTruthy();
-        expect(result.current.isObserved('arr.0')).toBeTruthy();
-        expect(result.current.isObserved('arr[3]')).toBeFalsy();
+        expect(result.current.isObserved(createPxth(['arr', '0']))).toBeTruthy();
+        expect(result.current.isObserved(createPxth(['arr', '3']))).toBeFalsy();
     });
 });
 
@@ -179,13 +179,13 @@ describe('Removing observers test', () => {
         const observer = jest.fn();
 
         act(() => {
-            const cleanup = result.current.watch('value', observer);
+            const cleanup = result.current.watch(createPxth(['value']), observer);
 
-            result.current.notifySubTree('value', { value: '2' });
+            result.current.notifySubTree(createPxth(['value']), { value: '2' });
 
             cleanup();
 
-            result.current.notifySubTree('value', { value: '3' });
+            result.current.notifySubTree(createPxth(['value']), { value: '3' });
         });
 
         expect(observer).toBeCalledTimes(1);
@@ -197,15 +197,15 @@ describe('Removing observers test', () => {
         const observer = jest.fn();
 
         act(() => {
-            const cleanup = result.current.watch('arr[0]', observer);
+            const cleanup = result.current.watch(createPxth(['arr', '0']), observer);
 
-            result.current.notifySubTree('arr.0', { arr: [0] });
-            result.current.notifySubTree('arr[0]', { arr: [1] });
+            result.current.notifySubTree(createPxth(['arr', '0']), { arr: [0] });
+            result.current.notifySubTree(createPxth(['arr', '0']), { arr: [1] });
 
             cleanup();
 
-            result.current.notifySubTree('arr.0', { arr: [2] });
-            result.current.notifySubTree('arr[0]', { arr: [3] });
+            result.current.notifySubTree(createPxth(['arr', '0']), { arr: [2] });
+            result.current.notifySubTree(createPxth(['arr', '0']), { arr: [3] });
         });
 
         expect(observer).toBeCalledTimes(2);
@@ -221,7 +221,7 @@ describe('Batch observers tests', () => {
         act(() => {
             result.current.watchBatchUpdates(observer);
 
-            result.current.notifySubTree('value', {
+            result.current.notifySubTree(createPxth(['value']), {
                 value: '2',
             });
         });
@@ -236,11 +236,11 @@ describe('Batch observers tests', () => {
 
         act(() => {
             result.current.watchBatchUpdates(observer);
-            result.current.watch('parent.child', jest.fn());
-            result.current.watch('parent', jest.fn());
-            result.current.watch('value', jest.fn());
+            result.current.watch(createPxth(['parent', 'child']), jest.fn());
+            result.current.watch(createPxth(['parent']), jest.fn());
+            result.current.watch(createPxth(['value']), jest.fn());
 
-            result.current.notifySubTree('parent.child.hello', {
+            result.current.notifySubTree(createPxth(['parent', 'child', 'hello']), {
                 value: 'asdf',
                 parent: {
                     child: {
@@ -251,8 +251,11 @@ describe('Batch observers tests', () => {
         });
 
         expect(observer).toBeCalled();
+        expect(pxthToString(observer.mock.calls[0][0].origin)).toBe(
+            pxthToString(createPxth(['parent', 'child', 'hello']))
+        );
         expect(observer).toBeCalledWith({
-            origin: 'parent.child.hello',
+            origin: expect.anything(),
             paths: ['parent.child', 'parent'],
             values: {
                 value: 'asdf',
@@ -273,13 +276,13 @@ describe('Batch observers tests', () => {
         act(() => {
             const cleanup = result.current.watchBatchUpdates(observer);
 
-            result.current.notifySubTree('value', {
+            result.current.notifySubTree(createPxth(['value']), {
                 value: '2',
             });
 
             cleanup();
 
-            result.current.notifySubTree('value', {
+            result.current.notifySubTree(createPxth(['value']), {
                 value: 'h',
             });
         });

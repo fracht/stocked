@@ -12,7 +12,7 @@ import { useInterceptors } from '../utils/useInterceptors';
  * @param stock - optional argument. Pass it if you don't want to use stock from context.
  * @param proxy - optional argument. Pass it if you don't want to use proxy from context.
  */
-export const useStockContext = <T extends object>(stock?: Stock<T>, proxy?: StockProxy): Stock<T> => {
+export const useStockContext = <T extends object>(stock?: Stock<T>, proxy?: StockProxy<unknown>): Stock<T> => {
     const contextStock = useContext(StockContext) as Stock<T> | undefined;
     const contextProxy = useContext(ProxyContext);
 

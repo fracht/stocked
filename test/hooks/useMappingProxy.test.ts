@@ -1,8 +1,9 @@
-import { act, renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react-hooks';
+import { createPxth, Pxth } from 'pxth';
 
 import { useMappingProxy } from '../../src';
 
-const renderUseMappingProxyHook = (path: string, map: Record<string, string>) =>
+const renderUseMappingProxyHook = (path: Pxth<unknown>, map: Record<string, Pxth<unknown>>) =>
     renderHook(({ path, map }) => useMappingProxy(map, path), {
         initialProps: {
             path,
@@ -12,28 +13,8 @@ const renderUseMappingProxyHook = (path: string, map: Record<string, string>) =>
 
 describe('useMappingProxy', () => {
     it('should return activated proxy', () => {
-        const { result } = renderUseMappingProxyHook('', {});
+        const { result } = renderUseMappingProxyHook(createPxth([]), {});
 
-        expect(result.current.isActive()).toBeTruthy();
-    });
-
-    it('should memoize proxy', () => {
-        const map = {};
-        const { result, rerender } = renderUseMappingProxyHook('', map);
-
-        const firstResult = result.current;
-
-        act(() => {
-            rerender({ path: '', map });
-        });
-
-        expect(result.current).toBe(firstResult);
-
-        act(() => {
-            rerender({ path: '', map: { a: '' } });
-        });
-
-        expect(result.current).not.toBe(firstResult);
         expect(result.current.isActive()).toBeTruthy();
     });
 });

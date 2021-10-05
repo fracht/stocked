@@ -1,4 +1,5 @@
 import { act, renderHook } from '@testing-library/react-hooks';
+import { createPxth } from 'pxth';
 
 import { StockConfig, useStock } from '../../src';
 
@@ -29,9 +30,9 @@ describe('Value setting and getting', () => {
         const { result } = renderUseStockHook(initialValues);
 
         act(() => {
-            result.current.setValue('first', 'b');
-            result.current.setValue('nested.value', 'b');
-            result.current.setValue('array[0].prop1', 'b');
+            result.current.setValue(createPxth(['first']), 'b');
+            result.current.setValue(createPxth(['nested.value']), 'b');
+            result.current.setValue(createPxth(['array[0].prop1']), 'b');
         });
 
         expect(initialValues).toStrictEqual({
@@ -58,7 +59,7 @@ describe('Value setting and getting', () => {
         });
 
         act(() => {
-            result.current.setValue('first', 'test');
+            result.current.setValue(createPxth(['first']), 'test');
         });
 
         expect(result.current.getValues()).toStrictEqual({
@@ -67,7 +68,7 @@ describe('Value setting and getting', () => {
         });
 
         act(() => {
-            result.current.setValue('second', 0);
+            result.current.setValue(createPxth(['second']), 0);
         });
 
         expect(result.current.getValues()).toStrictEqual({
@@ -85,7 +86,10 @@ describe('Value setting and getting', () => {
         });
 
         act(() => {
-            result.current.setValue('first', (prevValue: string) => prevValue + 'b');
+            result.current.setValue(
+                createPxth<string>(['first']),
+                (prevValue: string) => prevValue + 'b'
+            );
         });
 
         expect(result.current.getValues()).toStrictEqual({
@@ -96,7 +100,10 @@ describe('Value setting and getting', () => {
         });
 
         act(() => {
-            result.current.setValue('second', (prevValue: object) => ({ ...prevValue, new: 5 }));
+            result.current.setValue(
+                createPxth<object>(['second']),
+                (prevValue: object) => ({ ...prevValue, new: 5 })
+            );
         });
 
         expect(result.current.getValues()).toStrictEqual({
@@ -122,7 +129,7 @@ describe('Value setting and getting', () => {
         });
 
         act(() => {
-            result.current.setValue('nested.value', 'b');
+            result.current.setValue(createPxth(['nested', 'value']), 'b');
         });
 
         expect(result.current.getValues()).toStrictEqual({
@@ -138,7 +145,7 @@ describe('Value setting and getting', () => {
         });
 
         act(() => {
-            result.current.setValue('nested.second.value', 'c');
+            result.current.setValue(createPxth(['nested', 'second', 'value']), 'c');
         });
 
         expect(result.current.getValues()).toStrictEqual({
@@ -154,7 +161,7 @@ describe('Value setting and getting', () => {
         });
 
         act(() => {
-            result.current.setValue('nested.second.third.fourth', 'd');
+            result.current.setValue(createPxth(['nested', 'second', 'third', 'fourth']), 'd');
         });
 
         expect(result.current.getValues()).toStrictEqual({
@@ -170,7 +177,7 @@ describe('Value setting and getting', () => {
         });
 
         act(() => {
-            result.current.setValue('nested.second', { value: 'd', third: { fourth: 'e' } });
+            result.current.setValue(createPxth(['nested', 'second']), { value: 'd', third: { fourth: 'e' } });
         });
 
         expect(result.current.getValues()).toStrictEqual({
@@ -199,7 +206,7 @@ describe('Value setting and getting', () => {
         });
 
         act(() => {
-            result.current.setValue('arr[0].p1', 0);
+            result.current.setValue(createPxth(['arr', '0', 'p1']), 0);
         });
 
         expect(result.current.getValues()).toStrictEqual({
@@ -214,7 +221,7 @@ describe('Value setting and getting', () => {
         });
 
         act(() => {
-            result.current.setValue('arr.1.p2', null);
+            result.current.setValue(createPxth(['arr', '1', 'p2']), null);
         });
 
         expect(result.current.getValues()).toStrictEqual({
@@ -239,8 +246,8 @@ describe('Value setting and getting', () => {
         const newValues = ['val3', 'val4'];
 
         act(() => {
-            result.current.watch('arr', observer);
-            result.current.setValue('arr', newValues);
+            result.current.watch(createPxth(['arr']), observer);
+            result.current.setValue(createPxth(['arr']), newValues);
         });
 
         expect(observer.mock.calls[0][0]).toStrictEqual(newValues);
@@ -279,8 +286,8 @@ describe('Value setting and getting', () => {
         const { result } = renderUseStockHook(initialValues);
 
         act(() => {
-            result.current.watch('second', observer);
-            result.current.setValue('second', { third: 'new' });
+            result.current.watch(createPxth(['second']), observer);
+            result.current.setValue(createPxth(['second']), { third: 'new' });
             result.current.resetValues();
         });
 

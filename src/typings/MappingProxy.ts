@@ -1,18 +1,10 @@
 import isNil from 'lodash/isNil';
+import { createPxth, deepGet, deepSet, parseSegmentsFromString, Pxth, pxthToString, RootPath } from 'pxth';
 import invariant from 'tiny-invariant';
 
 import { Observer } from './Observer';
 import { StockProxy } from './StockProxy';
-import { ROOT_PATH } from '../hooks';
-import {
-    getOrReturn,
-    isInnerPath,
-    joinPaths,
-    longestCommonPath,
-    normalizePath,
-    relativePath,
-    setOrReturn,
-} from '../utils/pathUtils';
+import { isInnerPath, joinPaths, longestCommonPath, relativePath } from '../utils/pathUtils';
 
 /**
  * Simple example of StockProxy.
@@ -21,101 +13,100 @@ import {
  *      "<relative path to variable, inside proxied value>": "<path to real value, in stock>"
  * }
  */
-export class MappingProxy extends StockProxy {
-    private readonly map: Partial<Record<string | typeof ROOT_PATH, string>>;
+export class MappingProxy<T> extends StockProxy<T> {
+    private readonly map: Partial<Record<string | RootPath, Pxth<unknown>>>;
 
-    public constructor(map: Record<string, string>, path: string | typeof ROOT_PATH) {
+    public constructor(map: Partial<Record<string | RootPath, Pxth<unknown>>>, path: Pxth<T>) {
         super(path);
-        this.map = Object.entries(map).reduce<Partial<Record<string | typeof ROOT_PATH, string>>>(
-            (acc, [key, value]) => {
-                acc[key] = normalizePath(value);
-                return acc;
-            },
-            {}
-        );
+        this.map = map;
     }
 
-    public setValue = (
-        path: string | typeof ROOT_PATH,
-        value: unknown,
-        defaultSetValue: (path: string | typeof ROOT_PATH, value: unknown) => void
-    ) => {
+    public setValue = <V>(path: Pxth<V>, value: V, defaultSetValue: <U>(path: Pxth<U>, value: U) => void) => {
         path = relativePath(this.path, path);
 
-        const innerPaths = Object.entries(this.map).filter(([to]) => isInnerPath(path, to) || path === to);
+        const stringifiedPath = pxthToString(path);
+
+        const innerPaths = Object.entries(this.map).filter(
+            ([to]) => isInnerPath(stringifiedPath, to) || stringifiedPath === to
+        );
 
         innerPaths
             .sort((a, b) => a.length - b.length)
             .forEach(
-                ([to, from]) => from !== undefined && defaultSetValue(from, getOrReturn(value, relativePath(path, to)))
+                ([to, from]) =>
+                    from !== undefined &&
+                    defaultSetValue(from, deepGet(value, relativePath(path, createPxth(parseSegmentsFromString(to)))))
             );
     };
 
     public watch = <V>(
-        path: string | typeof ROOT_PATH,
+        path: Pxth<V>,
         observer: Observer<V>,
-        defaultWatch: (path: string | typeof ROOT_PATH, observer: Observer<V>) => () => void
+        defaultWatch: <U>(path: Pxth<U>, observer: Observer<U>) => () => void
     ) => {
         const proxiedPath = this.getNormalPath(path);
-        return defaultWatch(proxiedPath!, value => observer(this.mapValue(value, path, proxiedPath!) as V));
+        return defaultWatch(proxiedPath, value => observer(this.mapValue(value, path, proxiedPath!) as V));
     };
 
-    public getValue = <V>(
-        path: string | typeof ROOT_PATH,
-        defaultGetValue: <U>(path: string | typeof ROOT_PATH) => U
-    ): V => {
+    public getValue = <V>(path: Pxth<V>, defaultGetValue: <U>(path: Pxth<U>) => U): V => {
         const proxiedPath = this.getNormalPath(path);
-        return this.mapValue(defaultGetValue(proxiedPath!), path, proxiedPath!) as V;
+        return this.mapValue(defaultGetValue(proxiedPath), path, proxiedPath!) as V;
     };
 
-    private mapValue = (
-        value: unknown,
-        path: string | typeof ROOT_PATH,
-        proxiedPath: string | typeof ROOT_PATH
-    ): unknown => {
+    private mapValue = <V>(value: V, path: Pxth<V>, proxiedPath: Pxth<V>): V => {
         path = relativePath(this.path, path);
-        const innerPaths = Object.entries(this.map).filter(([to]) => isInnerPath(path, to) || path === to);
-        return innerPaths.reduce<unknown>(
+
+        const stringifiedPath = pxthToString(path);
+
+        const innerPaths = Object.entries(this.map).filter(
+            ([to]) => isInnerPath(stringifiedPath, to) || stringifiedPath === to
+        );
+        return innerPaths.reduce<V>(
             (acc, [to, from]) =>
-                setOrReturn(
-                    acc as object,
-                    relativePath(path, to),
-                    getOrReturn(value, relativePath(proxiedPath, from!))
-                ),
-            {}
+                deepSet(
+                    (acc as unknown) as object,
+                    relativePath(path, createPxth(parseSegmentsFromString(to))),
+                    deepGet(value, relativePath(proxiedPath, from!))
+                ) as V,
+            {} as V
         );
     };
 
-    public getProxiedPath = (path: string | typeof ROOT_PATH): string | typeof ROOT_PATH => {
-        const proxiedPath = normalizePath(path as string);
+    public getProxiedPath = <V>(path: Pxth<V>): Pxth<V> => {
+        const proxiedPath = pxthToString(path);
 
-        const normalPath = Object.entries(this.map).find(([, from]) => from === proxiedPath)?.[0];
+        const normalPath = Object.entries(this.map).find(([, from]) => pxthToString(from!) === proxiedPath)?.[0];
 
         invariant(
             !isNil(normalPath),
             'Mapping proxy error: trying to get normal path of proxied path, which is not defined in proxy map'
         );
 
-        return joinPaths(this.path, normalPath);
+        return createPxth(parseSegmentsFromString(joinPaths(pxthToString(this.path), normalPath)));
     };
 
-    public getNormalPath = (path: string | typeof ROOT_PATH): string | typeof ROOT_PATH => {
+    public getNormalPath = <V>(path: Pxth<V>): Pxth<V> => {
         const normalPath = relativePath(this.path, path);
+        const stringifiedPath = pxthToString(normalPath);
 
-        const isIndependent = normalPath in this.map;
+        const isIndependent = pxthToString(normalPath) in this.map;
 
         invariant(
             isIndependent ||
-                Object.keys(this.map).findIndex(proxiedPath => isInnerPath(normalPath, proxiedPath)) !== -1,
+                Object.keys(this.map).findIndex(proxiedPath => isInnerPath(stringifiedPath, proxiedPath)) !== -1,
             'Mapping proxy error: trying to proxy value, which is not defined in proxy map.'
         );
 
-        return isIndependent
-            ? this.map[normalPath]!
-            : longestCommonPath(
-                  Object.entries(this.map)
-                      .filter(([to]) => isInnerPath(normalPath, to))
-                      .map(([, from]) => from!)
-              );
+        return createPxth(
+            parseSegmentsFromString(
+                isIndependent
+                    ? pxthToString(this.map[stringifiedPath]!)
+                    : longestCommonPath(
+                          Object.entries(this.map)
+                              .filter(([to]) => isInnerPath(stringifiedPath, to))
+                              .map(([, from]) => pxthToString(from!) as string)
+                      )
+            )
+        );
     };
 }

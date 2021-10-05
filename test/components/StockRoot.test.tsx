@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, unmountComponentAtNode } from 'react-dom';
 import { act } from 'react-dom/test-utils';
+import { createPxth } from 'pxth';
 
 import { Stock, StockRoot, useStockContext } from '../../src';
 
@@ -86,9 +87,9 @@ describe('StockRoot performance testing', () => {
 
             if (stock) {
                 const _stock = stock as any;
-                _stock.setValue('hello', 'asdf');
-                _stock.setValue('nested.value', 3);
-                _stock.setValue('asdfasd.asdf.asdf', 'asdf');
+                _stock.setValue(createPxth(['hello']), 'asdf');
+                _stock.setValue(createPxth(['nested', 'value']), 3);
+                _stock.setValue(createPxth(['asdfasd', 'asdf', 'asdf']), 'asdf');
             }
         });
 

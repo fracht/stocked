@@ -1,6 +1,7 @@
 import { act, renderHook } from '@testing-library/react-hooks';
+import { createPxth, Pxth, pxthToString } from 'pxth';
 
-import { ROOT_PATH, Stock, StockProxy, useStock } from '../../src';
+import { Stock, StockProxy, useStock } from '../../src';
 import { intercept, useInterceptors } from '../../src/utils/useInterceptors';
 import { DummyProxy } from '../DummyProxy';
 
@@ -14,7 +15,7 @@ const initialValues = {
 
 let stock: Stock<typeof initialValues> | undefined;
 
-const renderUseInterceptorsHook = (proxy?: StockProxy) => renderHook(() => useInterceptors(stock!, proxy));
+const renderUseInterceptorsHook = (proxy?: StockProxy<unknown>) => renderHook(() => useInterceptors(stock!, proxy));
 
 beforeEach(() => {
     const { result } = renderHook(() => useStock({ initialValues }));
@@ -28,17 +29,17 @@ describe('hit cases', () => {
 
         const observer = jest.fn();
         act(() => {
-            const cleanup = result.current.watch('hello', observer);
-            result.current.setValue('hello', 'asdf');
+            const cleanup = result.current.watch(createPxth(['hello']), observer);
+            result.current.setValue(createPxth(['hello']), 'asdf');
             cleanup();
-            result.current.setValue('hello', 'ba');
+            result.current.setValue(createPxth(['hello']), 'ba');
         });
 
         expect(observer).toBeCalledTimes(1);
         expect(observer).toBeCalledWith('asdf');
     });
     it('non activated proxy', () => {
-        expect(() => renderUseInterceptorsHook(new DummyProxy('asdf'))).toThrowError();
+        expect(() => renderUseInterceptorsHook(new DummyProxy(createPxth(['asdf'])))).toThrowError();
     });
 });
 
@@ -46,31 +47,31 @@ describe('intercept', () => {
     it('no proxy', () => {
         const standard = jest.fn();
         const custom = jest.fn();
-        intercept(undefined, '', standard, custom, []);
+        intercept(undefined, createPxth([]), standard, custom, []);
         expect(standard).toBeCalled();
         expect(custom).not.toBeCalled();
     });
     it('proxy', () => {
-        const proxy = new DummyProxy('asdf');
+        const proxy = new DummyProxy(createPxth(['asdf']));
         const standard = jest.fn();
         const custom = jest.fn();
-        intercept(proxy, 'asdf', standard, custom, []);
+        intercept(proxy, createPxth(['asdf']), standard, custom, []);
         expect(standard).not.toBeCalled();
         expect(custom).toBeCalled();
     });
     it('proxy (nested interception)', () => {
-        const proxy = new DummyProxy('asdf');
+        const proxy = new DummyProxy(createPxth(['asdf']));
         const standard = jest.fn();
         const custom = jest.fn();
-        intercept(proxy, 'asdf.hello.b', standard, custom, []);
+        intercept(proxy, createPxth(['asdf.hello.b']), standard, custom, []);
         expect(standard).not.toBeCalled();
         expect(custom).toBeCalled();
     });
     it('ignoring proxy', () => {
-        const proxy = new DummyProxy('asdf');
+        const proxy = new DummyProxy(createPxth(['asdf']));
         const standard = jest.fn();
         const custom = jest.fn();
-        intercept(proxy, 'basdf.hello.wy', standard, custom, []);
+        intercept(proxy, createPxth(['basdf.hello.wy']), standard, custom, []);
         expect(standard).toBeCalled();
         expect(custom).not.toBeCalled();
     });
@@ -78,9 +79,9 @@ describe('intercept', () => {
 
 describe('proxy', () => {
     it('should call proxy functions', () => {
-        const proxy = new DummyProxy('dest');
+        const proxy = new DummyProxy(createPxth(['dest']));
 
-        const watch = jest.fn(() => () => {});
+        const watch: jest.Mock<any, any> = jest.fn(() => () => {});
         const setValue = jest.fn();
         const getValue = jest.fn();
 
@@ -93,37 +94,37 @@ describe('proxy', () => {
         const observer = jest.fn();
 
         act(() => {
-            const cleanup = result.current.watch('dest', observer);
-            const cleanup2 = result.current.watch('asdf', observer);
-            result.current.setValue('dest', 'asdf');
-            result.current.setValue('asdf', 'asdf');
+            const cleanup = result.current.watch(createPxth(['dest']), observer);
+            const cleanup2 = result.current.watch(createPxth(['asdf']), observer);
+            result.current.setValue(createPxth(['dest']), 'asdf');
+            result.current.setValue(createPxth(['asdf']), 'asdf');
             cleanup();
-            result.current.getValue('dest');
-            result.current.getValue('asdf');
+            result.current.getValue(createPxth(['dest']));
+            result.current.getValue(createPxth(['asdf']));
             cleanup2();
         });
 
-        expect(watch).toBeCalledWith('dest', observer, expect.any(Function));
+        expect(pxthToString(watch.mock.calls[0][0])).toBe(pxthToString(createPxth(['dest'])));
+        expect(watch).toBeCalledWith(expect.anything(), observer, expect.any(Function));
         expect(watch).toBeCalledTimes(1);
-        expect(setValue).toBeCalledWith('dest', 'asdf', expect.any(Function));
+        expect(pxthToString(setValue.mock.calls[0][0])).toBe(pxthToString(createPxth(['dest'])));
+        expect(setValue).toBeCalledWith(expect.anything(), 'asdf', expect.any(Function));
         expect(setValue).toBeCalledTimes(1);
-        expect(getValue).toBeCalledWith('dest', expect.any(Function));
+        expect(pxthToString(getValue.mock.calls[0][0])).toBe(pxthToString(createPxth(['dest'])));
         expect(getValue).toBeCalledTimes(1);
     });
 
     it('should handle setValues / getValues properly', () => {
-        const proxy = new DummyProxy('dest');
+        const proxy = new DummyProxy(createPxth(['dest']));
 
         const watch = jest.fn(() => () => {});
         const setValue = jest.fn();
-        const getValue = jest.fn(() => 'Test get value');
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const getValue = jest.fn((_path: Pxth<unknown>) => 'Test get value');
 
         proxy.watch = watch;
         proxy.setValue = setValue;
-        proxy.getValue = getValue as <V>(
-            path: string | typeof ROOT_PATH,
-            defaultGetValue: (path: string | typeof ROOT_PATH) => unknown
-        ) => V;
+        proxy.getValue = getValue as <V>(path: Pxth<V>, defaultGetValue: <U>(path: Pxth<U>) => U) => V;
         proxy.activate();
         const { result } = renderUseInterceptorsHook(proxy);
 
@@ -141,17 +142,10 @@ describe('proxy', () => {
             values = result.current.getValues();
         });
 
-        expect(setValue).toBeCalledWith(
-            'dest',
-            {
-                bye: '',
-                l: 15,
-            },
-            expect.any(Function)
-        );
+        expect(pxthToString(setValue.mock.calls[0][0])).toBe(pxthToString(createPxth(['dest'])));
         expect(setValue).toBeCalledTimes(1);
 
-        expect(getValue).toBeCalledWith('dest', expect.any(Function));
+        expect(pxthToString(getValue.mock.calls[0][0])).toBe(pxthToString(createPxth(['dest'])));
         expect(getValue).toBeCalledTimes(1);
 
         expect(values).toStrictEqual({

@@ -1,13 +1,11 @@
-import { ROOT_PATH } from '../src/hooks';
+import { Pxth } from 'pxth';
+
 import { StockProxy } from '../src/typings/StockProxy';
 
-export class DummyProxy extends StockProxy {
-    public getProxiedPath = (path: string | typeof ROOT_PATH) => path;
-    public getNormalPath = (path: string | typeof ROOT_PATH) => path;
+export class DummyProxy extends StockProxy<unknown> {
+    public getProxiedPath = <V>(path: Pxth<V>) => path;
+    public getNormalPath = <V>(path: Pxth<V>) => path;
     public setValue = () => {};
     public watch = () => () => {};
-    public getValue = <V>(
-        path: string | typeof ROOT_PATH,
-        defaultGetValue: (path: string | typeof ROOT_PATH) => unknown
-    ) => defaultGetValue(path) as V;
+    public getValue = <V>(path: Pxth<V>, defaultGetValue: <U>(path: Pxth<U>) => U) => defaultGetValue(path) as V;
 }

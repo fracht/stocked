@@ -1,5 +1,6 @@
 import React from 'react';
 import { act, renderHook } from '@testing-library/react-hooks';
+import { createPxth } from 'pxth';
 
 import { Stock, StockContext, useAllStockValues, useStock } from '../../src';
 
@@ -72,7 +73,7 @@ describe('Testing "useStockValues" with context stock', () => {
 
         const newValue = [1, 42];
 
-        stock.setValue('array', newValue);
+        stock.setValue(createPxth(['array']), newValue);
 
         await promise;
 

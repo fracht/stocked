@@ -1,5 +1,7 @@
 import React from 'react';
 import { act, renderHook } from '@testing-library/react-hooks';
+import { createPxth } from 'pxth';
+import { pxthToString } from 'pxth';
 
 import { StockContext, useStock, useStockContext } from '../../src';
 import { ProxyContext } from '../../src/components/ProxyContext';
@@ -41,7 +43,7 @@ describe('Test "useStockContext" hook', () => {
             result: { current: stock },
         } = renderHook(() => useStock({ initialValues: {} }));
 
-        const proxy = new DummyProxy('asdf');
+        const proxy = new DummyProxy(createPxth(['asdf']));
 
         const watch = jest.fn();
 
@@ -60,11 +62,13 @@ describe('Test "useStockContext" hook', () => {
         const observer = jest.fn();
 
         act(() => {
-            result.current.watch('asdf', observer);
-            result.current.watch('aaaa', () => {});
+            result.current.watch(createPxth(['asdf']), observer);
+            result.current.watch(createPxth(['aaaa']), () => {});
         });
 
-        expect(watch).lastCalledWith('asdf', observer, expect.any(Function));
+        expect(pxthToString(watch.mock.calls[watch.mock.calls.length - 1][0])).toBe(pxthToString(createPxth(['asdf'])));
+
+        expect(watch).lastCalledWith(expect.anything(), observer, expect.any(Function));
     });
 
     it('should take proxy from arguments', () => {
@@ -72,7 +76,7 @@ describe('Test "useStockContext" hook', () => {
             result: { current: stock },
         } = renderHook(() => useStock({ initialValues: {} }));
 
-        const proxy = new DummyProxy('asdf');
+        const proxy = new DummyProxy(createPxth(['asdf']));
 
         const watch = jest.fn();
 
@@ -87,10 +91,11 @@ describe('Test "useStockContext" hook', () => {
         const observer = jest.fn();
 
         act(() => {
-            result.current.watch('asdf', observer);
-            result.current.watch('aaaa', () => {});
+            result.current.watch(createPxth(['asdf']), observer);
+            result.current.watch(createPxth(['aaaa']), () => {});
         });
 
-        expect(watch).lastCalledWith('asdf', observer, expect.any(Function));
+        expect(pxthToString(watch.mock.calls[watch.mock.calls.length - 1][0])).toBe(pxthToString(createPxth(['asdf'])));
+        expect(watch).lastCalledWith(expect.anything(), observer, expect.any(Function));
     });
 });
