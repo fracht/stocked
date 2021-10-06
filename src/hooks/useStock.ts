@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 import isFunction from 'lodash/isFunction';
-import { deepGet, deepSet, Pxth } from 'pxth';
+import { createPxth, deepGet, deepSet, Pxth } from 'pxth';
 
 import { ObserversControl, useObservers } from './useObservers';
 import { SetStateAction } from '../typings/SetStateAction';
@@ -18,6 +18,8 @@ export type Stock<T extends object> = {
     getValues: () => T;
     /** Function for resetting values to initial state */
     resetValues: () => void;
+    /** Paths to all variables */
+    paths: Pxth<T>;
 } & Omit<ObserversControl<T>, 'notifyAll' | 'notifySubTree'>;
 
 export type StockConfig<T extends object> = {
@@ -75,6 +77,7 @@ export const useStock = <T extends object>({ initialValues }: StockConfig<T>): S
             watchAll,
             watchBatchUpdates,
             isObserved,
+            paths: createPxth<T>([]),
         }),
         [getValue, getValues, setValue, setValues, resetValues, watch, watchAll, watchBatchUpdates, isObserved]
     );
