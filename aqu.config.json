@@ -4,7 +4,7 @@
     },
     "dtsBundleGeneratorOptions": {
         "libraries": {
-            "importedLibraries": ["react", "prop-types", "scheduler"],
+            "importedLibraries": ["react", "prop-types", "scheduler", "pxth"],
             "allowedTypesLibraries": []
         }
     }
