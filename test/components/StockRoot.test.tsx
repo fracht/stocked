@@ -75,7 +75,7 @@ describe('StockRoot performance testing', () => {
         const RerenderCounter: React.FC = jest.fn(() => <div />);
 
         act(() => {
-            let stock: Stock<object> | undefined = undefined;
+            let stock: Stock<any> | undefined = undefined;
 
             render(
                 <StockRoot initialValues={{}}>
