@@ -12,9 +12,11 @@ type StockedDebugData = {
 
 declare global {
     interface Window {
-        __STOCKED_DEBUG_DATA: StockedDebugData;
+        __STOCKED_DEBUG_DATA?: StockedDebugData;
     }
 }
+
+let warningShown = false;
 
 const ensureDebugDataInitialized = () => {
     if (typeof window !== 'undefined' && typeof window.__STOCKED_DEBUG_DATA === 'undefined') {
@@ -23,6 +25,12 @@ const ensureDebugDataInitialized = () => {
             stocks: {},
             counter: 0,
         };
+    } else if (typeof window === 'undefined' && !warningShown) {
+        // eslint-disable-next-line no-console
+        console.warn(
+            '📦 Stocked debug tools disabled: could not initialize __STOCKED_DEBUG_DATA object, because no window object found.'
+        );
+        warningShown = true;
     }
 };
 
@@ -32,20 +40,24 @@ export const useDebugStock = (stock: Stock<any>, debugName?: string) => {
     useLayoutEffect(() => {
         ensureDebugDataInitialized();
 
-        stockId.current = ++window.__STOCKED_DEBUG_DATA.counter;
+        if (window.__STOCKED_DEBUG_DATA) {
+            stockId.current = ++window.__STOCKED_DEBUG_DATA.counter;
 
-        window.__STOCKED_DEBUG_DATA.stocks[stockId.current] = {
-            stock,
-            debugName,
-        };
+            window.__STOCKED_DEBUG_DATA.stocks[stockId.current] = {
+                stock,
+                debugName,
+            };
+        }
 
         return () => {
-            delete window.__STOCKED_DEBUG_DATA.stocks[stockId.current!];
-            stockId.current = undefined;
+            if (window.__STOCKED_DEBUG_DATA) {
+                delete window.__STOCKED_DEBUG_DATA.stocks[stockId.current!];
+                stockId.current = undefined;
+            }
         };
     }, []);
 
-    if (stockId.current !== undefined) {
+    if (window.__STOCKED_DEBUG_DATA && stockId.current !== undefined) {
         window.__STOCKED_DEBUG_DATA.stocks[stockId.current].stock = stock;
         window.__STOCKED_DEBUG_DATA.stocks[stockId.current].debugName = debugName;
     }
