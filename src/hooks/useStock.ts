@@ -6,6 +6,7 @@ import { createPxth, deepGet, deepSet, Pxth } from 'pxth';
 import { ObserversControl, useObservers } from './useObservers';
 import { SetStateAction } from '../typings/SetStateAction';
 import { useLazyRef } from '../utils/useLazyRef';
+import { useDebugStock } from './useDebugStock';
 
 export type Stock<T extends object> = {
     /** Function for setting value. Deeply sets value, using path to variable. @see https://lodash.com/docs/4.17.15#set */
@@ -20,6 +21,8 @@ export type Stock<T extends object> = {
     resetValues: () => void;
     /** Paths to all variables */
     paths: Pxth<T>;
+    /** Name, which appears in stocked devtools */
+    debugName?: string;
 } & Omit<ObserversControl<T>, 'notifyAll' | 'notifySubTree'>;
 
 export type StockConfig<T extends object> = {
@@ -81,6 +84,8 @@ export const useStock = <T extends object>({ initialValues }: StockConfig<T>): S
         }),
         [getValue, getValues, setValue, setValues, resetValues, watch, watchAll, watchBatchUpdates, isObserved]
     );
+
+    useDebugStock(stock);
 
     return stock;
 };
