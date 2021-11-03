@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useEffect } from 'react';
+import { getPxthSegments } from 'pxth';
 
 import { Stock } from './useStock';
 
@@ -30,7 +31,10 @@ export const useDebugStock = <T extends object>(stock: Stock<T>) => {
 
             return stock.watchBatchUpdates(data =>
                 window.__STOCKED_DEVTOOLS_HOOK!.raiseEvent(StockedEvent.BATCH_UPDATE, {
-                    data,
+                    data: {
+                        ...data,
+                        origin: getPxthSegments(data.origin),
+                    },
                     id: currentStockId,
                 })
             );
