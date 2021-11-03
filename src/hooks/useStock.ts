@@ -3,10 +3,10 @@ import cloneDeep from 'lodash/cloneDeep';
 import isFunction from 'lodash/isFunction';
 import { createPxth, deepGet, deepSet, Pxth } from 'pxth';
 
+import { useDebugStock } from './useDebugStock';
 import { ObserversControl, useObservers } from './useObservers';
 import { SetStateAction } from '../typings/SetStateAction';
 import { useLazyRef } from '../utils/useLazyRef';
-import { useDebugStock } from './useDebugStock';
 
 export type Stock<T extends object> = {
     /** Function for setting value. Deeply sets value, using path to variable. @see https://lodash.com/docs/4.17.15#set */
@@ -27,6 +27,7 @@ export type Stock<T extends object> = {
 
 export type StockConfig<T extends object> = {
     initialValues: T;
+    debugName?: string;
 };
 
 /**
@@ -38,7 +39,7 @@ export type StockConfig<T extends object> = {
  *
  * @param config - configuration of Stock.
  */
-export const useStock = <T extends object>({ initialValues }: StockConfig<T>): Stock<T> => {
+export const useStock = <T extends object>({ initialValues, debugName }: StockConfig<T>): Stock<T> => {
     const values = useLazyRef<T>(() => cloneDeep(initialValues));
     const { notifySubTree, notifyAll, watch, watchAll, watchBatchUpdates, isObserved } = useObservers<T>();
 
@@ -80,9 +81,21 @@ export const useStock = <T extends object>({ initialValues }: StockConfig<T>): S
             watchAll,
             watchBatchUpdates,
             isObserved,
+            debugName,
             paths: createPxth<T>([]),
         }),
-        [getValue, getValues, setValue, setValues, resetValues, watch, watchAll, watchBatchUpdates, isObserved]
+        [
+            getValue,
+            getValues,
+            debugName,
+            setValue,
+            setValues,
+            resetValues,
+            watch,
+            watchAll,
+            watchBatchUpdates,
+            isObserved,
+        ]
     );
 
     useDebugStock(stock);
