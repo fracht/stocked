@@ -4,7 +4,8 @@ on:
         paths-ignore:
             - 'docs/**'
             - 'example/**'
-        branches: [master]
+        branches:
+            - main
 jobs:
     build:
         name: Build, lint, and test on Node ${{ matrix.node }} and ${{ matrix.os }}

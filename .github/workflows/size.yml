@@ -4,7 +4,8 @@ on:
         paths-ignore:
             - 'docs/**'
             - 'example/**'
-        branches: [master]
+        branches:
+            - main
 jobs:
     size:
         runs-on: ubuntu-latest

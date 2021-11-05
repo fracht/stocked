@@ -5,7 +5,8 @@ on:
         paths:
             - 'src/**'
             - 'tests/**'
-        branches: [master]
+        branches:
+            - main
     workflow_dispatch:
 
 jobs:

@@ -4,7 +4,7 @@
 [![npm downloads](https://img.shields.io/npm/dw/stocked)](https://www.npmjs.com/package/stocked)
 [![vulnerabilities](https://img.shields.io/snyk/vulnerabilities/npm/stocked)](https://www.npmjs.com/package/stocked)
 [![gzipped size](https://img.badgesize.io/https:/unpkg.com/stocked/dist/stocked.cjs.production.min.js?compression=gzip)](https://unpkg.com/stocked/dist/stocked.cjs.production.min.js)
-[![Coverage Status](https://coveralls.io/repos/github/ArtiomTr/stocked/badge.svg?branch=master)](https://coveralls.io/github/ArtiomTr/stocked?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/ArtiomTr/stocked/badge.svg?branch=main)](https://coveralls.io/github/ArtiomTr/stocked?branch=main)
 
 > Tiny state management library for react.
 

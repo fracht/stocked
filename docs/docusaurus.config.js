@@ -79,11 +79,11 @@ module.exports = {
             {
                 docs: {
                     sidebarPath: require.resolve('./sidebars.js'),
-                    editUrl: 'https://github.com/ArtiomTr/stocked/edit/master/website/',
+                    editUrl: 'https://github.com/ArtiomTr/stocked/edit/main/docs/',
                 },
                 blog: {
                     showReadingTime: true,
-                    editUrl: 'https://github.com/ArtiomTr/stocked/edit/master/website/blog/',
+                    editUrl: 'https://github.com/ArtiomTr/stocked/edit/main/docs/blog/',
                 },
                 theme: {
                     customCss: require.resolve('./src/css/custom.css'),
