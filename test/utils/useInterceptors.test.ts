@@ -39,7 +39,8 @@ describe('hit cases', () => {
         expect(observer).toBeCalledWith('asdf');
     });
     it('non activated proxy', () => {
-        expect(() => renderUseInterceptorsHook(new DummyProxy(createPxth(['asdf'])))).toThrowError();
+        const { result } = renderUseInterceptorsHook(new DummyProxy(createPxth(['asdf'])));
+        expect(result.error).toBeDefined();
     });
 });
 
