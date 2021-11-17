@@ -1,6 +1,5 @@
 {
     "transformIgnorePatterns": ["[/\\\\]node_modules[/\\\\].+\\.(js|cjs|jsx)$'"],
-    "rootDir": "C:\\Git\\stocked",
     "preset": "ts-jest/presets/js-with-babel",
     "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "cjs", "mjs", "json", "node"],
     "collectCoverageFrom": ["src/**/*.{ts,tsx,js,jsx,cjs,mjs}"],
