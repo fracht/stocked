@@ -343,4 +343,18 @@ describe('Mapping proxy', () => {
         );
         expect(() => proxy.getProxiedPath(createPxth(['registeredUser', 'personalData']))).toThrow();
     });
+
+    it('should proxy object values', () => {
+        const proxy = new MappingProxy(
+            {
+                location: createPxth(['core', 'values', 'location_from']),
+                cmpId: createPxth(['core', 'cmp_id_from']),
+            },
+            createPxth(['compound'])
+        );
+
+        expect(pxthToString(proxy.getNormalPath(createPxth(['compound', 'location', 'id'])))).toBe(
+            pxthToString(createPxth(['core', 'values', 'location_from', 'id']))
+        );
+    });
 });

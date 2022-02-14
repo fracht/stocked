@@ -1,10 +1,10 @@
 import isNil from 'lodash/isNil';
-import { createPxth, deepGet, deepSet, parseSegmentsFromString, Pxth, pxthToString, RootPath } from 'pxth';
+import { deepGet, deepSet, Pxth, pxthToString, RootPath } from 'pxth';
 import invariant from 'tiny-invariant';
 
 import { Observer } from './Observer';
 import { StockProxy } from './StockProxy';
-import { isInnerPath, joinPaths, longestCommonPath, relativePath } from '../utils/pathUtils';
+import { isInnerPath, joinPaths, longestCommonPath, relativePath, stringToPxth } from '../utils/pathUtils';
 
 /**
  * Simple example of StockProxy.
@@ -34,8 +34,7 @@ export class MappingProxy<T> extends StockProxy<T> {
             .sort((a, b) => a.length - b.length)
             .forEach(
                 ([to, from]) =>
-                    from !== undefined &&
-                    defaultSetValue(from, deepGet(value, relativePath(path, createPxth(parseSegmentsFromString(to)))))
+                    from !== undefined && defaultSetValue(from, deepGet(value, relativePath(path, stringToPxth(to))))
             );
     };
 
@@ -65,7 +64,7 @@ export class MappingProxy<T> extends StockProxy<T> {
             (acc, [to, from]) =>
                 deepSet(
                     (acc as unknown) as object,
-                    relativePath(path, createPxth(parseSegmentsFromString(to))),
+                    relativePath(path, stringToPxth(to)),
                     deepGet(value, relativePath(proxiedPath, from!))
                 ) as V,
             {} as V
@@ -82,7 +81,7 @@ export class MappingProxy<T> extends StockProxy<T> {
             'Mapping proxy error: trying to get normal path of proxied path, which is not defined in proxy map'
         );
 
-        return createPxth(parseSegmentsFromString(joinPaths(pxthToString(this.path), normalPath)));
+        return stringToPxth(joinPaths(pxthToString(this.path), normalPath));
     };
 
     public getNormalPath = <V>(path: Pxth<V>): Pxth<V> => {
@@ -90,23 +89,30 @@ export class MappingProxy<T> extends StockProxy<T> {
         const stringifiedPath = pxthToString(normalPath);
 
         const isIndependent = pxthToString(normalPath) in this.map;
+        const isComposite = Object.keys(this.map).some(mappedPath => isInnerPath(stringifiedPath, mappedPath));
+        const isChild = Object.keys(this.map).some(mappedPath => isInnerPath(mappedPath, stringifiedPath));
 
         invariant(
-            isIndependent ||
-                Object.keys(this.map).findIndex(proxiedPath => isInnerPath(stringifiedPath, proxiedPath)) !== -1,
+            isIndependent || isComposite || isChild,
             'Mapping proxy error: trying to proxy value, which is not defined in proxy map.'
         );
 
-        return createPxth(
-            parseSegmentsFromString(
-                isIndependent
-                    ? pxthToString(this.map[stringifiedPath]!)
-                    : longestCommonPath(
-                          Object.entries(this.map)
-                              .filter(([to]) => isInnerPath(stringifiedPath, to))
-                              .map(([, from]) => pxthToString(from!) as string)
-                      )
-            )
-        );
+        if (isIndependent) {
+            return this.map[stringifiedPath]! as Pxth<V>;
+        }
+
+        if (isComposite) {
+            return stringToPxth(
+                longestCommonPath(
+                    Object.entries(this.map)
+                        .filter(([to]) => isInnerPath(stringifiedPath, to))
+                        .map(([, from]) => pxthToString(from!) as string)
+                )
+            );
+        }
+
+        const [to, from] = Object.entries(this.map).find(([mappedPath]) => isInnerPath(mappedPath, stringifiedPath))!;
+
+        return stringToPxth(joinPaths(pxthToString(from!), pxthToString(relativePath(stringToPxth(to), normalPath))));
     };
 }

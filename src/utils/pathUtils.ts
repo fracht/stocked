@@ -12,6 +12,8 @@ export const joinPaths = (...segments: (string | RootPath)[]) => {
     return filteredSegments.join('.');
 };
 
+export const stringToPxth = <V>(path: string | typeof RootPathToken) => createPxth<V>(parseSegmentsFromString(path));
+
 /**
  * Function, which normalizes path.
  *
