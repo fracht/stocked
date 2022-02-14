@@ -90,11 +90,13 @@ export class MappingProxy<T> extends StockProxy<T> {
         const stringifiedPath = pxthToString(normalPath);
 
         const isIndependent = stringifiedPath in this.map;
-        const existsChildPath = Object.keys(this.map).some(mappedPath => isInnerPath(stringifiedPath, mappedPath));
-        const existsParentPath = Object.keys(this.map).some(mappedPath => isInnerPath(mappedPath, stringifiedPath));
+        const hasMappedChildrenPaths = Object.keys(this.map).some(mappedPath =>
+            isInnerPath(stringifiedPath, mappedPath)
+        );
+        const hasMappedParentPaths = Object.keys(this.map).some(mappedPath => isInnerPath(mappedPath, stringifiedPath));
 
         invariant(
-            isIndependent || existsChildPath || existsParentPath,
+            isIndependent || hasMappedChildrenPaths || hasMappedParentPaths,
             'Mapping proxy error: trying to proxy value, which is not defined in proxy map.'
         );
 
@@ -102,7 +104,7 @@ export class MappingProxy<T> extends StockProxy<T> {
             return this.map[stringifiedPath]! as Pxth<V>;
         }
 
-        if (existsChildPath) {
+        if (hasMappedChildrenPaths) {
             return createPxth(
                 parseSegmentsFromString(
                     longestCommonPath(
