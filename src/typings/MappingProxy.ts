@@ -1,10 +1,10 @@
 import isNil from 'lodash/isNil';
-import { deepGet, deepSet, Pxth, pxthToString, RootPath } from 'pxth';
+import { createPxth, deepGet, deepSet, parseSegmentsFromString, Pxth, pxthToString, RootPath } from 'pxth';
 import invariant from 'tiny-invariant';
 
 import { Observer } from './Observer';
 import { StockProxy } from './StockProxy';
-import { isInnerPath, joinPaths, longestCommonPath, relativePath, stringToPxth } from '../utils/pathUtils';
+import { isInnerPath, joinPaths, longestCommonPath, relativePath } from '../utils/pathUtils';
 
 /**
  * Simple example of StockProxy.
@@ -34,7 +34,8 @@ export class MappingProxy<T> extends StockProxy<T> {
             .sort((a, b) => a.length - b.length)
             .forEach(
                 ([to, from]) =>
-                    from !== undefined && defaultSetValue(from, deepGet(value, relativePath(path, stringToPxth(to))))
+                    from !== undefined &&
+                    defaultSetValue(from, deepGet(value, relativePath(path, createPxth(parseSegmentsFromString(to)))))
             );
     };
 
@@ -64,7 +65,7 @@ export class MappingProxy<T> extends StockProxy<T> {
             (acc, [to, from]) =>
                 deepSet(
                     (acc as unknown) as object,
-                    relativePath(path, stringToPxth(to)),
+                    relativePath(path, createPxth(parseSegmentsFromString(to))),
                     deepGet(value, relativePath(proxiedPath, from!))
                 ) as V,
             {} as V
@@ -81,19 +82,19 @@ export class MappingProxy<T> extends StockProxy<T> {
             'Mapping proxy error: trying to get normal path of proxied path, which is not defined in proxy map'
         );
 
-        return stringToPxth(joinPaths(pxthToString(this.path), normalPath));
+        return joinPaths<V>(this.path as Pxth<unknown>, createPxth(parseSegmentsFromString(normalPath)));
     };
 
     public getNormalPath = <V>(path: Pxth<V>): Pxth<V> => {
         const normalPath = relativePath(this.path, path);
         const stringifiedPath = pxthToString(normalPath);
 
-        const isIndependent = pxthToString(normalPath) in this.map;
-        const isComposite = Object.keys(this.map).some(mappedPath => isInnerPath(stringifiedPath, mappedPath));
-        const isChild = Object.keys(this.map).some(mappedPath => isInnerPath(mappedPath, stringifiedPath));
+        const isIndependent = stringifiedPath in this.map;
+        const existsChildPath = Object.keys(this.map).some(mappedPath => isInnerPath(stringifiedPath, mappedPath));
+        const existsParentPath = Object.keys(this.map).some(mappedPath => isInnerPath(mappedPath, stringifiedPath));
 
         invariant(
-            isIndependent || isComposite || isChild,
+            isIndependent || existsChildPath || existsParentPath,
             'Mapping proxy error: trying to proxy value, which is not defined in proxy map.'
         );
 
@@ -101,18 +102,23 @@ export class MappingProxy<T> extends StockProxy<T> {
             return this.map[stringifiedPath]! as Pxth<V>;
         }
 
-        if (isComposite) {
-            return stringToPxth(
-                longestCommonPath(
-                    Object.entries(this.map)
-                        .filter(([to]) => isInnerPath(stringifiedPath, to))
-                        .map(([, from]) => pxthToString(from!) as string)
+        if (existsChildPath) {
+            return createPxth(
+                parseSegmentsFromString(
+                    longestCommonPath(
+                        Object.entries(this.map)
+                            .filter(([to]) => isInnerPath(stringifiedPath, to))
+                            .map(([, from]) => pxthToString(from!) as string)
+                    )
                 )
             );
         }
 
         const [to, from] = Object.entries(this.map).find(([mappedPath]) => isInnerPath(mappedPath, stringifiedPath))!;
 
-        return stringToPxth(joinPaths(pxthToString(from!), pxthToString(relativePath(stringToPxth(to), normalPath))));
+        const pxthTo = createPxth(parseSegmentsFromString(to));
+        const pxthFrom = from!;
+
+        return joinPaths<V>(pxthFrom, relativePath(pxthTo, normalPath as Pxth<unknown>));
     };
 }

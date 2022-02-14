@@ -5,10 +5,12 @@ import { isInnerPath, joinPaths, longestCommonPath, normalizePath, relativePath 
 
 describe('joinPaths', () => {
     it('should join paths', () => {
-        expect(joinPaths('hello', 'world')).toBe('hello.world');
-        expect(joinPaths(RootPathToken, RootPathToken)).toBe(RootPathToken);
-        expect(joinPaths(RootPathToken, 'hello')).toBe('hello');
-        expect(joinPaths(RootPathToken, 'hello', 'world')).toBe('hello.world');
+        expect(pxthToString(joinPaths(createPxth(['hello']), createPxth(['world'])))).toBe('hello.world');
+        expect(pxthToString(joinPaths(RootPathToken, RootPathToken))).toBe(RootPathToken);
+        expect(pxthToString(joinPaths(RootPathToken, createPxth(['hello'])))).toBe('hello');
+        expect(pxthToString(joinPaths(RootPathToken, createPxth(['hello']), createPxth(['world'])))).toBe(
+            'hello.world'
+        );
     });
 });
 

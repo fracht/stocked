@@ -2,17 +2,17 @@ import toPath from 'lodash/toPath';
 import { createPxth, parseSegmentsFromString, Pxth, pxthToString, RootPath, RootPathToken } from 'pxth';
 import invariant from 'tiny-invariant';
 
-export const joinPaths = (...segments: (string | RootPath)[]) => {
+export const joinPaths = <V>(...segments: (RootPath | Pxth<unknown>)[]): Pxth<V> => {
     const filteredSegments = segments.filter(segment => segment !== RootPathToken);
 
     if (filteredSegments.length === 0) {
-        return RootPathToken;
+        return createPxth([]);
     }
 
-    return filteredSegments.join('.');
+    return createPxth<V>(
+        parseSegmentsFromString(filteredSegments.map(segment => pxthToString(segment as Pxth<unknown>)).join('.'))
+    );
 };
-
-export const stringToPxth = <V>(path: string | typeof RootPathToken) => createPxth<V>(parseSegmentsFromString(path));
 
 /**
  * Function, which normalizes path.
