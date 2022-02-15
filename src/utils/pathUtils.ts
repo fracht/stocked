@@ -1,17 +1,25 @@
 import toPath from 'lodash/toPath';
-import { createPxth, parseSegmentsFromString, Pxth, pxthToString, RootPath, RootPathToken } from 'pxth';
+import {
+    createPxth,
+    getPxthSegments,
+    parseSegmentsFromString,
+    Pxth,
+    pxthToString,
+    RootPath,
+    RootPathToken,
+} from 'pxth';
 import invariant from 'tiny-invariant';
 
-export const joinPaths = <V>(...segments: (RootPath | Pxth<unknown>)[]): Pxth<V> => {
-    const filteredSegments = segments.filter(segment => segment !== RootPathToken);
-
-    if (filteredSegments.length === 0) {
+export const joinPaths = <V>(...segments: Pxth<unknown>[]): Pxth<V> => {
+    if (segments.length === 0) {
         return createPxth([]);
     }
 
-    return createPxth<V>(
-        parseSegmentsFromString(filteredSegments.map(segment => pxthToString(segment as Pxth<unknown>)).join('.'))
-    );
+    return createPxth<V>([
+        ...segments.map(getPxthSegments).reduce((acc, array) => {
+            return acc.concat(array);
+        }, []),
+    ]);
 };
 
 /**
