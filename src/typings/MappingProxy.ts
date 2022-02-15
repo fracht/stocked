@@ -44,16 +44,16 @@ export class MappingProxy<T> extends StockProxy<T> {
         observer: Observer<V>,
         defaultWatch: <U>(path: Pxth<U>, observer: Observer<U>) => () => void
     ) => {
-        const proxiedPath = this.getNormalPath(path);
-        return defaultWatch(proxiedPath, value => observer(this.mapValue(value, path, proxiedPath!) as V));
+        const normalPath = this.getNormalPath(path);
+        return defaultWatch(normalPath, value => observer(this.mapValue(value, path, normalPath!) as V));
     };
 
     public getValue = <V>(path: Pxth<V>, defaultGetValue: <U>(path: Pxth<U>) => U): V => {
-        const proxiedPath = this.getNormalPath(path);
-        return this.mapValue(defaultGetValue(proxiedPath), path, proxiedPath!) as V;
+        const normalPath = this.getNormalPath(path);
+        return this.mapValue(defaultGetValue(normalPath), path, normalPath!) as V;
     };
 
-    private mapValue = <V>(value: V, path: Pxth<V>, proxiedPath: Pxth<V>): V => {
+    private mapValue = <V>(value: V, path: Pxth<V>, normalPath: Pxth<V>): V => {
         path = relativePath(this.path, path);
 
         const stringifiedPath = pxthToString(path);
@@ -61,12 +61,13 @@ export class MappingProxy<T> extends StockProxy<T> {
         const innerPaths = Object.entries(this.map).filter(
             ([to]) => isInnerPath(stringifiedPath, to) || stringifiedPath === to
         );
+
         return innerPaths.reduce<V>(
             (acc, [to, from]) =>
                 deepSet(
                     (acc as unknown) as object,
                     relativePath(path, createPxth(parseSegmentsFromString(to))),
-                    deepGet(value, relativePath(proxiedPath, from!))
+                    deepGet(value, relativePath(normalPath, from!))
                 ) as V,
             {} as V
         );

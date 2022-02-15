@@ -356,5 +356,22 @@ describe('Mapping proxy', () => {
         expect(pxthToString(proxy.getNormalPath(createPxth(['compound', 'location', 'id'])))).toBe(
             pxthToString(createPxth(['core', 'values', 'location_from', 'id']))
         );
+
+        const values = {
+            core: {
+                cmp_id_from: 5,
+                values: {
+                    location_from: {
+                        id: 24,
+                    },
+                },
+            },
+        };
+
+        const fn = jest.fn(path => {
+            return deepGet(values, path);
+        });
+        const value = proxy.getValue(createPxth(['compound', 'location', 'id']), fn as <U>(path: Pxth<U>) => U);
+        expect(value).toBe(24);
     });
 });
