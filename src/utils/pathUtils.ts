@@ -15,11 +15,7 @@ export const joinPaths = <V>(...segments: Pxth<unknown>[]): Pxth<V> => {
         return createPxth([]);
     }
 
-    return createPxth<V>([
-        ...segments.map(getPxthSegments).reduce((acc, array) => {
-            return acc.concat(array);
-        }, []),
-    ]);
+    return createPxth<V>(segments.map(getPxthSegments).flat());
 };
 
 /**
