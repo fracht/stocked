@@ -22,21 +22,27 @@ export class MappingProxy<T> extends StockProxy<T> {
     }
 
     public setValue = <V>(path: Pxth<V>, value: V, defaultSetValue: <U>(path: Pxth<U>, value: U) => void) => {
-        path = relativePath(this.path, path);
+        const relativeValuePath = relativePath(this.path, path);
 
-        const stringifiedPath = pxthToString(path);
+        const stringifiedPath = pxthToString(relativeValuePath);
+
+        if (Object.keys(this.map).some(mappedPath => isInnerPath(mappedPath, stringifiedPath))) {
+            const normalPath = this.getNormalPath(path);
+            defaultSetValue(normalPath, value);
+        }
 
         const innerPaths = Object.entries(this.map).filter(
             ([to]) => isInnerPath(stringifiedPath, to) || stringifiedPath === to
         );
 
-        innerPaths
-            .sort((a, b) => a.length - b.length)
-            .forEach(
-                ([to, from]) =>
-                    from !== undefined &&
-                    defaultSetValue(from, deepGet(value, relativePath(path, createPxth(parseSegmentsFromString(to)))))
-            );
+        innerPaths.forEach(
+            ([to, from]) =>
+                from !== undefined &&
+                defaultSetValue(
+                    from,
+                    deepGet(value, relativePath(relativeValuePath, createPxth(parseSegmentsFromString(to))))
+                )
+        );
     };
 
     public watch = <V>(
@@ -57,6 +63,10 @@ export class MappingProxy<T> extends StockProxy<T> {
         path = relativePath(this.path, path);
 
         const stringifiedPath = pxthToString(path);
+
+        if (Object.keys(this.map).some(mappedPath => isInnerPath(mappedPath, stringifiedPath))) {
+            return value;
+        }
 
         const innerPaths = Object.entries(this.map).filter(
             ([to]) => isInnerPath(stringifiedPath, to) || stringifiedPath === to
