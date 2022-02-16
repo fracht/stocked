@@ -52,12 +52,12 @@ export class MappingProxy<T> extends StockProxy<T> {
         defaultWatch: <U>(path: Pxth<U>, observer: Observer<U>) => () => void
     ) => {
         const normalPath = this.getNormalPath(path);
-        return defaultWatch(normalPath, value => observer(this.mapValue(value, path, normalPath!) as V));
+        return defaultWatch(normalPath, value => observer(this.mapValue(value, path, normalPath) as V));
     };
 
     public getValue = <V>(path: Pxth<V>, defaultGetValue: <U>(path: Pxth<U>) => U): V => {
         const normalPath = this.getNormalPath(path);
-        return this.mapValue(defaultGetValue(normalPath), path, normalPath!) as V;
+        return this.mapValue(defaultGetValue(normalPath), path, normalPath) as V;
     };
 
     private mapValue = <V>(value: V, path: Pxth<V>, normalPath: Pxth<V>): V => {
