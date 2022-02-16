@@ -26,9 +26,10 @@ export class MappingProxy<T> extends StockProxy<T> {
 
         const stringifiedPath = pxthToString(relativeValuePath);
 
-        if (Object.keys(this.map).some(mappedPath => isInnerPath(mappedPath, stringifiedPath))) {
+        if (this.hasMappedPrivatePaths(stringifiedPath)) {
             const normalPath = this.getNormalPath(path);
             defaultSetValue(normalPath, value);
+            return;
         }
 
         const innerPaths = Object.entries(this.map).filter(
@@ -64,7 +65,7 @@ export class MappingProxy<T> extends StockProxy<T> {
 
         const stringifiedPath = pxthToString(path);
 
-        if (Object.keys(this.map).some(mappedPath => isInnerPath(mappedPath, stringifiedPath))) {
+        if (this.hasMappedPrivatePaths(stringifiedPath)) {
             return value;
         }
 
@@ -82,6 +83,9 @@ export class MappingProxy<T> extends StockProxy<T> {
             {} as V
         );
     };
+
+    private hasMappedPrivatePaths = (stringifiedPath: string | RootPath) =>
+        Object.keys(this.map).some(mappedPath => isInnerPath(mappedPath, stringifiedPath));
 
     public getProxiedPath = <V>(path: Pxth<V>): Pxth<V> => {
         const proxiedPath = pxthToString(path);
@@ -104,12 +108,7 @@ export class MappingProxy<T> extends StockProxy<T> {
         const hasMappedChildrenPaths = Object.keys(this.map).some(mappedPath =>
             isInnerPath(stringifiedPath, mappedPath)
         );
-        const hasMappedParentPaths = Object.keys(this.map).some(mappedPath => isInnerPath(mappedPath, stringifiedPath));
-
-        invariant(
-            isIndependent || hasMappedChildrenPaths || hasMappedParentPaths,
-            'Mapping proxy error: trying to proxy value, which is not defined in proxy map.'
-        );
+        const hasMappedParentPaths = this.hasMappedPrivatePaths(stringifiedPath);
 
         if (isIndependent) {
             return this.map[stringifiedPath]! as Pxth<V>;
@@ -127,11 +126,17 @@ export class MappingProxy<T> extends StockProxy<T> {
             );
         }
 
-        const [to, from] = Object.entries(this.map).find(([mappedPath]) => isInnerPath(mappedPath, stringifiedPath))!;
+        if (hasMappedParentPaths) {
+            const [to, from] = Object.entries(this.map).find(([mappedPath]) =>
+                isInnerPath(mappedPath, stringifiedPath)
+            )!;
 
-        const pxthTo = createPxth(parseSegmentsFromString(to));
-        const pxthFrom = from!;
+            const pxthTo = createPxth(parseSegmentsFromString(to));
+            const pxthFrom = from!;
 
-        return joinPaths<V>(pxthFrom, relativePath(pxthTo, normalPath as Pxth<unknown>));
+            return joinPaths<V>(pxthFrom, relativePath(pxthTo, normalPath as Pxth<unknown>));
+        }
+
+        invariant(false, 'Mapping proxy error: trying to proxy value, which is not defined in proxy map.');
     };
 }
