@@ -26,7 +26,7 @@ export class MappingProxy<T> extends StockProxy<T> {
 
         const stringifiedPath = pxthToString(relativeValuePath);
 
-        if (this.hasMappedParentPaths(relativeValuePath as Pxth<unknown>)) {
+        if (this.hasMappedParentPaths(relativeValuePath)) {
             const normalPath = this.getNormalPath(path);
             defaultSetValue(normalPath, value);
             return;
@@ -65,7 +65,7 @@ export class MappingProxy<T> extends StockProxy<T> {
 
         const stringifiedPath = pxthToString(path);
 
-        if (this.hasMappedParentPaths(path as Pxth<unknown>)) {
+        if (this.hasMappedParentPaths(path)) {
             return value;
         }
 
@@ -84,8 +84,10 @@ export class MappingProxy<T> extends StockProxy<T> {
         );
     };
 
-    private hasMappedParentPaths = (path: Pxth<unknown>) =>
-        Object.keys(this.map).some(mappedPath => isInnerPath(mappedPath, pxthToString(path)));
+    private hasMappedParentPaths = <V>(path: Pxth<V>) => {
+        const stringifiedPath = pxthToString(path);
+        return Object.keys(this.map).some(mappedPath => isInnerPath(mappedPath, stringifiedPath));
+    }
 
     public getProxiedPath = <V>(path: Pxth<V>): Pxth<V> => {
         const proxiedPath = pxthToString(path);
@@ -126,7 +128,7 @@ export class MappingProxy<T> extends StockProxy<T> {
             );
         }
 
-        const hasMappedParentPaths = this.hasMappedParentPaths(normalPath as Pxth<unknown>);
+        const hasMappedParentPaths = this.hasMappedParentPaths(normalPath);
 
         if (hasMappedParentPaths) {
             const [to, from] = Object.entries(this.map).find(([mappedPath]) =>
