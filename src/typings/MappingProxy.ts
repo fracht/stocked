@@ -87,7 +87,7 @@ export class MappingProxy<T> extends StockProxy<T> {
     private hasMappedParentPaths = <V>(path: Pxth<V>) => {
         const stringifiedPath = pxthToString(path);
         return Object.keys(this.map).some(mappedPath => isInnerPath(mappedPath, stringifiedPath));
-    }
+    };
 
     public getProxiedPath = <V>(path: Pxth<V>): Pxth<V> => {
         const proxiedPath = pxthToString(path);
