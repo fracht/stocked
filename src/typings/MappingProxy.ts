@@ -26,7 +26,7 @@ export class MappingProxy<T> extends StockProxy<T> {
 
         const stringifiedPath = pxthToString(relativeValuePath);
 
-        if (this.hasMappedPrivatePaths(stringifiedPath)) {
+        if (this.hasMappedParentPaths(relativeValuePath as Pxth<unknown>)) {
             const normalPath = this.getNormalPath(path);
             defaultSetValue(normalPath, value);
             return;
@@ -65,7 +65,7 @@ export class MappingProxy<T> extends StockProxy<T> {
 
         const stringifiedPath = pxthToString(path);
 
-        if (this.hasMappedPrivatePaths(stringifiedPath)) {
+        if (this.hasMappedParentPaths(path as Pxth<unknown>)) {
             return value;
         }
 
@@ -84,8 +84,8 @@ export class MappingProxy<T> extends StockProxy<T> {
         );
     };
 
-    private hasMappedPrivatePaths = (stringifiedPath: string | RootPath) =>
-        Object.keys(this.map).some(mappedPath => isInnerPath(mappedPath, stringifiedPath));
+    private hasMappedParentPaths = (path: Pxth<unknown>) =>
+        Object.keys(this.map).some(mappedPath => isInnerPath(mappedPath, pxthToString(path)));
 
     public getProxiedPath = <V>(path: Pxth<V>): Pxth<V> => {
         const proxiedPath = pxthToString(path);
@@ -105,14 +105,14 @@ export class MappingProxy<T> extends StockProxy<T> {
         const stringifiedPath = pxthToString(normalPath);
 
         const isIndependent = stringifiedPath in this.map;
-        const hasMappedChildrenPaths = Object.keys(this.map).some(mappedPath =>
-            isInnerPath(stringifiedPath, mappedPath)
-        );
-        const hasMappedParentPaths = this.hasMappedPrivatePaths(stringifiedPath);
 
         if (isIndependent) {
             return this.map[stringifiedPath]! as Pxth<V>;
         }
+
+        const hasMappedChildrenPaths = Object.keys(this.map).some(mappedPath =>
+            isInnerPath(stringifiedPath, mappedPath)
+        );
 
         if (hasMappedChildrenPaths) {
             return createPxth(
@@ -125,6 +125,8 @@ export class MappingProxy<T> extends StockProxy<T> {
                 )
             );
         }
+
+        const hasMappedParentPaths = this.hasMappedParentPaths(normalPath as Pxth<unknown>);
 
         if (hasMappedParentPaths) {
             const [to, from] = Object.entries(this.map).find(([mappedPath]) =>
