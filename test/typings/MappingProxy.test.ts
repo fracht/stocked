@@ -453,11 +453,19 @@ describe('Mapping proxy', () => {
         );
 
         const observer = jest.fn();
-        const defaultWatch = jest.fn();
+        const defaultWatch = jest.fn((_path, proxiedObserver: (value: unknown) => void) => {
+            proxiedObserver(42);
+            return jest.fn();
+        });
 
-        proxy.watch(createPxth(['compound', 'location', 'id']), observer, defaultWatch);
+        proxy.watch(
+            createPxth(['compound', 'location', 'id']),
+            observer,
+            defaultWatch as <U>(path: Pxth<U>, observer: Observer<U>) => () => void
+        );
 
         expect(pxthToString(defaultWatch.mock.calls[0][0])).toBe('core.values.location_from.id');
         expect(defaultWatch.mock.calls[0][1]).toBeDefined();
+        expect(observer).toBeCalledWith(42);
     });
 });
