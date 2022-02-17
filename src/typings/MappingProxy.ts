@@ -5,6 +5,7 @@ import invariant from 'tiny-invariant';
 import { Observer } from './Observer';
 import { ProxyMap } from './ProxyMap';
 import { StockProxy } from './StockProxy';
+import { flattenObject } from '../utils/flattenObject';
 import { isInnerPath, joinPaths, longestCommonPath, relativePath } from '../utils/pathUtils';
 
 /**
@@ -15,11 +16,11 @@ import { isInnerPath, joinPaths, longestCommonPath, relativePath } from '../util
  * }
  */
 export class MappingProxy<T> extends StockProxy<T> {
-    private readonly map: ProxyMap<T>;
+    private readonly flattenMap: Record<string, Pxth<unknown>>;
 
     public constructor(map: ProxyMap<T>, path: Pxth<T>) {
         super(path);
-        this.map = map;
+        this.flattenMap = flattenObject(map) as Record<string, Pxth<unknown>>;
     }
 
     public setValue = <V>(path: Pxth<V>, value: V, defaultSetValue: <U>(path: Pxth<U>, value: U) => void) => {
@@ -33,7 +34,7 @@ export class MappingProxy<T> extends StockProxy<T> {
             return;
         }
 
-        const innerPaths = Object.entries(this.map).filter(
+        const innerPaths = Object.entries(this.flattenMap).filter(
             ([to]) => isInnerPath(stringifiedPath, to) || stringifiedPath === to
         );
 
@@ -70,7 +71,7 @@ export class MappingProxy<T> extends StockProxy<T> {
             return value;
         }
 
-        const innerPaths = Object.entries(this.map).filter(
+        const innerPaths = Object.entries(this.flattenMap).filter(
             ([to]) => isInnerPath(stringifiedPath, to) || stringifiedPath === to
         );
 
@@ -87,13 +88,13 @@ export class MappingProxy<T> extends StockProxy<T> {
 
     private hasMappedParentPaths = <V>(path: Pxth<V>) => {
         const stringifiedPath = pxthToString(path);
-        return Object.keys(this.map).some(mappedPath => isInnerPath(mappedPath, stringifiedPath));
+        return Object.keys(this.flattenMap).some(mappedPath => isInnerPath(mappedPath, stringifiedPath));
     };
 
     public getProxiedPath = <V>(path: Pxth<V>): Pxth<V> => {
         const proxiedPath = pxthToString(path);
 
-        const normalPath = Object.entries(this.map).find(([, from]) => pxthToString(from!) === proxiedPath)?.[0];
+        const normalPath = Object.entries(this.flattenMap).find(([, from]) => pxthToString(from!) === proxiedPath)?.[0];
 
         invariant(
             !isNil(normalPath),
@@ -107,13 +108,13 @@ export class MappingProxy<T> extends StockProxy<T> {
         const normalPath = relativePath(this.path, path);
         const stringifiedPath = pxthToString(normalPath);
 
-        const isIndependent = stringifiedPath in this.map;
+        const isIndependent = stringifiedPath in this.flattenMap;
 
         if (isIndependent) {
-            return this.map[stringifiedPath]! as Pxth<V>;
+            return this.flattenMap[stringifiedPath as string]! as Pxth<V>;
         }
 
-        const hasMappedChildrenPaths = Object.keys(this.map).some(mappedPath =>
+        const hasMappedChildrenPaths = Object.keys(this.flattenMap).some(mappedPath =>
             isInnerPath(stringifiedPath, mappedPath)
         );
 
@@ -121,7 +122,7 @@ export class MappingProxy<T> extends StockProxy<T> {
             return createPxth(
                 parseSegmentsFromString(
                     longestCommonPath(
-                        Object.entries(this.map)
+                        Object.entries(this.flattenMap)
                             .filter(([to]) => isInnerPath(stringifiedPath, to))
                             .map(([, from]) => pxthToString(from!) as string)
                     )
@@ -132,7 +133,7 @@ export class MappingProxy<T> extends StockProxy<T> {
         const hasMappedParentPaths = this.hasMappedParentPaths(normalPath);
 
         if (hasMappedParentPaths) {
-            const [to, from] = Object.entries(this.map).find(([mappedPath]) =>
+            const [to, from] = Object.entries(this.flattenMap).find(([mappedPath]) =>
                 isInnerPath(mappedPath, stringifiedPath)
             )!;
 
