@@ -1,13 +1,13 @@
-import { createPxth } from 'pxth';
+import { createPxth, RootPathToken } from 'pxth';
 
 import { flattenProxyMap } from '../../src/utils/flattenProxyMap';
 
 describe('flatten proxy map', () => {
-    it('should handle unusual cases', () => {
+    it('should flatten empty', () => {
         expect(flattenProxyMap({})).toStrictEqual({});
     });
 
-    it('should handle usual cases', () => {
+    it('should flatten nested object', () => {
         const somePath = createPxth(['some', 'path']);
         const pathToName = createPxth(['path', 'to', 'name']);
         const pathToSurname = createPxth(['path', 'to', 'surname']);
@@ -33,5 +33,26 @@ describe('flatten proxy map', () => {
         expect(flattenMap['path.hello']).toBe(somePath);
         expect(flattenMap['path.field.name']).toBe(pathToName);
         expect(flattenMap['path.field.surname']).toBe(pathToSurname);
+    });
+
+    it('should flatten RootPath symbol', () => {
+        const path = createPxth(['path']);
+
+        const flattenMap = flattenProxyMap({
+            [RootPathToken]: path,
+        });
+
+        expect(flattenMap[RootPathToken]).toBe(path);
+    });
+
+    it('should flatten maps with arrays', () => {
+        const flattenMap = flattenProxyMap<{ people: Array<{ phone: number; name: string }> }>({
+            people: index => ({
+                name: createPxth(['names', index.toString()]),
+                phone: createPxth(['phones', index.toString()]),
+            }),
+        });
+
+        console.log(flattenMap);
     });
 });

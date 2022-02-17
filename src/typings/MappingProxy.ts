@@ -3,20 +3,26 @@ import { createPxth, deepGet, deepSet, parseSegmentsFromString, Pxth, pxthToStri
 import invariant from 'tiny-invariant';
 
 import { Observer } from './Observer';
-import { ProxyMap } from './ProxyMap';
+import { ArrayMappingType, ProxyMap } from './ProxyMap';
 import { StockProxy } from './StockProxy';
 import { flattenProxyMap } from '../utils/flattenProxyMap';
 import { isInnerPath, joinPaths, longestCommonPath, relativePath } from '../utils/pathUtils';
+
+export type FlattenMapType = Record<string | RootPath, Pxth<unknown> | ArrayMappingType<unknown[]>>;
 
 /**
  * Simple example of StockProxy.
  * Proxies values by map. Map is built by this method:
  * {
- *      "<relative path to variable, inside proxied value>": "<path to real value, in stock>"
+ *      relative: {
+ *          proxied: {
+ *              path: "<path to real value, in stock>"
+ *          },
+ *      }
  * }
  */
 export class MappingProxy<T> extends StockProxy<T> {
-    private readonly flattenMap: Partial<Record<string | RootPath, Pxth<unknown>>>;
+    private readonly flattenMap: Partial<FlattenMapType>;
 
     public constructor(map: ProxyMap<T>, path: Pxth<T>) {
         super(path);

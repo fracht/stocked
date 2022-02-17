@@ -185,10 +185,14 @@ describe('Mapping proxy', () => {
                 plate_no: fullData.truck.info.trailerNo,
             },
             company: fullData.truck.owner.companyName,
-            contact_name: fullData.truck.owner.contacts[0].name,
-            contact_id: fullData.truck.owner.contacts[0].contactId,
-            contact_email: fullData.truck.owner.contacts[0].contactInfo.email,
-            contact_phone: fullData.truck.owner.contacts[0].contactInfo.phone,
+            contacts: [
+                {
+                    contact_name: fullData.truck.owner.contacts[0].name,
+                    contact_id: fullData.truck.owner.contacts[0].contactId,
+                    contact_email: fullData.truck.owner.contacts[0].contactInfo.email,
+                    contact_phone: fullData.truck.owner.contacts[0].contactInfo.phone,
+                },
+            ],
         };
 
         const proxy = new MappingProxy<{
@@ -213,14 +217,14 @@ describe('Mapping proxy', () => {
                     trailerNo: createPxth(['trailer', 'plate_no']),
                 },
                 owner: {
-                    contacts: {
-                        name: createPxth(['contact_name']),
-                        contactId: createPxth(['contact_id']),
+                    contacts: index => ({
+                        name: createPxth(['contacts', index.toString(), 'contact_name']),
+                        contactId: createPxth(['contacts', index.toString(), 'contact_id']),
                         contactInfo: {
-                            email: createPxth(['contact_email']),
-                            phone: createPxth(['contact_phone']),
+                            email: createPxth(['contacts', index.toString(), 'contact_email']),
+                            phone: createPxth(['contacts', index.toString(), 'contact_phone']),
                         },
-                    },
+                    }),
                 },
             },
             createPxth(['truck'])

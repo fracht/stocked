@@ -1,16 +1,17 @@
-import { createPxth, Pxth, pxthToString, RootPath, RootPathToken } from 'pxth';
+import { createPxth, Pxth, pxthToString, RootPathToken } from 'pxth';
 
 import { joinPaths } from './pathUtils';
+import { FlattenMapType } from '../typings/MappingProxy';
 import { ProxyMap } from '../typings/ProxyMap';
 
 const getAllObjectKeys = (obj: object) => [...Object.getOwnPropertyNames(obj), ...Object.getOwnPropertySymbols(obj)];
 
-export const flattenProxyMap = <V>(map: ProxyMap<V>): Partial<Record<string | RootPath, Pxth<unknown>>> => {
+export const flattenProxyMap = <V>(map: ProxyMap<V>): Partial<FlattenMapType> => {
     if (getAllObjectKeys(map).length === 0) return {};
 
     const queue: Array<[Pxth<unknown>, object]> = [[createPxth([]), map]];
 
-    const result: Partial<Record<string | RootPath, Pxth<unknown>>> = {};
+    const result: Partial<FlattenMapType> = {};
 
     while (queue.length) {
         const [pathToObject, innerObject] = queue.shift()!;
