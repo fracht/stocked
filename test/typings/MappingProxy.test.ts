@@ -2,6 +2,17 @@ import { createPxth, deepGet, deepSet, Pxth, pxthToString, RootPathToken } from 
 
 import { MappingProxy, Observer } from '../../src/typings';
 
+type RegisteredUser = {
+    registrationDate: Date;
+    personalData: {
+        name: {
+            firstName: string;
+            lastName: string;
+        };
+        birthday: Date;
+    };
+};
+
 describe('Mapping proxy', () => {
     it('should instantiate', () => {
         expect(() => new MappingProxy({}, createPxth(['']))).not.toThrowError();
@@ -85,12 +96,16 @@ describe('Mapping proxy', () => {
             dateOfBirth: fullUser.personalData.birthday,
         };
 
-        const proxy = new MappingProxy(
+        const proxy = new MappingProxy<RegisteredUser>(
             {
-                'personalData.name.firstName': createPxth(['registeredUser', 'name']),
-                'personalData.name.lastName': createPxth(['registeredUser', 'surname']),
-                'personalData.birthday': createPxth(['dateOfBirth']),
                 registrationDate: createPxth(['registeredUser', 'dates', 'registration']),
+                personalData: {
+                    name: {
+                        firstName: createPxth(['registeredUser', 'name']),
+                        lastName: createPxth(['registeredUser', 'surname']),
+                    },
+                    birthday: createPxth(['dateOfBirth']),
+                },
             },
             createPxth(['registeredUser'])
         );
@@ -176,14 +191,37 @@ describe('Mapping proxy', () => {
             contact_phone: fullData.truck.owner.contacts[0].contactInfo.phone,
         };
 
-        const proxy = new MappingProxy(
+        const proxy = new MappingProxy<{
+            info: {
+                truckNo: string;
+                trailerNo: string;
+            };
+            owner: {
+                contacts: Array<{
+                    name: string;
+                    contactId: number;
+                    contactInfo: {
+                        email: string;
+                        phone: string;
+                    };
+                }>;
+            };
+        }>(
             {
-                'info.truckNo': createPxth(['truck', 'plate_no']),
-                'info.trailerNo': createPxth(['trailer', 'plate_no']),
-                'owner.contacts[0].name': createPxth(['contact_name']),
-                'owner.contacts[0].contactId': createPxth(['contact_id']),
-                'owner.contacts[0].contactInfo.email': createPxth(['contact_email']),
-                'owner.contacts[0].contactInfo.phone': createPxth(['contact_phone']),
+                info: {
+                    truckNo: createPxth(['truck', 'plate_no']),
+                    trailerNo: createPxth(['trailer', 'plate_no']),
+                },
+                owner: {
+                    contacts: {
+                        name: createPxth(['contact_name']),
+                        contactId: createPxth(['contact_id']),
+                        contactInfo: {
+                            email: createPxth(['contact_email']),
+                            phone: createPxth(['contact_phone']),
+                        },
+                    },
+                },
             },
             createPxth(['truck'])
         );
@@ -214,12 +252,16 @@ describe('Mapping proxy', () => {
     });
 
     it('should set proxied value', () => {
-        const proxy = new MappingProxy(
+        const proxy = new MappingProxy<RegisteredUser>(
             {
-                'personalData.name.firstName': createPxth(['registeredUser', 'name']),
-                'personalData.name.lastName': createPxth(['registeredUser', 'surname']),
-                'personalData.birthday': createPxth(['dateOfBirth']),
                 registrationDate: createPxth(['registeredUser', 'dates', 'registration']),
+                personalData: {
+                    name: {
+                        firstName: createPxth(['registeredUser', 'name']),
+                        lastName: createPxth(['registeredUser', 'surname']),
+                    },
+                    birthday: createPxth(['dateOfBirth']),
+                },
             },
             createPxth(['registeredUser'])
         );
@@ -279,12 +321,16 @@ describe('Mapping proxy', () => {
             dateOfBirth: fullUser.personalData.birthday,
         };
 
-        const proxy = new MappingProxy(
+        const proxy = new MappingProxy<RegisteredUser>(
             {
-                'personalData.name.firstName': createPxth(['registeredUser', 'name']),
-                'personalData.name.lastName': createPxth(['registeredUser', 'surname']),
-                'personalData.birthday': createPxth(['dateOfBirth']),
                 registrationDate: createPxth(['registeredUser', 'dates', 'registration']),
+                personalData: {
+                    name: {
+                        firstName: createPxth(['registeredUser', 'name']),
+                        lastName: createPxth(['registeredUser', 'surname']),
+                    },
+                    birthday: createPxth(['dateOfBirth']),
+                },
             },
             createPxth(['registeredUser'])
         );
@@ -303,11 +349,15 @@ describe('Mapping proxy', () => {
     });
 
     it('should return normal path from proxied path', () => {
-        const proxy = new MappingProxy(
+        const proxy = new MappingProxy<RegisteredUser & { location: { city: string } }>(
             {
-                'personalData.name.firstName': createPxth(['registeredUser', 'name']),
-                'personalData.name.lastName': createPxth(['registeredUser', 'surname']),
-                'personalData.birthday': createPxth(['dateOfBirth']),
+                personalData: {
+                    name: {
+                        firstName: createPxth(['registeredUser', 'name']),
+                        lastName: createPxth(['registeredUser', 'surname']),
+                    },
+                    birthday: createPxth(['dateOfBirth']),
+                },
                 registrationDate: createPxth(['registeredUser', 'dates', 'registration']),
                 location: createPxth(['registeredUser', 'personalData', 'home_location']),
             },
@@ -329,12 +379,16 @@ describe('Mapping proxy', () => {
     });
 
     it('should return proxied path from normal path', () => {
-        const proxy = new MappingProxy(
+        const proxy = new MappingProxy<RegisteredUser>(
             {
-                'personalData.name.firstName': createPxth(['registeredUser', 'name']),
-                'personalData.name.lastName': createPxth(['registeredUser', 'surname']),
-                'personalData.birthday': createPxth(['dateOfBirth']),
                 registrationDate: createPxth(['registeredUser', 'dates', 'registration']),
+                personalData: {
+                    name: {
+                        firstName: createPxth(['registeredUser', 'name']),
+                        lastName: createPxth(['registeredUser', 'surname']),
+                    },
+                    birthday: createPxth(['dateOfBirth']),
+                },
             },
             createPxth(['registeredUser'])
         );

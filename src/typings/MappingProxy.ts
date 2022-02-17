@@ -1,8 +1,9 @@
 import isNil from 'lodash/isNil';
-import { createPxth, deepGet, deepSet, parseSegmentsFromString, Pxth, pxthToString, RootPath } from 'pxth';
+import { createPxth, deepGet, deepSet, parseSegmentsFromString, Pxth, pxthToString } from 'pxth';
 import invariant from 'tiny-invariant';
 
 import { Observer } from './Observer';
+import { ProxyMap } from './ProxyMap';
 import { StockProxy } from './StockProxy';
 import { isInnerPath, joinPaths, longestCommonPath, relativePath } from '../utils/pathUtils';
 
@@ -14,9 +15,9 @@ import { isInnerPath, joinPaths, longestCommonPath, relativePath } from '../util
  * }
  */
 export class MappingProxy<T> extends StockProxy<T> {
-    private readonly map: Partial<Record<string | RootPath, Pxth<unknown>>>;
+    private readonly map: ProxyMap<T>;
 
-    public constructor(map: Partial<Record<string | RootPath, Pxth<unknown>>>, path: Pxth<T>) {
+    public constructor(map: ProxyMap<T>, path: Pxth<T>) {
         super(path);
         this.map = map;
     }
