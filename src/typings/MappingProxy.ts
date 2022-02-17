@@ -1,11 +1,11 @@
 import isNil from 'lodash/isNil';
-import { createPxth, deepGet, deepSet, parseSegmentsFromString, Pxth, pxthToString } from 'pxth';
+import { createPxth, deepGet, deepSet, parseSegmentsFromString, Pxth, pxthToString, RootPath } from 'pxth';
 import invariant from 'tiny-invariant';
 
 import { Observer } from './Observer';
 import { ProxyMap } from './ProxyMap';
 import { StockProxy } from './StockProxy';
-import { flattenObject } from '../utils/flattenObject';
+import { flattenProxyMap } from '../utils/flattenProxyMap';
 import { isInnerPath, joinPaths, longestCommonPath, relativePath } from '../utils/pathUtils';
 
 /**
@@ -16,11 +16,11 @@ import { isInnerPath, joinPaths, longestCommonPath, relativePath } from '../util
  * }
  */
 export class MappingProxy<T> extends StockProxy<T> {
-    private readonly flattenMap: Record<string, Pxth<unknown>>;
+    private readonly flattenMap: Partial<Record<string | RootPath, Pxth<unknown>>>;
 
     public constructor(map: ProxyMap<T>, path: Pxth<T>) {
         super(path);
-        this.flattenMap = flattenObject(map) as Record<string, Pxth<unknown>>;
+        this.flattenMap = flattenProxyMap(map);
     }
 
     public setValue = <V>(path: Pxth<V>, value: V, defaultSetValue: <U>(path: Pxth<U>, value: U) => void) => {
@@ -111,7 +111,7 @@ export class MappingProxy<T> extends StockProxy<T> {
         const isIndependent = stringifiedPath in this.flattenMap;
 
         if (isIndependent) {
-            return this.flattenMap[stringifiedPath as string]! as Pxth<V>;
+            return this.flattenMap[stringifiedPath]! as Pxth<V>;
         }
 
         const hasMappedChildrenPaths = Object.keys(this.flattenMap).some(mappedPath =>

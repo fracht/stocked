@@ -1,11 +1,11 @@
-import { Pxth, pxthToString } from 'pxth';
+import { pxthToString } from 'pxth';
 
-import { flattenObject } from './flattenObject';
+import { flattenProxyMap } from './flattenProxyMap';
 import { ProxyMap } from '../typings/ProxyMap';
 
 export const areProxyMapsEqual = (a: ProxyMap<unknown>, b: ProxyMap<unknown>) => {
-    const flattenA = flattenObject(a) as Record<string, Pxth<unknown>>;
-    const flattenB = flattenObject(b) as Record<string, Pxth<unknown>>;
+    const flattenA = flattenProxyMap(a);
+    const flattenB = flattenProxyMap(b);
 
     const aEntries = Object.entries(flattenA);
 
@@ -17,7 +17,7 @@ export const areProxyMapsEqual = (a: ProxyMap<unknown>, b: ProxyMap<unknown>) =>
         if (
             typeof flattenB[key] !== 'object' ||
             flattenB[key] === null ||
-            pxthToString(flattenB[key]) !== pxthToString(value)
+            pxthToString(flattenB[key]!) !== pxthToString(value!)
         ) {
             return false;
         }
