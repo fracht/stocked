@@ -20,7 +20,7 @@ const initialValues = {
 let stock: Stock<typeof initialValues>;
 
 const wrapper: React.FC = ({ children }) => (
-    <StockContext.Provider value={(stock as unknown) as Stock<object>}>{children}</StockContext.Provider>
+    <StockContext.Provider value={stock as unknown as Stock<object>}>{children}</StockContext.Provider>
 );
 
 const renderUseStockValue = (path: Pxth<unknown>, useContext = true) =>

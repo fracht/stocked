@@ -86,10 +86,7 @@ describe('Value setting and getting', () => {
         });
 
         act(() => {
-            result.current.setValue(
-                createPxth<string>(['first']),
-                (prevValue: string) => prevValue + 'b'
-            );
+            result.current.setValue(createPxth<string>(['first']), (prevValue: string) => prevValue + 'b');
         });
 
         expect(result.current.getValues()).toStrictEqual({
@@ -100,10 +97,7 @@ describe('Value setting and getting', () => {
         });
 
         act(() => {
-            result.current.setValue(
-                createPxth<object>(['second']),
-                (prevValue: object) => ({ ...prevValue, new: 5 })
-            );
+            result.current.setValue(createPxth<object>(['second']), (prevValue: object) => ({ ...prevValue, new: 5 }));
         });
 
         expect(result.current.getValues()).toStrictEqual({

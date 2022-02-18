@@ -20,6 +20,6 @@ export class ProxyMap {
         return hashPxth(path) in this.values;
     };
 
-    public entries = (): Array<[Pxth<unknown>, Pxth<unknown>]> =>
+    public entries = (): Array<[key: Pxth<unknown>, value: Pxth<unknown>]> =>
         Object.entries(this.keys).map(([key, value]) => [value, this.values[key]]);
 }

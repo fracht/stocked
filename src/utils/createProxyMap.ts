@@ -14,7 +14,7 @@ const isPxth = (value: unknown): value is Pxth<unknown> => {
 export const createProxyMap = <T>(mapSource: ProxyMapSource<T>) => {
     const proxyMap = new ProxyMap();
 
-    const queue: Array<[Pxth<unknown>, Record<string | symbol, unknown>]> = [[createPxth([]), mapSource]];
+    const queue: Array<[key: Pxth<unknown>, value: Record<string | symbol, unknown>]> = [[createPxth([]), mapSource]];
 
     while (queue.length) {
         const [pathToObject, innerObject] = queue.shift()!;

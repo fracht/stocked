@@ -72,7 +72,7 @@ export class MappingProxy<T> extends StockProxy<T> {
         return innerPaths.reduce<V>(
             (acc, [to, from]) =>
                 deepSet(
-                    (acc as unknown) as object,
+                    acc as unknown as object,
                     relativePath(path, to),
                     deepGet(value, relativePath(normalPath, from!))
                 ) as V,

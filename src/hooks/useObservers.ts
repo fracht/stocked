@@ -32,7 +32,7 @@ export const useObservers = <T>(): ObserversControl<T> => {
     const getObserversKeys = useCallback(
         () => [
             ...Object.keys(observers.current),
-            ...((Object.getOwnPropertySymbols(observers.current) as unknown) as string[]),
+            ...(Object.getOwnPropertySymbols(observers.current) as unknown as string[]),
         ],
         []
     );
@@ -49,9 +49,10 @@ export const useObservers = <T>(): ObserversControl<T> => {
         [batchUpdateObservers]
     );
 
-    const stopObservingBatchUpdates = useCallback((key: ObserverKey) => batchUpdateObservers.current.remove(key), [
-        batchUpdateObservers,
-    ]);
+    const stopObservingBatchUpdates = useCallback(
+        (key: ObserverKey) => batchUpdateObservers.current.remove(key),
+        [batchUpdateObservers]
+    );
 
     const observe = useCallback(<V>(path: Pxth<V>, observer: Observer<V>) => {
         const pathKey = pxthToString(path);
@@ -127,10 +128,10 @@ export const useObservers = <T>(): ObserversControl<T> => {
         [notifyPaths, getObserversKeys]
     );
 
-    const notifyAll = useCallback((values: T) => notifyPaths(createPxth([]), getObserversKeys(), values), [
-        notifyPaths,
-        getObserversKeys,
-    ]);
+    const notifyAll = useCallback(
+        (values: T) => notifyPaths(createPxth([]), getObserversKeys(), values),
+        [notifyPaths, getObserversKeys]
+    );
 
     return {
         watch,

@@ -14,5 +14,5 @@ export type StockRootProps<Values extends object> = StockConfig<Values> & {
 export const StockRoot = <Values extends object>({ children, ...stockConfig }: StockRootProps<Values>) => {
     const stock = useStock(stockConfig);
 
-    return <StockContext.Provider value={(stock as unknown) as Stock<object>}>{children}</StockContext.Provider>;
+    return <StockContext.Provider value={stock as unknown as Stock<object>}>{children}</StockContext.Provider>;
 };
