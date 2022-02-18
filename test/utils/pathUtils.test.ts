@@ -1,7 +1,21 @@
 import { shuffle } from 'lodash';
 import { createPxth, getPxthSegments, pxthToString, RootPathToken } from 'pxth';
 
-import { isInnerPath, joinPaths, longestCommonPath, normalizePath, relativePath } from '../../src/utils/pathUtils';
+import {
+    isInnerPath,
+    joinPaths,
+    longestCommonPath,
+    normalizePath,
+    relativePath,
+    samePxth,
+} from '../../src/utils/pathUtils';
+
+describe('samePxth', () => {
+    it('should compare 2 paths', () => {
+        expect(samePxth(createPxth(['a', 'b']), createPxth(['a', 'b']))).toBeTruthy();
+        expect(samePxth(createPxth(['a', 'b']), createPxth(['b', 'a']))).toBeFalsy();
+    });
+});
 
 describe('joinPaths', () => {
     it('should join paths', () => {

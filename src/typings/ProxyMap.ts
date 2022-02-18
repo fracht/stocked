@@ -1,11 +1,25 @@
 import { Pxth } from 'pxth';
 
-export type ObjectMappingType<T> = {
-    [P in keyof T]?: T[P] extends unknown[] ? ArrayMappingType<T[P]> : ProxyMap<T[P]>;
-};
+import { hashPxth } from '../utils/hashPxth';
 
-export type ArrayMappingType<T extends unknown[]> = (index: number) => ObjectMappingType<T[0]>;
+export class ProxyMap {
+    private values: Record<string, Pxth<unknown>> = {};
+    private keys: Record<string, Pxth<unknown>> = {};
 
-export type ProxyMap<T> = Extract<T, string | number | Date | boolean | null> extends never
-    ? ObjectMappingType<T> | Pxth<unknown>
-    : Pxth<unknown>;
+    public get = <V>(path: Pxth<V>) => {
+        return this.values[hashPxth(path)];
+    };
+
+    public set = <V>(key: Pxth<V>, value: Pxth<V>) => {
+        const stingifiedKey = hashPxth(key);
+        this.values[stingifiedKey] = value as Pxth<unknown>;
+        this.keys[stingifiedKey] = key as Pxth<unknown>;
+    };
+
+    public has = <V>(path: Pxth<V>) => {
+        return hashPxth(path) in this.values;
+    };
+
+    public entries = (): Array<[Pxth<unknown>, Pxth<unknown>]> =>
+        Object.entries(this.keys).map(([key, value]) => [value, this.values[key]]);
+}

@@ -1,24 +1,20 @@
-import { pxthToString } from 'pxth';
+import { deepGet, Pxth } from 'pxth';
 
-import { flattenProxyMap } from './flattenProxyMap';
-import { ProxyMap } from '../typings/ProxyMap';
+import { createProxyMap } from './createProxyMap';
+import { samePxth } from './pathUtils';
+import { ProxyMapSource } from '../typings/ProxyMapSource';
 
-export const areProxyMapsEqual = (a: ProxyMap<unknown>, b: ProxyMap<unknown>) => {
-    const flattenA = flattenProxyMap(a);
-    const flattenB = flattenProxyMap(b);
+export const areProxyMapsEqual = (map1: ProxyMapSource<unknown>, map2: ProxyMapSource<unknown>) => {
+    const proxyMap1 = createProxyMap(map1);
+    const proxyMap2 = createProxyMap(map2);
 
-    const aEntries = Object.entries(flattenA);
-
-    if (aEntries.length !== Object.entries(flattenB).length) {
+    if (proxyMap1.entries().length !== proxyMap2.entries().length) {
         return false;
     }
 
-    for (const [key, value] of aEntries) {
-        if (
-            typeof flattenB[key] !== 'object' ||
-            flattenB[key] === null ||
-            pxthToString(flattenB[key]!) !== pxthToString(value!)
-        ) {
+    for (const [key, value] of proxyMap1.entries()) {
+        const value2 = deepGet(map2, key) as Pxth<unknown>;
+        if (!value2 || !samePxth(value, value2)) {
             return false;
         }
     }

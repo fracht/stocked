@@ -1,3 +1,4 @@
+import isEqual from 'lodash/isEqual';
 import toPath from 'lodash/toPath';
 import {
     createPxth,
@@ -9,6 +10,9 @@ import {
     RootPathToken,
 } from 'pxth';
 import invariant from 'tiny-invariant';
+
+export const samePxth = (pxth1: Pxth<unknown>, pxth2: Pxth<unknown>): boolean =>
+    isEqual(getPxthSegments(pxth1), getPxthSegments(pxth2));
 
 export const joinPaths = <V>(...segments: Pxth<unknown>[]): Pxth<V> => {
     if (segments.length === 0) {

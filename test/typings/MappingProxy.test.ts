@@ -1,4 +1,4 @@
-import { createPxth, deepGet, deepSet, Pxth, pxthToString, RootPathToken } from 'pxth';
+import { createPxth, deepGet, deepSet, Pxth, pxthToString } from 'pxth';
 
 import { MappingProxy, Observer } from '../../src/typings';
 
@@ -57,20 +57,6 @@ describe('Mapping proxy', () => {
 
         proxy.watch(createPxth(['bye']), observer, defaultObserve);
         expect(pxthToString(defaultObserve.mock.calls[0][0])).toBe(pxthToString(createPxth(['b', 'b', 'd'])));
-    });
-
-    it('observe/stopObserving (empty mapping path)', () => {
-        const proxy = new MappingProxy({ [RootPathToken]: createPxth(['a', 'd', 'c']) }, createPxth(['asdf']));
-
-        const defaultObserve = jest.fn();
-        const observer = jest.fn();
-
-        defaultObserve.mockReturnValue(0);
-
-        proxy.watch(createPxth(['asdf']), observer, defaultObserve);
-        expect(pxthToString(defaultObserve.mock.calls[0][0])).toBe(pxthToString(createPxth(['a', 'd', 'c'])));
-
-        defaultObserve.mockClear();
     });
 
     it('calling observer fns', () => {
@@ -185,14 +171,10 @@ describe('Mapping proxy', () => {
                 plate_no: fullData.truck.info.trailerNo,
             },
             company: fullData.truck.owner.companyName,
-            contacts: [
-                {
-                    contact_name: fullData.truck.owner.contacts[0].name,
-                    contact_id: fullData.truck.owner.contacts[0].contactId,
-                    contact_email: fullData.truck.owner.contacts[0].contactInfo.email,
-                    contact_phone: fullData.truck.owner.contacts[0].contactInfo.phone,
-                },
-            ],
+            contact_name: fullData.truck.owner.contacts[0].name,
+            contact_id: fullData.truck.owner.contacts[0].contactId,
+            contact_email: fullData.truck.owner.contacts[0].contactInfo.email,
+            contact_phone: fullData.truck.owner.contacts[0].contactInfo.phone,
         };
 
         const proxy = new MappingProxy<{
@@ -201,14 +183,12 @@ describe('Mapping proxy', () => {
                 trailerNo: string;
             };
             owner: {
-                contacts: Array<{
-                    name: string;
-                    contactId: number;
-                    contactInfo: {
-                        email: string;
-                        phone: string;
-                    };
-                }>;
+                name: string;
+                contactId: number;
+                contactInfo: {
+                    email: string;
+                    phone: string;
+                };
             };
         }>(
             {
@@ -217,14 +197,12 @@ describe('Mapping proxy', () => {
                     trailerNo: createPxth(['trailer', 'plate_no']),
                 },
                 owner: {
-                    contacts: index => ({
-                        name: createPxth(['contacts', index.toString(), 'contact_name']),
-                        contactId: createPxth(['contacts', index.toString(), 'contact_id']),
-                        contactInfo: {
-                            email: createPxth(['contacts', index.toString(), 'contact_email']),
-                            phone: createPxth(['contacts', index.toString(), 'contact_phone']),
-                        },
-                    }),
+                    name: createPxth(['contact_name']),
+                    contactId: createPxth(['contact_id']),
+                    contactInfo: {
+                        email: createPxth(['contact_email']),
+                        phone: createPxth(['contact_phone']),
+                    },
                 },
             },
             createPxth(['truck'])
@@ -232,19 +210,19 @@ describe('Mapping proxy', () => {
 
         const observers: Observer<unknown>[] = [];
 
-        const defaultObserve = jest.fn((_, observer) => {
+        const defaultWatch = jest.fn((_, observer) => {
             observers.push(observer);
             return () => observers.splice(observers.indexOf(observer), 1);
         });
         const observer = jest.fn();
 
-        proxy.watch(createPxth(['truck', 'owner', 'contacts', '0']), observer, defaultObserve);
-        expect(pxthToString(defaultObserve.mock.calls[0][0])).toBe(pxthToString(createPxth([])));
+        proxy.watch(createPxth(['truck', 'owner']), observer, defaultWatch);
+        expect(pxthToString(defaultWatch.mock.calls[0][0])).toBe(pxthToString(createPxth([])));
 
-        defaultObserve.mockClear();
+        defaultWatch.mockClear();
 
-        proxy.watch(createPxth(['truck', 'info']), observer, defaultObserve);
-        expect(pxthToString(defaultObserve.mock.calls[0][0])).toBe(pxthToString(createPxth([])));
+        proxy.watch(createPxth(['truck', 'info']), observer, defaultWatch);
+        expect(pxthToString(defaultWatch.mock.calls[0][0])).toBe(pxthToString(createPxth([])));
 
         observers[0](rawData);
         expect(observer).toBeCalledWith(fullData.truck.owner.contacts[0]);

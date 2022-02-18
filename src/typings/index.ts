@@ -3,4 +3,4 @@ export * from './Observer';
 export * from './MappingProxy';
 export * from './StockProxy';
 export * from './SetStateAction';
-export * from './ProxyMap';
+export * from './ProxyMapSource';
