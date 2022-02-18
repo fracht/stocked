@@ -29,7 +29,7 @@ export const createProxyMap = <T>(mapSource: ProxyMapSource<T>) => {
             } else if (typeof item === 'object' && item !== null) {
                 queue.push([pathToItem, item as Record<string | symbol, unknown>]);
             } else {
-                throw new Error('Invalid map passed.');
+                throw new Error('Invalid proxy map passed.');
             }
         });
     }

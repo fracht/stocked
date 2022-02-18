@@ -14,9 +14,9 @@ import { isInnerPath, joinPaths, longestCommonPath, relativePath } from '../util
  * Simple example of StockProxy.
  * Proxies values by map. Map is built by this method:
  * {
- *      relative: {
- *          proxied: {
- *              path: "<path to real value, in stock>"
+ *      a: {
+ *          b: {
+ *              c: "<path to real value, in stock>"
  *          },
  *      }
  * }
