@@ -39,6 +39,20 @@ describe('Mapping proxy', () => {
         expect(pxthToString(defaultObserve.mock.calls[0][0])).toBe(pxthToString(createPxth(['a', 'b', 'd'])));
     });
 
+    it('observe/stopObserving (empty mapping path)', () => {
+        const proxy = new MappingProxy(createPxth(['a', 'd', 'c']), createPxth(['asdf']));
+
+        const defaultObserve = jest.fn();
+        const observer = jest.fn();
+
+        defaultObserve.mockReturnValue(0);
+
+        proxy.watch(createPxth(['asdf']), observer, defaultObserve);
+        expect(pxthToString(defaultObserve.mock.calls[0][0])).toBe(pxthToString(createPxth(['a', 'd', 'c'])));
+
+        defaultObserve.mockClear();
+    });
+
     it('observe/stopObserving value (empty parent path)', () => {
         const proxy = new MappingProxy(
             { hello: createPxth(['a', 'd', 'c']), bye: createPxth(['b', 'b', 'd']) },
@@ -341,7 +355,7 @@ describe('Mapping proxy', () => {
                     birthday: createPxth(['dateOfBirth']),
                 },
                 registrationDate: createPxth(['registeredUser', 'dates', 'registration']),
-                location: createPxth(['registeredUser', 'personalData', 'home_location']),
+                location: createPxth<{ city: string }>(['registeredUser', 'personalData', 'home_location']),
             },
             createPxth(['registeredUser'])
         );

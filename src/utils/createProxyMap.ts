@@ -1,25 +1,27 @@
 import { createPxth, Pxth } from 'pxth';
+import invariant from 'tiny-invariant';
 
-import { joinPaths } from './pathUtils';
+import { isPxth, joinPaths } from './pathUtils';
 import { ProxyMap } from '../typings/ProxyMap';
 import { ProxyMapSource } from '../typings/ProxyMapSource';
 
 const getAllObjectKeys = (obj: object) => [...Object.getOwnPropertyNames(obj), ...Object.getOwnPropertySymbols(obj)];
 
-// TODO implement this function in pxth package
-const isPxth = (value: unknown): value is Pxth<unknown> => {
-    return typeof value === 'object' && value !== null && Object.keys(value).length === 0;
-};
-
 export const createProxyMap = <T>(mapSource: ProxyMapSource<T>) => {
     const proxyMap = new ProxyMap();
+
+    // FIXME isPxth returns true for empty object
+    if (isPxth(mapSource)) {
+        proxyMap.set(createPxth([]), mapSource);
+        return proxyMap;
+    }
 
     const queue: Array<[Pxth<unknown>, Record<string | symbol, unknown>]> = [[createPxth([]), mapSource]];
 
     while (queue.length) {
         const [pathToObject, innerObject] = queue.shift()!;
 
-        getAllObjectKeys(innerObject).forEach(key => {
+        for (const key of getAllObjectKeys(innerObject)) {
             const item = innerObject[key];
 
             const pathToItem = joinPaths(pathToObject, createPxth([key]));
@@ -29,9 +31,9 @@ export const createProxyMap = <T>(mapSource: ProxyMapSource<T>) => {
             } else if (typeof item === 'object' && item !== null) {
                 queue.push([pathToItem, item as Record<string | symbol, unknown>]);
             } else {
-                throw new Error('Invalid proxy map passed.');
+                invariant(false, 'Invalid proxy map passed.');
             }
-        });
+        }
     }
 
     return proxyMap;

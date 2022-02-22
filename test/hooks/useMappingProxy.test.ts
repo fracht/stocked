@@ -1,9 +1,9 @@
 import { renderHook } from '@testing-library/react-hooks';
 import { createPxth, Pxth } from 'pxth';
 
-import { useMappingProxy } from '../../src';
+import { ProxyMapSource, useMappingProxy } from '../../src';
 
-const renderUseMappingProxyHook = (path: Pxth<unknown>, map: Record<string, Pxth<unknown>>) =>
+const renderUseMappingProxyHook = <T>(path: Pxth<unknown>, map: ProxyMapSource<T>) =>
     renderHook(({ path, map }) => useMappingProxy(map, path), {
         initialProps: {
             path,

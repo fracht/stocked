@@ -1,5 +1,3 @@
-import { deepGet, Pxth } from 'pxth';
-
 import { createProxyMap } from './createProxyMap';
 import { samePxth } from './pathUtils';
 import { ProxyMapSource } from '../typings/ProxyMapSource';
@@ -13,8 +11,8 @@ export const areProxyMapsEqual = (map1: ProxyMapSource<unknown>, map2: ProxyMapS
     }
 
     for (const [key, value] of proxyMap1.entries()) {
-        const value2 = deepGet(map2, key) as Pxth<unknown>;
-        if (!value2 || !samePxth(value, value2)) {
+        const value2 = proxyMap2.get(key);
+        if (!proxyMap2.has(key) || !samePxth(value, value2)) {
             return false;
         }
     }

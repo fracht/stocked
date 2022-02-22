@@ -6,8 +6,8 @@ export class ProxyMap {
     private values: Record<string, Pxth<unknown>> = {};
     private keys: Record<string, Pxth<unknown>> = {};
 
-    public get = <V>(path: Pxth<V>) => {
-        return this.values[hashPxth(path)];
+    public get = <V>(key: Pxth<V>) => {
+        return this.values[hashPxth(key)];
     };
 
     public set = <V>(key: Pxth<V>, value: Pxth<V>) => {
@@ -16,8 +16,8 @@ export class ProxyMap {
         this.keys[stingifiedKey] = key as Pxth<unknown>;
     };
 
-    public has = <V>(path: Pxth<V>) => {
-        return hashPxth(path) in this.values;
+    public has = <V>(key: Pxth<V>) => {
+        return hashPxth(key) in this.values;
     };
 
     public entries = (): Array<[Pxth<unknown>, Pxth<unknown>]> =>

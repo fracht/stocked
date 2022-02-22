@@ -8,7 +8,7 @@ import { StockProxy } from './StockProxy';
 import { ProxyMapSource } from '.';
 import { createProxyMap } from '../utils/createProxyMap';
 import { getInnerPaths, hasMappedParentPaths } from '../utils/mappingProxyUtils';
-import { isInnerPath, joinPaths, longestCommonPath, relativePath } from '../utils/pathUtils';
+import { isInnerPath, joinPaths, longestCommonPath, relativePath, samePxth } from '../utils/pathUtils';
 
 /**
  * Simple example of StockProxy.
@@ -81,9 +81,7 @@ export class MappingProxy<T> extends StockProxy<T> {
     };
 
     public getProxiedPath = <V>(path: Pxth<V>): Pxth<V> => {
-        const proxiedPath = pxthToString(path);
-
-        const normalPath = this.proxyMap.entries().find(([, from]) => pxthToString(from!) === proxiedPath)?.[0];
+        const normalPath = this.proxyMap.entries().find(([, from]) => samePxth(from, path as Pxth<unknown>))?.[0];
 
         invariant(
             !isNil(normalPath),
