@@ -10,11 +10,6 @@ import {
 } from 'pxth';
 import invariant from 'tiny-invariant';
 
-// TODO implement this function in pxth package
-export const isPxth = (value: unknown): value is Pxth<unknown> => {
-    return typeof value === 'object' && value !== null && Object.keys(value).length === 0;
-};
-
 export const samePxth = (pxth1: Pxth<unknown>, pxth2: Pxth<unknown>): boolean => {
     const segments1 = getPxthSegments(pxth1);
     const segments2 = getPxthSegments(pxth2);

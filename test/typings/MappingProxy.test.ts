@@ -1,6 +1,6 @@
 import { createPxth, deepGet, deepSet, Pxth, pxthToString } from 'pxth';
 
-import { MappingProxy, Observer } from '../../src/typings';
+import { MappingProxy, Observer, ProxyMapSource } from '../../src/typings';
 
 type RegisteredUser = {
     registrationDate: Date;
@@ -10,6 +10,19 @@ type RegisteredUser = {
             lastName: string;
         };
         birthday: Date;
+    };
+};
+
+const getUserMapSource = (): ProxyMapSource<RegisteredUser> => {
+    return {
+        registrationDate: createPxth<Date>(['registeredUser', 'dates', 'registration']),
+        personalData: {
+            name: {
+                firstName: createPxth(['registeredUser', 'name']),
+                lastName: createPxth(['registeredUser', 'surname']),
+            },
+            birthday: createPxth<Date>(['dateOfBirth']),
+        },
     };
 };
 
@@ -96,19 +109,7 @@ describe('Mapping proxy', () => {
             dateOfBirth: fullUser.personalData.birthday,
         };
 
-        const proxy = new MappingProxy<RegisteredUser>(
-            {
-                registrationDate: createPxth(['registeredUser', 'dates', 'registration']),
-                personalData: {
-                    name: {
-                        firstName: createPxth(['registeredUser', 'name']),
-                        lastName: createPxth(['registeredUser', 'surname']),
-                    },
-                    birthday: createPxth(['dateOfBirth']),
-                },
-            },
-            createPxth(['registeredUser'])
-        );
+        const proxy = new MappingProxy<RegisteredUser>(getUserMapSource(), createPxth(['registeredUser']));
 
         const observers: Observer<unknown>[] = [];
 
@@ -248,19 +249,7 @@ describe('Mapping proxy', () => {
     });
 
     it('should set proxied value', () => {
-        const proxy = new MappingProxy<RegisteredUser>(
-            {
-                registrationDate: createPxth(['registeredUser', 'dates', 'registration']),
-                personalData: {
-                    name: {
-                        firstName: createPxth(['registeredUser', 'name']),
-                        lastName: createPxth(['registeredUser', 'surname']),
-                    },
-                    birthday: createPxth(['dateOfBirth']),
-                },
-            },
-            createPxth(['registeredUser'])
-        );
+        const proxy = new MappingProxy<RegisteredUser>(getUserMapSource(), createPxth(['registeredUser']));
 
         const defaultSetValue = jest.fn();
 
@@ -317,19 +306,7 @@ describe('Mapping proxy', () => {
             dateOfBirth: fullUser.personalData.birthday,
         };
 
-        const proxy = new MappingProxy<RegisteredUser>(
-            {
-                registrationDate: createPxth(['registeredUser', 'dates', 'registration']),
-                personalData: {
-                    name: {
-                        firstName: createPxth(['registeredUser', 'name']),
-                        lastName: createPxth(['registeredUser', 'surname']),
-                    },
-                    birthday: createPxth(['dateOfBirth']),
-                },
-            },
-            createPxth(['registeredUser'])
-        );
+        const proxy = new MappingProxy<RegisteredUser>(getUserMapSource(), createPxth(['registeredUser']));
 
         const defaultGet = <V>(path: Pxth<V>) => deepGet(rawData, path);
 
@@ -347,14 +324,7 @@ describe('Mapping proxy', () => {
     it('should return normal path from proxied path', () => {
         const proxy = new MappingProxy<RegisteredUser & { location: { city: string } }>(
             {
-                personalData: {
-                    name: {
-                        firstName: createPxth(['registeredUser', 'name']),
-                        lastName: createPxth(['registeredUser', 'surname']),
-                    },
-                    birthday: createPxth(['dateOfBirth']),
-                },
-                registrationDate: createPxth(['registeredUser', 'dates', 'registration']),
+                ...getUserMapSource(),
                 location: createPxth<{ city: string }>(['registeredUser', 'personalData', 'home_location']),
             },
             createPxth(['registeredUser'])
@@ -377,13 +347,13 @@ describe('Mapping proxy', () => {
     it('should return proxied path from normal path', () => {
         const proxy = new MappingProxy<RegisteredUser>(
             {
-                registrationDate: createPxth(['registeredUser', 'dates', 'registration']),
+                registrationDate: createPxth<Date>(['registeredUser', 'dates', 'registration']),
                 personalData: {
                     name: {
                         firstName: createPxth(['registeredUser', 'name']),
                         lastName: createPxth(['registeredUser', 'surname']),
                     },
-                    birthday: createPxth(['dateOfBirth']),
+                    birthday: createPxth<Date>(['dateOfBirth']),
                 },
             },
             createPxth(['registeredUser'])
