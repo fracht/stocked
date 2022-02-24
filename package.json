@@ -52,7 +52,7 @@
         "@types/react-dom": "^16.9.8",
         "@typescript-eslint/eslint-plugin": "^4.9.0",
         "@typescript-eslint/parser": "^4.9.0",
-        "aqu": "^0.2.2",
+        "aqu": "^0.3.2",
         "eslint-config-prettier": "^8.3.0",
         "eslint-config-react-app": "^6.0.0",
         "eslint-plugin-react-hooks": "^4.2.0",
@@ -66,12 +66,12 @@
         "size-limit": "^4.6.2",
         "ts-jest": "^27.0.7",
         "tslib": "^2.3.1",
-        "typescript": "^4.3.5"
+        "typescript": "^4.5.5"
     },
     "dependencies": {
         "lodash": "^4.17.20",
         "lodash-es": "^4.17.15",
-        "pxth": "^0.3.1",
+        "pxth": "^0.4.0",
         "tiny-invariant": "^1.1.0"
     }
 }

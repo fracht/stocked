@@ -67,7 +67,9 @@ describe('ProxyProvider', () => {
 
         const proxy2 = new MappingProxy(
             {
-                'name.surname': createPxth(['user', 'surname']),
+                name: {
+                    surname: createPxth(['user', 'surname']),
+                },
             },
             createPxth(['user'])
         );

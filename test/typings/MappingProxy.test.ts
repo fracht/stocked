@@ -1,6 +1,30 @@
-import { createPxth, deepGet, deepSet, Pxth, pxthToString, RootPathToken } from 'pxth';
+import { createPxth, deepGet, deepSet, Pxth, pxthToString } from 'pxth';
 
-import { MappingProxy, Observer } from '../../src/typings';
+import { MappingProxy, Observer, ProxyMapSource } from '../../src/typings';
+
+type RegisteredUser = {
+    registrationDate: Date;
+    personalData: {
+        name: {
+            firstName: string;
+            lastName: string;
+        };
+        birthday: Date;
+    };
+};
+
+const getUserMapSource = (): ProxyMapSource<RegisteredUser> => {
+    return {
+        registrationDate: createPxth<Date>(['registeredUser', 'dates', 'registration']),
+        personalData: {
+            name: {
+                firstName: createPxth(['registeredUser', 'name']),
+                lastName: createPxth(['registeredUser', 'surname']),
+            },
+            birthday: createPxth<Date>(['dateOfBirth']),
+        },
+    };
+};
 
 describe('Mapping proxy', () => {
     it('should instantiate', () => {
@@ -28,6 +52,20 @@ describe('Mapping proxy', () => {
         expect(pxthToString(defaultObserve.mock.calls[0][0])).toBe(pxthToString(createPxth(['a', 'b', 'd'])));
     });
 
+    it('observe/stopObserving (empty mapping path)', () => {
+        const proxy = new MappingProxy(createPxth(['a', 'd', 'c']), createPxth(['asdf']));
+
+        const defaultObserve = jest.fn();
+        const observer = jest.fn();
+
+        defaultObserve.mockReturnValue(0);
+
+        proxy.watch(createPxth(['asdf']), observer, defaultObserve);
+        expect(pxthToString(defaultObserve.mock.calls[0][0])).toBe(pxthToString(createPxth(['a', 'd', 'c'])));
+
+        defaultObserve.mockClear();
+    });
+
     it('observe/stopObserving value (empty parent path)', () => {
         const proxy = new MappingProxy(
             { hello: createPxth(['a', 'd', 'c']), bye: createPxth(['b', 'b', 'd']) },
@@ -46,20 +84,6 @@ describe('Mapping proxy', () => {
 
         proxy.watch(createPxth(['bye']), observer, defaultObserve);
         expect(pxthToString(defaultObserve.mock.calls[0][0])).toBe(pxthToString(createPxth(['b', 'b', 'd'])));
-    });
-
-    it('observe/stopObserving (empty mapping path)', () => {
-        const proxy = new MappingProxy({ [RootPathToken]: createPxth(['a', 'd', 'c']) }, createPxth(['asdf']));
-
-        const defaultObserve = jest.fn();
-        const observer = jest.fn();
-
-        defaultObserve.mockReturnValue(0);
-
-        proxy.watch(createPxth(['asdf']), observer, defaultObserve);
-        expect(pxthToString(defaultObserve.mock.calls[0][0])).toBe(pxthToString(createPxth(['a', 'd', 'c'])));
-
-        defaultObserve.mockClear();
     });
 
     it('calling observer fns', () => {
@@ -85,15 +109,7 @@ describe('Mapping proxy', () => {
             dateOfBirth: fullUser.personalData.birthday,
         };
 
-        const proxy = new MappingProxy(
-            {
-                'personalData.name.firstName': createPxth(['registeredUser', 'name']),
-                'personalData.name.lastName': createPxth(['registeredUser', 'surname']),
-                'personalData.birthday': createPxth(['dateOfBirth']),
-                registrationDate: createPxth(['registeredUser', 'dates', 'registration']),
-            },
-            createPxth(['registeredUser'])
-        );
+        const proxy = new MappingProxy<RegisteredUser>(getUserMapSource(), createPxth(['registeredUser']));
 
         const observers: Observer<unknown>[] = [];
 
@@ -176,33 +192,52 @@ describe('Mapping proxy', () => {
             contact_phone: fullData.truck.owner.contacts[0].contactInfo.phone,
         };
 
-        const proxy = new MappingProxy(
+        const proxy = new MappingProxy<{
+            info: {
+                truckNo: string;
+                trailerNo: string;
+            };
+            owner: {
+                name: string;
+                contactId: number;
+                contactInfo: {
+                    email: string;
+                    phone: string;
+                };
+            };
+        }>(
             {
-                'info.truckNo': createPxth(['truck', 'plate_no']),
-                'info.trailerNo': createPxth(['trailer', 'plate_no']),
-                'owner.contacts[0].name': createPxth(['contact_name']),
-                'owner.contacts[0].contactId': createPxth(['contact_id']),
-                'owner.contacts[0].contactInfo.email': createPxth(['contact_email']),
-                'owner.contacts[0].contactInfo.phone': createPxth(['contact_phone']),
+                info: {
+                    truckNo: createPxth(['truck', 'plate_no']),
+                    trailerNo: createPxth(['trailer', 'plate_no']),
+                },
+                owner: {
+                    name: createPxth(['contact_name']),
+                    contactId: createPxth(['contact_id']),
+                    contactInfo: {
+                        email: createPxth(['contact_email']),
+                        phone: createPxth(['contact_phone']),
+                    },
+                },
             },
             createPxth(['truck'])
         );
 
         const observers: Observer<unknown>[] = [];
 
-        const defaultObserve = jest.fn((_, observer) => {
+        const defaultWatch = jest.fn((_, observer) => {
             observers.push(observer);
             return () => observers.splice(observers.indexOf(observer), 1);
         });
         const observer = jest.fn();
 
-        proxy.watch(createPxth(['truck', 'owner', 'contacts', '0']), observer, defaultObserve);
-        expect(pxthToString(defaultObserve.mock.calls[0][0])).toBe(pxthToString(createPxth([])));
+        proxy.watch(createPxth(['truck', 'owner']), observer, defaultWatch);
+        expect(pxthToString(defaultWatch.mock.calls[0][0])).toBe(pxthToString(createPxth([])));
 
-        defaultObserve.mockClear();
+        defaultWatch.mockClear();
 
-        proxy.watch(createPxth(['truck', 'info']), observer, defaultObserve);
-        expect(pxthToString(defaultObserve.mock.calls[0][0])).toBe(pxthToString(createPxth([])));
+        proxy.watch(createPxth(['truck', 'info']), observer, defaultWatch);
+        expect(pxthToString(defaultWatch.mock.calls[0][0])).toBe(pxthToString(createPxth([])));
 
         observers[0](rawData);
         expect(observer).toBeCalledWith(fullData.truck.owner.contacts[0]);
@@ -214,15 +249,7 @@ describe('Mapping proxy', () => {
     });
 
     it('should set proxied value', () => {
-        const proxy = new MappingProxy(
-            {
-                'personalData.name.firstName': createPxth(['registeredUser', 'name']),
-                'personalData.name.lastName': createPxth(['registeredUser', 'surname']),
-                'personalData.birthday': createPxth(['dateOfBirth']),
-                registrationDate: createPxth(['registeredUser', 'dates', 'registration']),
-            },
-            createPxth(['registeredUser'])
-        );
+        const proxy = new MappingProxy<RegisteredUser>(getUserMapSource(), createPxth(['registeredUser']));
 
         const defaultSetValue = jest.fn();
 
@@ -279,15 +306,7 @@ describe('Mapping proxy', () => {
             dateOfBirth: fullUser.personalData.birthday,
         };
 
-        const proxy = new MappingProxy(
-            {
-                'personalData.name.firstName': createPxth(['registeredUser', 'name']),
-                'personalData.name.lastName': createPxth(['registeredUser', 'surname']),
-                'personalData.birthday': createPxth(['dateOfBirth']),
-                registrationDate: createPxth(['registeredUser', 'dates', 'registration']),
-            },
-            createPxth(['registeredUser'])
-        );
+        const proxy = new MappingProxy<RegisteredUser>(getUserMapSource(), createPxth(['registeredUser']));
 
         const defaultGet = <V>(path: Pxth<V>) => deepGet(rawData, path);
 
@@ -303,13 +322,10 @@ describe('Mapping proxy', () => {
     });
 
     it('should return normal path from proxied path', () => {
-        const proxy = new MappingProxy(
+        const proxy = new MappingProxy<RegisteredUser & { location: { city: string } }>(
             {
-                'personalData.name.firstName': createPxth(['registeredUser', 'name']),
-                'personalData.name.lastName': createPxth(['registeredUser', 'surname']),
-                'personalData.birthday': createPxth(['dateOfBirth']),
-                registrationDate: createPxth(['registeredUser', 'dates', 'registration']),
-                location: createPxth(['registeredUser', 'personalData', 'home_location']),
+                ...getUserMapSource(),
+                location: createPxth<{ city: string }>(['registeredUser', 'personalData', 'home_location']),
             },
             createPxth(['registeredUser'])
         );
@@ -329,12 +345,16 @@ describe('Mapping proxy', () => {
     });
 
     it('should return proxied path from normal path', () => {
-        const proxy = new MappingProxy(
+        const proxy = new MappingProxy<RegisteredUser>(
             {
-                'personalData.name.firstName': createPxth(['registeredUser', 'name']),
-                'personalData.name.lastName': createPxth(['registeredUser', 'surname']),
-                'personalData.birthday': createPxth(['dateOfBirth']),
-                registrationDate: createPxth(['registeredUser', 'dates', 'registration']),
+                registrationDate: createPxth<Date>(['registeredUser', 'dates', 'registration']),
+                personalData: {
+                    name: {
+                        firstName: createPxth(['registeredUser', 'name']),
+                        lastName: createPxth(['registeredUser', 'surname']),
+                    },
+                    birthday: createPxth<Date>(['dateOfBirth']),
+                },
             },
             createPxth(['registeredUser'])
         );

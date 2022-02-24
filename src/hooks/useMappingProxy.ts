@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { Pxth, pxthToString } from 'pxth';
 
-import { MappingProxy } from '../typings';
+import { MappingProxy, ProxyMapSource } from '../typings';
 import { areProxyMapsEqual } from '../utils/areProxyMapsEqual';
 
-const useMapMemo = (map: Record<string, Pxth<unknown>>) => {
+const useMapMemo = <V>(map: ProxyMapSource<V>): ProxyMapSource<V> => {
     const mapRef = useRef(map);
 
     useEffect(() => {
@@ -16,8 +16,8 @@ const useMapMemo = (map: Record<string, Pxth<unknown>>) => {
     return areProxyMapsEqual(mapRef.current, map) ? mapRef.current : map;
 };
 
-export const useMappingProxy = <V>(map: Record<string, Pxth<unknown>>, path: Pxth<V>) => {
-    const realMap = useMapMemo(map);
+export const useMappingProxy = <V>(mapSource: ProxyMapSource<V>, path: Pxth<V>) => {
+    const realMap = useMapMemo(mapSource);
 
     return useMemo(() => {
         const proxy = new MappingProxy(realMap, path);

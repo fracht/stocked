@@ -1,14 +1,18 @@
-import { Pxth, pxthToString } from 'pxth';
+import { createProxyMap } from './createProxyMap';
+import { samePxth } from './pathUtils';
+import { ProxyMapSource } from '../typings/ProxyMapSource';
 
-export const areProxyMapsEqual = (a: Record<string, Pxth<unknown>>, b: Record<string, Pxth<unknown>>) => {
-    const aEntries = Object.entries(a);
+export const areProxyMapsEqual = (map1: ProxyMapSource<unknown>, map2: ProxyMapSource<unknown>) => {
+    const proxyMap1 = createProxyMap(map1);
+    const proxyMap2 = createProxyMap(map2);
 
-    if (aEntries.length !== Object.entries(b).length) {
+    if (proxyMap1.entries().length !== proxyMap2.entries().length) {
         return false;
     }
 
-    for (const [key, value] of aEntries) {
-        if (typeof b[key] !== 'object' || b[key] === null || pxthToString(b[key]) !== pxthToString(value)) {
+    for (const [key, value] of proxyMap1.entries()) {
+        const value2 = proxyMap2.get(key);
+        if (!proxyMap2.has(key) || !samePxth(value, value2)) {
             return false;
         }
     }
