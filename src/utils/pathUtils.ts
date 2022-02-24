@@ -49,11 +49,7 @@ export function normalizePath(path: string): string;
 export function normalizePath(path: RootPath): RootPath;
 
 export function normalizePath(path: string | RootPath) {
-    return path === RootPathToken
-        ? path
-        : toPath(path)
-              .join('.')
-              .trim();
+    return path === RootPathToken ? path : toPath(path).join('.').trim();
 }
 
 /**

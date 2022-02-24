@@ -10,5 +10,5 @@ export const useAllStockValues = <T extends object = object>(
     customStock?: Stock<T>,
     proxy?: StockProxy<unknown>
 ): T => {
-    return useStockValue<T, T>((rootPxth as unknown) as Pxth<T>, customStock, proxy);
+    return useStockValue<T, T>(rootPxth as unknown as Pxth<T>, customStock, proxy);
 };
