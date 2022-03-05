@@ -3,7 +3,7 @@ import { deepGet, deepSet, isInnerPxth, joinPxths, longestCommonPxth, Pxth, rela
 import invariant from 'tiny-invariant';
 
 import { Observer } from './Observer';
-import { ProxyMap } from './ProxyMap';
+import { PxthMap } from './PxthMap';
 import { StockProxy } from './StockProxy';
 import { ProxyMapSource } from '.';
 import { createProxyMap } from '../utils/createProxyMap';
@@ -21,7 +21,7 @@ import { getInnerPaths, hasMappedParentPaths } from '../utils/mappingProxyUtils'
  * }
  */
 export class MappingProxy<T> extends StockProxy<T> {
-    private readonly proxyMap: ProxyMap;
+    private readonly proxyMap: PxthMap<Pxth<unknown>>;
 
     public constructor(mapSource: ProxyMapSource<T>, path: Pxth<T>) {
         super(path);
@@ -99,9 +99,7 @@ export class MappingProxy<T> extends StockProxy<T> {
             return this.proxyMap.get(normalPath) as Pxth<V>;
         }
 
-        const hasMappedChildrenPaths = this.proxyMap
-            .entries()
-            .some(([mappedPath]) => isInnerPxth(normalPath, mappedPath));
+        const hasMappedChildrenPaths = this.proxyMap.keys().some(mappedPath => isInnerPxth(normalPath, mappedPath));
 
         if (hasMappedChildrenPaths) {
             return longestCommonPxth(

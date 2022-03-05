@@ -1,13 +1,13 @@
 import { createPxth, isPxth, joinPxths, Pxth } from 'pxth';
 import invariant from 'tiny-invariant';
 
-import { ProxyMap } from '../typings/ProxyMap';
 import { ProxyMapSource } from '../typings/ProxyMapSource';
+import { PxthMap } from '../typings/PxthMap';
 
 const getAllObjectKeys = (obj: object) => [...Object.getOwnPropertyNames(obj), ...Object.getOwnPropertySymbols(obj)];
 
 export const createProxyMap = <T>(mapSource: ProxyMapSource<T>) => {
-    const proxyMap = new ProxyMap();
+    const proxyMap = new PxthMap<Pxth<unknown>>();
 
     if (isPxth(mapSource)) {
         proxyMap.set(createPxth([]), mapSource);

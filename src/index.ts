@@ -4,5 +4,3 @@ export * from './components';
 export * from './utils/ObserverArray';
 
 export { intercept } from './utils/useInterceptors';
-
-export * from './utils/pathUtils';
