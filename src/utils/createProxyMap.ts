@@ -1,7 +1,6 @@
-import { createPxth, isPxth, Pxth } from 'pxth';
+import { createPxth, isPxth, joinPxths, Pxth } from 'pxth';
 import invariant from 'tiny-invariant';
 
-import { joinPaths } from './pathUtils';
 import { ProxyMap } from '../typings/ProxyMap';
 import { ProxyMapSource } from '../typings/ProxyMapSource';
 
@@ -23,7 +22,7 @@ export const createProxyMap = <T>(mapSource: ProxyMapSource<T>) => {
         for (const key of getAllObjectKeys(innerObject)) {
             const item = innerObject[key] as Pxth<unknown> | ProxyMapSource<unknown>;
 
-            const pathToItem = joinPaths(pathToObject, createPxth([key]));
+            const pathToItem = joinPxths(pathToObject, createPxth([key]));
 
             if (isPxth(item)) {
                 proxyMap.set(pathToItem, item);

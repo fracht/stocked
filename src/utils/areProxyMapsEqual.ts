@@ -1,5 +1,6 @@
+import { samePxth } from 'pxth';
+
 import { createProxyMap } from './createProxyMap';
-import { samePxth } from './pathUtils';
 import { ProxyMapSource } from '../typings/ProxyMapSource';
 
 export const areProxyMapsEqual = (map1: ProxyMapSource<unknown>, map2: ProxyMapSource<unknown>) => {
