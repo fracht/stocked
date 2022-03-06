@@ -64,7 +64,7 @@ describe('intercept', () => {
         const proxy = new DummyProxy(createPxth(['asdf']));
         const standard = jest.fn();
         const custom = jest.fn();
-        intercept(proxy, createPxth(['asdf.hello.b']), standard, custom, []);
+        intercept(proxy, createPxth(['asdf', 'hello', 'b']), standard, custom, []);
         expect(standard).not.toBeCalled();
         expect(custom).toBeCalled();
     });

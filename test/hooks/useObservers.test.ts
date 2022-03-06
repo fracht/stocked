@@ -1,5 +1,5 @@
 import { act, renderHook } from '@testing-library/react-hooks';
-import { createPxth, pxthToString } from 'pxth';
+import { createPxth, getPxthSegments } from 'pxth';
 
 import { useObservers } from '../../src';
 
@@ -251,12 +251,11 @@ describe('Batch observers tests', () => {
         });
 
         expect(observer).toBeCalled();
-        expect(pxthToString(observer.mock.calls[0][0].origin)).toBe(
-            pxthToString(createPxth(['parent', 'child', 'hello']))
-        );
+        expect(getPxthSegments(observer.mock.calls[0][0].origin)).toStrictEqual(['parent', 'child', 'hello']);
+        expect(observer.mock.calls[0][0].paths.map(getPxthSegments)).toStrictEqual([['parent', 'child'], ['parent']]);
         expect(observer).toBeCalledWith({
             origin: expect.anything(),
-            paths: ['parent.child', 'parent'],
+            paths: expect.anything(),
             values: {
                 value: 'asdf',
                 parent: {
