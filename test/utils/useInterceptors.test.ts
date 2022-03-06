@@ -1,5 +1,5 @@
 import { act, renderHook } from '@testing-library/react-hooks';
-import { createPxth, Pxth, pxthToString } from 'pxth';
+import { createPxth, getPxthSegments, Pxth } from 'pxth';
 
 import { Stock, StockProxy, useStock } from '../../src';
 import { intercept, useInterceptors } from '../../src/utils/useInterceptors';
@@ -105,13 +105,13 @@ describe('proxy', () => {
             cleanup2();
         });
 
-        expect(pxthToString(watch.mock.calls[0][0])).toBe(pxthToString(createPxth(['dest'])));
+        expect(getPxthSegments(watch.mock.calls[0][0])).toStrictEqual(['dest']);
         expect(watch).toBeCalledWith(expect.anything(), observer, expect.any(Function));
         expect(watch).toBeCalledTimes(1);
-        expect(pxthToString(setValue.mock.calls[0][0])).toBe(pxthToString(createPxth(['dest'])));
+        expect(getPxthSegments(setValue.mock.calls[0][0])).toStrictEqual(['dest']);
         expect(setValue).toBeCalledWith(expect.anything(), 'asdf', expect.any(Function));
         expect(setValue).toBeCalledTimes(1);
-        expect(pxthToString(getValue.mock.calls[0][0])).toBe(pxthToString(createPxth(['dest'])));
+        expect(getPxthSegments(getValue.mock.calls[0][0])).toStrictEqual(['dest']);
         expect(getValue).toBeCalledTimes(1);
     });
 
@@ -143,10 +143,10 @@ describe('proxy', () => {
             values = result.current.getValues();
         });
 
-        expect(pxthToString(setValue.mock.calls[0][0])).toBe(pxthToString(createPxth(['dest'])));
+        expect(getPxthSegments(setValue.mock.calls[0][0])).toStrictEqual(['dest']);
         expect(setValue).toBeCalledTimes(1);
 
-        expect(pxthToString(getValue.mock.calls[0][0])).toBe(pxthToString(createPxth(['dest'])));
+        expect(getPxthSegments(getValue.mock.calls[0][0])).toStrictEqual(['dest']);
         expect(getValue).toBeCalledTimes(1);
 
         expect(values).toStrictEqual({

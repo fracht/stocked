@@ -1,4 +1,4 @@
-import { createPxth, deepGet, deepSet, Pxth, pxthToString } from 'pxth';
+import { createPxth, deepGet, deepSet, getPxthSegments, Pxth, samePxth } from 'pxth';
 
 import { MappingProxy, Observer, ProxyMapSource } from '../../src/typings';
 
@@ -44,12 +44,12 @@ describe('Mapping proxy', () => {
 
         proxy.watch(createPxth(['asdf', 'hello']), observer, defaultObserve);
 
-        expect(pxthToString(defaultObserve.mock.calls[0][0])).toBe(pxthToString(createPxth(['a', 'b', 'c'])));
+        expect(getPxthSegments(defaultObserve.mock.calls[0][0])).toStrictEqual(['a', 'b', 'c']);
 
         defaultObserve.mockClear();
 
         proxy.watch(createPxth(['asdf', 'bye']), observer, defaultObserve);
-        expect(pxthToString(defaultObserve.mock.calls[0][0])).toBe(pxthToString(createPxth(['a', 'b', 'd'])));
+        expect(getPxthSegments(defaultObserve.mock.calls[0][0])).toStrictEqual(['a', 'b', 'd']);
     });
 
     it('observe/stopObserving (empty mapping path)', () => {
@@ -61,7 +61,7 @@ describe('Mapping proxy', () => {
         defaultObserve.mockReturnValue(0);
 
         proxy.watch(createPxth(['asdf']), observer, defaultObserve);
-        expect(pxthToString(defaultObserve.mock.calls[0][0])).toBe(pxthToString(createPxth(['a', 'd', 'c'])));
+        expect(getPxthSegments(defaultObserve.mock.calls[0][0])).toStrictEqual(['a', 'd', 'c']);
 
         defaultObserve.mockClear();
     });
@@ -78,12 +78,12 @@ describe('Mapping proxy', () => {
         defaultObserve.mockReturnValue(0);
 
         proxy.watch(createPxth(['hello']), observer, defaultObserve);
-        expect(pxthToString(defaultObserve.mock.calls[0][0])).toBe(pxthToString(createPxth(['a', 'd', 'c'])));
+        expect(getPxthSegments(defaultObserve.mock.calls[0][0])).toStrictEqual(['a', 'd', 'c']);
 
         defaultObserve.mockClear();
 
         proxy.watch(createPxth(['bye']), observer, defaultObserve);
-        expect(pxthToString(defaultObserve.mock.calls[0][0])).toBe(pxthToString(createPxth(['b', 'b', 'd'])));
+        expect(getPxthSegments(defaultObserve.mock.calls[0][0])).toStrictEqual(['b', 'b', 'd']);
     });
 
     it('calling observer fns', () => {
@@ -121,19 +121,17 @@ describe('Mapping proxy', () => {
 
         proxy.watch(createPxth(['registeredUser', 'personalData', 'name', 'firstName']), observer, defaultObserve);
 
-        expect(pxthToString(defaultObserve.mock.calls[0][0])).toBe(
-            pxthToString(createPxth(['registeredUser', 'name']))
-        );
+        expect(getPxthSegments(defaultObserve.mock.calls[0][0])).toStrictEqual(['registeredUser', 'name']);
 
         defaultObserve.mockClear();
 
         proxy.watch(createPxth(['registeredUser', 'personalData', 'name']), observer, defaultObserve);
-        expect(pxthToString(defaultObserve.mock.calls[0][0])).toBe(pxthToString(createPxth(['registeredUser'])));
+        expect(getPxthSegments(defaultObserve.mock.calls[0][0])).toStrictEqual(['registeredUser']);
 
         defaultObserve.mockClear();
 
         proxy.watch(createPxth(['registeredUser', 'personalData']), observer, defaultObserve);
-        expect(pxthToString(defaultObserve.mock.calls[0][0])).toBe(pxthToString(createPxth([])));
+        expect(getPxthSegments(defaultObserve.mock.calls[0][0])).toStrictEqual([]);
 
         observers[0](rawData.registeredUser.name);
 
@@ -232,12 +230,12 @@ describe('Mapping proxy', () => {
         const observer = jest.fn();
 
         proxy.watch(createPxth(['truck', 'owner']), observer, defaultWatch);
-        expect(pxthToString(defaultWatch.mock.calls[0][0])).toBe(pxthToString(createPxth([])));
+        expect(getPxthSegments(defaultWatch.mock.calls[0][0])).toStrictEqual([]);
 
         defaultWatch.mockClear();
 
         proxy.watch(createPxth(['truck', 'info']), observer, defaultWatch);
-        expect(pxthToString(defaultWatch.mock.calls[0][0])).toBe(pxthToString(createPxth([])));
+        expect(getPxthSegments(defaultWatch.mock.calls[0][0])).toStrictEqual([]);
 
         observers[0](rawData);
         expect(observer).toBeCalledWith(fullData.truck.owner.contacts[0]);
@@ -255,9 +253,7 @@ describe('Mapping proxy', () => {
 
         proxy.setValue(createPxth(['registeredUser', 'personalData', 'name', 'firstName']), 'Hello', defaultSetValue);
 
-        expect(pxthToString(defaultSetValue.mock.calls[0][0])).toBe(
-            pxthToString(createPxth(['registeredUser', 'name']))
-        );
+        expect(getPxthSegments(defaultSetValue.mock.calls[0][0])).toStrictEqual(['registeredUser', 'name']);
         expect(defaultSetValue).toBeCalledWith(expect.anything(), 'Hello');
 
         defaultSetValue.mockClear();
@@ -270,15 +266,13 @@ describe('Mapping proxy', () => {
 
         expect(
             defaultSetValue.mock.calls.findIndex(
-                ([path, value]) =>
-                    pxthToString(path) === pxthToString(createPxth(['registeredUser', 'name'])) && value === 'As'
+                ([path, value]) => samePxth(path, createPxth(['registeredUser', 'name'])) && value === 'As'
             ) !== -1
         ).toBeTruthy();
 
         expect(
             defaultSetValue.mock.calls.findIndex(
-                ([path, value]) =>
-                    pxthToString(path) === pxthToString(createPxth(['registeredUser', 'surname'])) && value === 'Df'
+                ([path, value]) => samePxth(path, createPxth(['registeredUser', 'surname'])) && value === 'Df'
             ) !== -1
         ).toBeTruthy();
     });
@@ -330,18 +324,21 @@ describe('Mapping proxy', () => {
             createPxth(['registeredUser'])
         );
 
-        expect(pxthToString(proxy.getNormalPath(createPxth(['registeredUser', 'personalData'])))).toBe(
-            pxthToString(createPxth([]))
-        );
-        expect(pxthToString(proxy.getNormalPath(createPxth(['registeredUser', 'registrationDate'])))).toBe(
-            pxthToString(createPxth(['registeredUser', 'dates', 'registration']))
-        );
-        expect(pxthToString(proxy.getNormalPath(createPxth(['registeredUser', 'personalData', 'name'])))).toBe(
-            pxthToString(createPxth(['registeredUser']))
-        );
-        expect(pxthToString(proxy.getNormalPath(createPxth(['registeredUser', 'location', 'city'])))).toBe(
-            pxthToString(createPxth(['registeredUser', 'personalData', 'home_location', 'city']))
-        );
+        expect(getPxthSegments(proxy.getNormalPath(createPxth(['registeredUser', 'personalData'])))).toStrictEqual([]);
+        expect(getPxthSegments(proxy.getNormalPath(createPxth(['registeredUser', 'registrationDate'])))).toStrictEqual([
+            'registeredUser',
+            'dates',
+            'registration',
+        ]);
+        expect(
+            getPxthSegments(proxy.getNormalPath(createPxth(['registeredUser', 'personalData', 'name'])))
+        ).toStrictEqual(['registeredUser']);
+        expect(getPxthSegments(proxy.getNormalPath(createPxth(['registeredUser', 'location', 'city'])))).toStrictEqual([
+            'registeredUser',
+            'personalData',
+            'home_location',
+            'city',
+        ]);
     });
 
     it('should return proxied path from normal path', () => {
@@ -359,12 +356,15 @@ describe('Mapping proxy', () => {
             createPxth(['registeredUser'])
         );
 
-        expect(pxthToString(proxy.getProxiedPath(createPxth(['registeredUser', 'dates', 'registration'])))).toBe(
-            pxthToString(createPxth(['registeredUser', 'registrationDate']))
-        );
-        expect(pxthToString(proxy.getProxiedPath(createPxth(['registeredUser', 'name'])))).toBe(
-            pxthToString(createPxth(['registeredUser', 'personalData', 'name', 'firstName']))
-        );
+        expect(
+            getPxthSegments(proxy.getProxiedPath(createPxth(['registeredUser', 'dates', 'registration'])))
+        ).toStrictEqual(['registeredUser', 'registrationDate']);
+        expect(getPxthSegments(proxy.getProxiedPath(createPxth(['registeredUser', 'name'])))).toStrictEqual([
+            'registeredUser',
+            'personalData',
+            'name',
+            'firstName',
+        ]);
         expect(() => proxy.getProxiedPath(createPxth(['registeredUser', 'personalData']))).toThrow();
     });
 
@@ -484,7 +484,7 @@ describe('Mapping proxy', () => {
             defaultWatch as <U>(path: Pxth<U>, observer: Observer<U>) => () => void
         );
 
-        expect(pxthToString(defaultWatch.mock.calls[0][0])).toBe('core.values.location_from.id');
+        expect(getPxthSegments(defaultWatch.mock.calls[0][0])).toStrictEqual(['core', 'values', 'location_from', 'id']);
         expect(defaultWatch.mock.calls[0][1]).toBeDefined();
         expect(observer).toBeCalledWith(42);
     });
