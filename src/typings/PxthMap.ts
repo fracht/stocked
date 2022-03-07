@@ -28,8 +28,6 @@ export class PxthMap<Value> {
 
     public keys = (): Pxth<unknown>[] => Object.values(this._keys);
 
-    public values = (): Value[] => Object.values(this._values);
-
     public entries = (): Array<[key: Pxth<unknown>, value: Value]> =>
         Object.entries(this._keys).map(([key, value]) => [value, this._values[key]]);
 }
