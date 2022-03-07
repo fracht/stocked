@@ -1,7 +1,6 @@
 import React from 'react';
 import { act, renderHook } from '@testing-library/react-hooks';
-import { createPxth } from 'pxth';
-import { pxthToString } from 'pxth';
+import { createPxth, getPxthSegments } from 'pxth';
 
 import { StockContext, useStock, useStockContext } from '../../src';
 import { ProxyContext } from '../../src/components/ProxyContext';
@@ -66,7 +65,7 @@ describe('Test "useStockContext" hook', () => {
             result.current.watch(createPxth(['aaaa']), () => {});
         });
 
-        expect(pxthToString(watch.mock.calls[watch.mock.calls.length - 1][0])).toBe(pxthToString(createPxth(['asdf'])));
+        expect(getPxthSegments(watch.mock.calls[watch.mock.calls.length - 1][0])).toStrictEqual(['asdf']);
 
         expect(watch).lastCalledWith(expect.anything(), observer, expect.any(Function));
     });
@@ -95,7 +94,7 @@ describe('Test "useStockContext" hook', () => {
             result.current.watch(createPxth(['aaaa']), () => {});
         });
 
-        expect(pxthToString(watch.mock.calls[watch.mock.calls.length - 1][0])).toBe(pxthToString(createPxth(['asdf'])));
+        expect(getPxthSegments(watch.mock.calls[watch.mock.calls.length - 1][0])).toStrictEqual(['asdf']);
         expect(watch).lastCalledWith(expect.anything(), observer, expect.any(Function));
     });
 });

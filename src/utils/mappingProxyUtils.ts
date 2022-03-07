@@ -1,17 +1,13 @@
-import { Pxth, pxthToString } from 'pxth';
+import { isInnerPxth, Pxth, samePxth } from 'pxth';
 
-import { isInnerPath } from './pathUtils';
-import { ProxyMap } from '../typings/ProxyMap';
+import { PxthMap } from '../typings/PxthMap';
 
-export const getInnerPaths = <V>(path: Pxth<V>, proxyMap: ProxyMap) => {
-    const stringifiedPath = pxthToString(path);
+export const getInnerPaths = <V>(path: Pxth<V>, proxyMap: PxthMap<Pxth<unknown>>) => {
     return proxyMap.entries().filter(([to]) => {
-        const stringifiedTo = pxthToString(to);
-        return isInnerPath(stringifiedPath, stringifiedTo) || stringifiedPath === stringifiedTo;
+        return isInnerPxth(path as Pxth<unknown>, to) || samePxth(path as Pxth<unknown>, to);
     });
 };
 
-export const hasMappedParentPaths = <V>(path: Pxth<V>, proxyMap: ProxyMap) => {
-    const stringifiedPath = pxthToString(path);
-    return proxyMap.entries().some(([mappedPath]) => isInnerPath(pxthToString(mappedPath), stringifiedPath));
+export const hasMappedParentPaths = <V>(path: Pxth<V>, proxyMap: PxthMap<Pxth<unknown>>) => {
+    return proxyMap.entries().some(([mappedPath]) => isInnerPxth(mappedPath, path as Pxth<unknown>));
 };

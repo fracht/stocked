@@ -1,14 +1,13 @@
 import isNil from 'lodash/isNil';
-import { createPxth, deepGet, deepSet, parseSegmentsFromString, Pxth, pxthToString } from 'pxth';
+import { deepGet, deepSet, isInnerPxth, joinPxths, longestCommonPxth, Pxth, relativePxth, samePxth } from 'pxth';
 import invariant from 'tiny-invariant';
 
 import { Observer } from './Observer';
-import { ProxyMap } from './ProxyMap';
+import { PxthMap } from './PxthMap';
 import { StockProxy } from './StockProxy';
 import { ProxyMapSource } from '.';
 import { createProxyMap } from '../utils/createProxyMap';
 import { getInnerPaths, hasMappedParentPaths } from '../utils/mappingProxyUtils';
-import { isInnerPath, joinPaths, longestCommonPath, relativePath, samePxth } from '../utils/pathUtils';
 
 /**
  * Simple example of StockProxy.
@@ -22,7 +21,7 @@ import { isInnerPath, joinPaths, longestCommonPath, relativePath, samePxth } fro
  * }
  */
 export class MappingProxy<T> extends StockProxy<T> {
-    private readonly proxyMap: ProxyMap;
+    private readonly proxyMap: PxthMap<Pxth<unknown>>;
 
     public constructor(mapSource: ProxyMapSource<T>, path: Pxth<T>) {
         super(path);
@@ -30,7 +29,7 @@ export class MappingProxy<T> extends StockProxy<T> {
     }
 
     public setValue = <V>(path: Pxth<V>, value: V, defaultSetValue: <U>(path: Pxth<U>, value: U) => void) => {
-        const relativeValuePath = relativePath(this.path, path);
+        const relativeValuePath = relativePxth(this.path as Pxth<unknown>, path as Pxth<unknown>);
 
         if (hasMappedParentPaths(relativeValuePath, this.proxyMap)) {
             const normalPath = this.getNormalPath(path);
@@ -42,7 +41,7 @@ export class MappingProxy<T> extends StockProxy<T> {
 
         innerPaths.forEach(
             ([to, from]) =>
-                from !== undefined && defaultSetValue(from, deepGet(value, relativePath(relativeValuePath, to)))
+                from !== undefined && defaultSetValue(from, deepGet(value, relativePxth(relativeValuePath, to)))
         );
     };
 
@@ -61,7 +60,7 @@ export class MappingProxy<T> extends StockProxy<T> {
     };
 
     private mapValue = <V>(value: V, path: Pxth<V>, normalPath: Pxth<V>): V => {
-        path = relativePath(this.path, path);
+        path = relativePxth(this.path as Pxth<unknown>, path as Pxth<unknown>) as Pxth<V>;
 
         if (hasMappedParentPaths(path, this.proxyMap)) {
             return value;
@@ -73,8 +72,8 @@ export class MappingProxy<T> extends StockProxy<T> {
             (acc, [to, from]) =>
                 deepSet(
                     acc as unknown as object,
-                    relativePath(path, to),
-                    deepGet(value, relativePath(normalPath, from!))
+                    relativePxth(path as Pxth<unknown>, to),
+                    deepGet(value, relativePxth(normalPath as Pxth<unknown>, from!))
                 ) as V,
             {} as V
         );
@@ -88,12 +87,11 @@ export class MappingProxy<T> extends StockProxy<T> {
             'Mapping proxy error: trying to get normal path of proxied path, which is not defined in proxy map'
         );
 
-        return joinPaths<V>(this.path as Pxth<unknown>, normalPath);
+        return joinPxths(this.path as Pxth<unknown>, normalPath) as Pxth<V>;
     };
 
     public getNormalPath = <V>(path: Pxth<V>): Pxth<V> => {
-        const normalPath = relativePath(this.path, path);
-        const stringifiedPath = pxthToString(normalPath);
+        const normalPath = relativePxth(this.path as Pxth<unknown>, path as Pxth<unknown>);
 
         const isIndependent = this.proxyMap.has(normalPath);
 
@@ -101,29 +99,21 @@ export class MappingProxy<T> extends StockProxy<T> {
             return this.proxyMap.get(normalPath) as Pxth<V>;
         }
 
-        const hasMappedChildrenPaths = this.proxyMap
-            .entries()
-            .some(([mappedPath]) => isInnerPath(stringifiedPath, pxthToString(mappedPath)));
+        const hasMappedChildrenPaths = this.proxyMap.keys().some(mappedPath => isInnerPxth(normalPath, mappedPath));
 
         if (hasMappedChildrenPaths) {
-            return createPxth(
-                parseSegmentsFromString(
-                    longestCommonPath(
-                        this.proxyMap
-                            .entries()
-                            .filter(([to]) => isInnerPath(stringifiedPath, pxthToString(to)))
-                            .map(([, from]) => pxthToString(from!) as string)
-                    )
-                )
-            );
+            return longestCommonPxth(
+                this.proxyMap
+                    .entries()
+                    .filter(([to]) => isInnerPxth(normalPath, to))
+                    .map(([, from]) => from)
+            ) as Pxth<V>;
         }
 
         if (hasMappedParentPaths(normalPath, this.proxyMap)) {
-            const [to, from] = this.proxyMap
-                .entries()
-                .find(([mappedPath]) => isInnerPath(pxthToString(mappedPath), stringifiedPath))!;
+            const [to, from] = this.proxyMap.entries().find(([mappedPath]) => isInnerPxth(mappedPath, normalPath))!;
 
-            return joinPaths<V>(from!, relativePath(to, normalPath as Pxth<unknown>));
+            return joinPxths(from!, relativePxth(to, normalPath)) as Pxth<V>;
         }
 
         invariant(false, 'Mapping proxy error: trying to proxy value, which is not defined in proxy map.');

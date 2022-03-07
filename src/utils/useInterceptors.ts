@@ -1,17 +1,15 @@
 import { useCallback, useEffect } from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 import unset from 'lodash/unset';
-import { deepGet, deepSet, getPxthSegments, Pxth, pxthToString } from 'pxth';
+import { deepGet, deepSet, getPxthSegments, isInnerPxth, Pxth, samePxth } from 'pxth';
 import invariant from 'tiny-invariant';
 
-import { isInnerPath } from './pathUtils';
 import { Stock } from '../hooks/useStock';
 import { Observer } from '../typings';
 import { StockProxy } from '../typings/StockProxy';
 
 const shouldUseProxy = (proxy: StockProxy<unknown> | undefined, path: Pxth<unknown>) =>
-    proxy &&
-    (isInnerPath(pxthToString(proxy.path), pxthToString(path)) || pxthToString(proxy.path) === pxthToString(path));
+    proxy && (isInnerPxth(proxy.path, path) || samePxth(proxy.path, path));
 
 /**
  * Helper function. Calls `standardCallback` if `proxy` is undefined, or if `path` isn't inner path of `proxy.path` variable.
