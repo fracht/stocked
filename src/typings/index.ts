@@ -4,3 +4,4 @@ export * from './MappingProxy';
 export * from './StockProxy';
 export * from './SetStateAction';
 export * from './ProxyMapSource';
+export * from './PxthMap';
