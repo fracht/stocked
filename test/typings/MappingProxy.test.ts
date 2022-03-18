@@ -488,4 +488,21 @@ describe('Mapping proxy', () => {
         expect(defaultWatch.mock.calls[0][1]).toBeDefined();
         expect(observer).toBeCalledWith(42);
     });
+
+    it('should handle arrays', () => {
+        const proxy = new MappingProxy(
+            {
+                values: [
+                    {
+                        hello: createPxth(['real', 'path']),
+                    },
+                ],
+            },
+            createPxth(['proxied_path'])
+        );
+
+        expect(
+            getPxthSegments(proxy.getNormalPath(createPxth(['proxied_path', 'values', '0', 'hello'])))
+        ).toStrictEqual(['real', 'path']);
+    });
 });
