@@ -1,7 +1,7 @@
 {
     "name": "stocked",
     "author": "Artiom Tretjakovas",
-    "version": "1.0.0-beta.25",
+    "version": "1.0.0-beta.26",
     "license": "MIT",
     "main": "dist/index.js",
     "typings": "dist/stocked.d.ts",
