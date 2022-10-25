@@ -28,7 +28,10 @@
         "prepublishOnly": "aqu build",
         "size": "size-limit",
         "analyze": "size-limit --why",
-        "release": "np"
+        "release": "np",
+        "dev:docs": "vitepress dev new-docs",
+        "build:docs": "vitepress build new-docs",
+        "serve:docs": "vitepress serve new-docs"
     },
     "peerDependencies": {
         "react": ">=16"
@@ -66,7 +69,8 @@
         "size-limit": "^4.6.2",
         "ts-jest": "^27.0.7",
         "tslib": "^2.3.1",
-        "typescript": "^4.5.5"
+        "typescript": "^4.5.5",
+        "vitepress": "^1.0.0-alpha.23"
     },
     "dependencies": {
         "lodash": "^4.17.20",
