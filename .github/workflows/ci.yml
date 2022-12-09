@@ -62,7 +62,7 @@ jobs:
 
             - name: Test
               shell: bash
-              run: pnpm test --ci
+              run: pnpm run test --ci
 
             - name: Build
               shell: bash
