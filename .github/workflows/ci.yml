@@ -62,7 +62,7 @@ jobs:
 
             - name: Test
               shell: bash
-              run: pnpm test --ci
+              run: pnpm run test --ci
 
             - name: Build
               shell: bash
@@ -102,5 +102,5 @@ jobs:
             - name: Report coverage
               uses: ArtiomTr/jest-coverage-report-action@v2
               with:
-                  test-script: pnpm test
+                  test-script: pnpm run test
                   package-manager: pnpm
