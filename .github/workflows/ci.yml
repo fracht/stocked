@@ -102,5 +102,5 @@ jobs:
             - name: Report coverage
               uses: ArtiomTr/jest-coverage-report-action@v2
               with:
-                  test-script: pnpm test
+                  test-script: pnpm test:coverage
                   package-manager: pnpm
