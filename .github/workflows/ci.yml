@@ -1,0 +1,106 @@
+name: Package Continuous Integration
+
+on:
+    pull_request:
+        paths:
+            - '!docs/**'
+            - '!examples/**'
+        branches:
+            - "main"
+
+# Skip job run if PR updated
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    ci:
+        strategy:
+            matrix:
+                # If your package uses NodeJS API's, configure supported versions
+                node: ['18.x']
+                # If your package uses platform-specific code
+                os: [ubuntu-latest]
+        name: Build, lint and test on Node ${{ matrix.node }} and ${{ runner.os }}
+        runs-on: ${{ matrix.os }}
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
+              with:
+                  fetch-depth: 0
+
+            - name: Setup Node ${{ matrix.node }}
+              uses: actions/setup-node@v3
+              with:
+                  node-version: ${{ matrix.node }}
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2.2.4
+              with:
+                  version: 7
+                  run_install: false
+
+            - name: Get pnpm store directory
+              id: pnpm-cache
+              shell: bash
+              run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+            - name: Setup pnpm cache
+              uses: actions/cache@v3
+              with:
+                  path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+                  key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: ${{ runner.os }}-pnpm-store-
+
+            - name: Install dependencies
+              shell: bash
+              run: pnpm install --frozen-lockfile
+
+            - name: Lint
+              shell: bash
+              run: pnpm lint
+
+            - name: Test
+              shell: bash
+              run: pnpm test --ci
+
+            - name: Build
+              shell: bash
+              run: pnpm build
+    coverage:
+        name: Report code coverage
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
+              with:
+                  fetch-depth: 0
+
+            - name: Setup Node 18.x
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 18.x
+            
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2.2.4
+              with:
+                  version: 7
+                  run_install: false
+
+            - name: Get pnpm store directory
+              id: pnpm-cache
+              shell: bash
+              run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+            - name: Setup pnpm cache
+              uses: actions/cache@v3
+              with:
+                  path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+                  key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: ${{ runner.os }}-pnpm-store-
+                
+            - name: Report coverage
+              uses: ArtiomTr/jest-coverage-report-action@v2
+              with:
+                  test-script: pnpm test
+                  package-manager: pnpm
