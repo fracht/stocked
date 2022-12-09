@@ -21,7 +21,7 @@ jobs:
                 node: ['18.x']
                 # If your package uses platform-specific code
                 os: [ubuntu-latest]
-        name: Build, lint and test on Node ${{ matrix.node }} and ${{ runner.os }}
+        name: Build, lint and test on Node ${{ matrix.node }} and ${{ matrix.os }}
         runs-on: ${{ matrix.os }}
         steps:
             - name: Checkout repository
