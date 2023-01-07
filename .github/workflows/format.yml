@@ -1,0 +1,47 @@
+name: Format sources
+
+on:
+    push:
+        branches:
+            - "main"
+
+# Skip job run if PR updated
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    format:
+        name: Format and commit files
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+              with:
+                  token: ${{ secrets.BOT_GITHUB_TOKEN }}
+
+            - name: Use Node 18
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 18
+
+            - name: Install pnpm 7.x.x
+              uses: pnpm/action-setup@v2.2.4
+              with:
+                  version: 7.x.x
+
+            - name: Install pnpm dependencies (with cache)
+              uses: covbot/pnpm-install-with-cache@v1
+
+            - name: Format files
+              run: pnpm run format
+
+            - name: Commit changed files
+              shell: bash
+              run: |
+                  if [[ `git status --porcelain` ]]; then
+                      git config --global user.name "frachtbot"
+                      git config --global user.email "frachtbot@users.noreply.github.com"
+                      git commit -am "[skip ci] Formatted sources"
+                      git push
+                  fi
