@@ -4,7 +4,7 @@ import { StockContext } from './StockContext';
 import { Stock, StockConfig, useStock } from '../hooks/useStock';
 
 export type StockRootProps<Values extends object> = StockConfig<Values> & {
-    children: React.ReactNode;
+	children: React.ReactNode;
 };
 
 /**
@@ -12,7 +12,7 @@ export type StockRootProps<Values extends object> = StockConfig<Values> & {
  * Creates stock and puts it in `StockContext`.
  */
 export const StockRoot = <Values extends object>({ children, ...stockConfig }: StockRootProps<Values>) => {
-    const stock = useStock(stockConfig);
+	const stock = useStock(stockConfig);
 
-    return <StockContext.Provider value={stock as unknown as Stock<object>}>{children}</StockContext.Provider>;
+	return <StockContext.Provider value={stock as unknown as Stock<object>}>{children}</StockContext.Provider>;
 };

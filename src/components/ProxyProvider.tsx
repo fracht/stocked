@@ -7,18 +7,18 @@ import { useStockContext } from '../hooks';
 import { StockProxy } from '../typings';
 
 export type ProxyProviderProps<V> = {
-    proxy: StockProxy<V>;
-    children: React.ReactNode | ((path: Pxth<V>) => React.ReactNode);
+	proxy: StockProxy<V>;
+	children: React.ReactNode | ((path: Pxth<V>) => React.ReactNode);
 };
 
 export const ProxyProvider = <V,>({ proxy, children }: ProxyProviderProps<V>) => {
-    const stock = useStockContext();
+	const stock = useStockContext();
 
-    return (
-        <StockContext.Provider value={stock}>
-            <ProxyContext.Provider value={proxy as StockProxy<unknown>}>
-                {typeof children === 'function' ? children(proxy.path) : children}
-            </ProxyContext.Provider>
-        </StockContext.Provider>
-    );
+	return (
+		<StockContext.Provider value={stock}>
+			<ProxyContext.Provider value={proxy as StockProxy<unknown>}>
+				{typeof children === 'function' ? children(proxy.path) : children}
+			</ProxyContext.Provider>
+		</StockContext.Provider>
+	);
 };

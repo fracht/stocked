@@ -1,11 +1,11 @@
 {
-    "buildOptions": {
-        "target": ["es2019", "chrome58", "firefox57", "safari11", "node12"]
-    },
-    "dtsBundleGeneratorOptions": {
-        "libraries": {
-            "importedLibraries": ["react", "prop-types", "scheduler", "pxth"],
-            "allowedTypesLibraries": []
-        }
-    }
+	"buildOptions": {
+		"target": ["es2019", "chrome58", "firefox57", "safari11", "node12"]
+	},
+	"dtsBundleGeneratorOptions": {
+		"libraries": {
+			"importedLibraries": ["react", "prop-types", "scheduler", "pxth"],
+			"allowedTypesLibraries": []
+		}
+	}
 }

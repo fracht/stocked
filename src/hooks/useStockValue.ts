@@ -14,26 +14,26 @@ import { useLazyRef } from '../utils/useLazyRef';
  * @param proxy       - optional parameter, if you want to pass custom proxy, not receive it from context. @see useStockContext
  */
 export const useStockValue = <V, T extends object = object>(
-    path: Pxth<V>,
-    customStock?: Stock<T>,
-    proxy?: StockProxy<unknown>
+	path: Pxth<V>,
+	customStock?: Stock<T>,
+	proxy?: StockProxy<unknown>,
 ): V => {
-    const stock = useStockContext(customStock, proxy);
+	const stock = useStockContext(customStock, proxy);
 
-    const { watch, getValue } = stock;
+	const { watch, getValue } = stock;
 
-    const [, forceUpdate] = useReducer(val => val + 1, 0);
+	const [, forceUpdate] = useReducer((val) => val + 1, 0);
 
-    const value = useLazyRef<V>(() => getValue(path));
+	const value = useLazyRef<V>(() => getValue(path));
 
-    useEffect(
-        () =>
-            watch(path, newValue => {
-                value.current = newValue;
-                forceUpdate();
-            }),
-        [path, watch, value]
-    );
+	useEffect(
+		() =>
+			watch(path, (newValue) => {
+				value.current = newValue;
+				forceUpdate();
+			}),
+		[path, watch, value],
+	);
 
-    return value.current;
+	return value.current;
 };
