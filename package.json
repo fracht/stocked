@@ -1,81 +1,84 @@
 {
-    "name": "stocked",
-    "author": "Artiom Tretjakovas",
-    "version": "1.0.0-beta.28",
-    "license": "MIT",
-    "main": "dist/index.js",
-    "typings": "dist/stocked.d.ts",
-    "module": "dist/stocked.esm.js",
-    "description": "Tiny state management library for react.",
-    "repository": {
-        "url": "https://github.com/ArtiomTr/stocked"
-    },
-    "files": [
-        "dist"
-    ],
-    "engines": {
-        "node": ">=10"
-    },
-    "scripts": {
-        "start": "aqu watch",
-        "build": "aqu build",
-        "test": "jest --passWithNoTests",
-        "test:watch": "pnpm run test --watch",
-        "test:coverage": "pnpm run test --silent --ci --coverage --json --outputFile=report.json",
-        "test:lcov": "pnpm run test --silent --ci --coverage",
-        "lint": "eslint .",
-        "lint:config": "pnpm lint --write-file",
-        "prepublishOnly": "aqu build",
-        "size": "size-limit",
-        "analyze": "size-limit --why",
-        "release": "np",
-        "dev:docs": "vitepress dev new-docs",
-        "build:docs": "vitepress build new-docs",
-        "serve:docs": "vitepress serve new-docs"
-    },
-    "peerDependencies": {
-        "react": ">=16"
-    },
-    "size-limit": [
-        {
-            "path": "dist/stocked.cjs.production.min.js",
-            "limit": "10 KB"
-        },
-        {
-            "path": "dist/stocked.esm.js",
-            "limit": "10 KB"
-        }
-    ],
-    "devDependencies": {
-        "@size-limit/preset-small-lib": "^4.6.2",
-        "@testing-library/react-hooks": "^7.0.2",
-        "@types/jest": "^27.0.1",
-        "@types/lodash": "^4.14.162",
-        "@types/react": "^16.9.53",
-        "@types/react-dom": "^16.9.8",
-        "@typescript-eslint/eslint-plugin": "^4.9.0",
-        "@typescript-eslint/parser": "^4.9.0",
-        "aqu": "^0.3.2",
-        "eslint-config-prettier": "^8.3.0",
-        "eslint-config-react-app": "^6.0.0",
-        "eslint-plugin-react-hooks": "^4.2.0",
-        "jest": "^27.0.6",
-        "jest-watch-typeahead": "^1.0.0",
-        "np": "^6.5.0",
-        "prettier": "^2.5.1",
-        "react": "^17.0.1",
-        "react-dom": "^17.0.1",
-        "react-test-renderer": "^17.0.1",
-        "size-limit": "^4.6.2",
-        "ts-jest": "^27.0.7",
-        "tslib": "^2.3.1",
-        "typescript": "^4.5.5",
-        "vitepress": "^1.0.0-alpha.23"
-    },
-    "dependencies": {
-        "lodash": "^4.17.20",
-        "lodash-es": "^4.17.15",
-        "pxth": "^0.6.0",
-        "tiny-invariant": "^1.1.0"
-    }
+	"name": "stocked",
+	"author": "Artiom Tretjakovas",
+	"version": "1.0.0-beta.28",
+	"license": "MIT",
+	"main": "dist/index.js",
+	"typings": "dist/stocked.d.ts",
+	"module": "dist/stocked.esm.js",
+	"description": "Tiny state management library for react.",
+	"repository": {
+		"url": "https://github.com/ArtiomTr/stocked"
+	},
+	"files": [
+		"dist"
+	],
+	"engines": {
+		"node": ">=10"
+	},
+	"scripts": {
+		"start": "aqu watch",
+		"build": "aqu build",
+		"test": "jest --passWithNoTests",
+		"test:watch": "pnpm run test --watch",
+		"test:coverage": "pnpm run test --silent --ci --coverage --json --outputFile=report.json",
+		"test:lcov": "pnpm run test --silent --ci --coverage",
+		"lint": "eslint .",
+		"lint:config": "pnpm lint --write-file",
+		"prepublishOnly": "aqu build",
+		"size": "size-limit",
+		"analyze": "size-limit --why",
+		"release": "np",
+		"dev:docs": "vitepress dev new-docs",
+		"build:docs": "vitepress build new-docs",
+		"serve:docs": "vitepress serve new-docs",
+		"format": "syncpack format && prettier --write \"**/*.{ts,tsx,cjs,mjs,js,jsx,json,yml,yaml,clean-publish}\""
+	},
+	"peerDependencies": {
+		"react": ">=16"
+	},
+	"size-limit": [
+		{
+			"path": "dist/stocked.cjs.production.min.js",
+			"limit": "10 KB"
+		},
+		{
+			"path": "dist/stocked.esm.js",
+			"limit": "10 KB"
+		}
+	],
+	"devDependencies": {
+		"@size-limit/preset-small-lib": "^4.6.2",
+		"@testing-library/react-hooks": "^7.0.2",
+		"@types/jest": "^27.0.1",
+		"@types/lodash": "^4.14.162",
+		"@types/react": "^16.9.53",
+		"@types/react-dom": "^16.9.8",
+		"@typescript-eslint/eslint-plugin": "^4.9.0",
+		"@typescript-eslint/parser": "^4.9.0",
+		"aqu": "^0.3.2",
+		"configs": "github:fracht/configs",
+		"eslint-config-prettier": "^8.3.0",
+		"eslint-config-react-app": "^6.0.0",
+		"eslint-plugin-react-hooks": "^4.2.0",
+		"jest": "^27.0.6",
+		"jest-watch-typeahead": "^1.0.0",
+		"np": "^6.5.0",
+		"prettier": "^2.8.2",
+		"react": "^17.0.1",
+		"react-dom": "^17.0.1",
+		"react-test-renderer": "^17.0.1",
+		"size-limit": "^4.6.2",
+		"syncpack": "^8.4.11",
+		"ts-jest": "^27.0.7",
+		"tslib": "^2.3.1",
+		"typescript": "^4.5.5",
+		"vitepress": "^1.0.0-alpha.23"
+	},
+	"dependencies": {
+		"lodash": "^4.17.20",
+		"lodash-es": "^4.17.15",
+		"pxth": "^0.6.0",
+		"tiny-invariant": "^1.1.0"
+	}
 }

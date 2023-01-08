@@ -6,7 +6,7 @@ on:
             - 'docs/**'
             - 'examples/**'
         branches:
-            - "main"
+            - 'main'
 
 # Skip job run if PR updated
 concurrency:
@@ -80,7 +80,7 @@ jobs:
               uses: actions/setup-node@v3
               with:
                   node-version: 18.x
-            
+
             - name: Setup pnpm
               uses: pnpm/action-setup@v2.2.4
               with:
@@ -98,7 +98,7 @@ jobs:
                   path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
                   key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
                   restore-keys: ${{ runner.os }}-pnpm-store-
-                
+
             - name: Report coverage
               uses: ArtiomTr/jest-coverage-report-action@v2
               with:

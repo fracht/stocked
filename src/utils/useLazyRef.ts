@@ -5,11 +5,11 @@ import { MutableRefObject, useRef } from 'react';
  * @param initializer - function, which initializes value. Called once.
  */
 export const useLazyRef = <T>(initializer: () => T): MutableRefObject<T> => {
-    const ref = useRef<T | null>(null);
+	const ref = useRef<T | null>(null);
 
-    if (ref.current === null) {
-        ref.current = initializer();
-    }
+	if (ref.current === null) {
+		ref.current = initializer();
+	}
 
-    return ref as MutableRefObject<T>;
+	return ref as MutableRefObject<T>;
 };

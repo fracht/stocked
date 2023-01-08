@@ -13,13 +13,13 @@ import { useInterceptors } from '../utils/useInterceptors';
  * @param proxy - optional argument. Pass it if you don't want to use proxy from context.
  */
 export const useStockContext = <T extends object>(stock?: Stock<T>, proxy?: StockProxy<unknown>): Stock<T> => {
-    const contextStock = useContext(StockContext) as Stock<T> | undefined;
-    const contextProxy = useContext(ProxyContext);
+	const contextStock = useContext(StockContext) as Stock<T> | undefined;
+	const contextProxy = useContext(ProxyContext);
 
-    stock = stock ?? contextStock;
-    proxy = proxy ?? contextProxy;
+	stock = stock ?? contextStock;
+	proxy = proxy ?? contextProxy;
 
-    invariant(stock, "You're trying to access stock outside StockContext and without providing custom stock.");
+	invariant(stock, "You're trying to access stock outside StockContext and without providing custom stock.");
 
-    return useInterceptors(stock, proxy);
+	return useInterceptors(stock, proxy);
 };

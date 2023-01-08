@@ -9,25 +9,25 @@ import { SetStateAction } from '../typings/SetStateAction';
 import { useLazyRef } from '../utils/useLazyRef';
 
 export type Stock<T extends object> = {
-    /** Function for setting value. Deeply sets value, using path to variable. @see https://lodash.com/docs/4.17.15#set */
-    setValue: <V>(path: Pxth<V>, value: SetStateAction<V>) => void;
-    /** Function for setting all values. */
-    setValues: (values: T) => void;
-    /** Get actual value from stock. */
-    getValue: <V>(path: Pxth<V>) => V;
-    /** Get all values from stock */
-    getValues: () => T;
-    /** Function for resetting values to initial state */
-    resetValues: () => void;
-    /** Paths to all variables */
-    paths: Pxth<T>;
-    /** Name, which appears in stocked devtools */
-    debugName?: string;
+	/** Function for setting value. Deeply sets value, using path to variable. @see https://lodash.com/docs/4.17.15#set */
+	setValue: <V>(path: Pxth<V>, value: SetStateAction<V>) => void;
+	/** Function for setting all values. */
+	setValues: (values: T) => void;
+	/** Get actual value from stock. */
+	getValue: <V>(path: Pxth<V>) => V;
+	/** Get all values from stock */
+	getValues: () => T;
+	/** Function for resetting values to initial state */
+	resetValues: () => void;
+	/** Paths to all variables */
+	paths: Pxth<T>;
+	/** Name, which appears in stocked devtools */
+	debugName?: string;
 } & Omit<ObserversControl<T>, 'notifyAll' | 'notifySubTree'>;
 
 export type StockConfig<T extends object> = {
-    initialValues: T;
-    debugName?: string;
+	initialValues: T;
+	debugName?: string;
 };
 
 /**
@@ -40,65 +40,65 @@ export type StockConfig<T extends object> = {
  * @param config - configuration of Stock.
  */
 export const useStock = <T extends object>({ initialValues, debugName }: StockConfig<T>): Stock<T> => {
-    const values = useLazyRef<T>(() => cloneDeep(initialValues));
-    const { notifySubTree, notifyAll, watch, watchAll, watchBatchUpdates, isObserved } = useObservers<T>();
+	const values = useLazyRef<T>(() => cloneDeep(initialValues));
+	const { notifySubTree, notifyAll, watch, watchAll, watchBatchUpdates, isObserved } = useObservers<T>();
 
-    const setValue = useCallback(
-        <V>(path: Pxth<V>, action: SetStateAction<V>) => {
-            // path = normalizePath(path as string);
+	const setValue = useCallback(
+		<V>(path: Pxth<V>, action: SetStateAction<V>) => {
+			// path = normalizePath(path as string);
 
-            const value = isFunction(action) ? action(deepGet(values.current, path)) : action;
+			const value = isFunction(action) ? action(deepGet(values.current, path)) : action;
 
-            values.current = deepSet(values.current, path, value) as T;
+			values.current = deepSet(values.current, path, value) as T;
 
-            notifySubTree(path, values.current);
-        },
-        [values, notifySubTree]
-    );
+			notifySubTree(path, values.current);
+		},
+		[values, notifySubTree],
+	);
 
-    const setValues = useCallback(
-        (newValues: T) => {
-            values.current = newValues;
-            notifyAll(newValues);
-        },
-        [values, notifyAll]
-    );
+	const setValues = useCallback(
+		(newValues: T) => {
+			values.current = newValues;
+			notifyAll(newValues);
+		},
+		[values, notifyAll],
+	);
 
-    const getValue = useCallback(<V>(path: Pxth<V>) => deepGet(values.current, path) as V, [values]);
+	const getValue = useCallback(<V>(path: Pxth<V>) => deepGet(values.current, path) as V, [values]);
 
-    const getValues = useCallback(() => values.current, [values]);
+	const getValues = useCallback(() => values.current, [values]);
 
-    const resetValues = useCallback(() => setValues(cloneDeep(initialValues)), [initialValues, setValues]);
+	const resetValues = useCallback(() => setValues(cloneDeep(initialValues)), [initialValues, setValues]);
 
-    const stock: Stock<T> = useMemo(
-        () => ({
-            getValue,
-            getValues,
-            setValue,
-            setValues,
-            resetValues,
-            watch,
-            watchAll,
-            watchBatchUpdates,
-            isObserved,
-            debugName,
-            paths: createPxth<T>([]),
-        }),
-        [
-            getValue,
-            getValues,
-            debugName,
-            setValue,
-            setValues,
-            resetValues,
-            watch,
-            watchAll,
-            watchBatchUpdates,
-            isObserved,
-        ]
-    );
+	const stock: Stock<T> = useMemo(
+		() => ({
+			getValue,
+			getValues,
+			setValue,
+			setValues,
+			resetValues,
+			watch,
+			watchAll,
+			watchBatchUpdates,
+			isObserved,
+			debugName,
+			paths: createPxth<T>([]),
+		}),
+		[
+			getValue,
+			getValues,
+			debugName,
+			setValue,
+			setValues,
+			resetValues,
+			watch,
+			watchAll,
+			watchBatchUpdates,
+			isObserved,
+		],
+	);
 
-    useDebugStock(stock);
+	useDebugStock(stock);
 
-    return stock;
+	return stock;
 };

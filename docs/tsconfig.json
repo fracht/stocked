@@ -1,12 +1,12 @@
 {
-    "compilerOptions": {
-        "target": "es5",
-        "module": "commonjs",
-        "jsx": "preserve",
-        "strict": true,
-        "esModuleInterop": true,
-        "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true
-    },
-    "include": ["./src/**/*", "./docs/**/*", "index.d.ts"]
+	"compilerOptions": {
+		"target": "es5",
+		"module": "commonjs",
+		"jsx": "preserve",
+		"strict": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true
+	},
+	"include": ["./src/**/*", "./docs/**/*", "index.d.ts"]
 }

@@ -9,7 +9,7 @@ import { Observer } from '../typings';
 import { StockProxy } from '../typings/StockProxy';
 
 const shouldUseProxy = (proxy: StockProxy<unknown> | undefined, path: Pxth<unknown>) =>
-    proxy && (isInnerPxth(proxy.path, path) || samePxth(proxy.path, path));
+	proxy && (isInnerPxth(proxy.path, path) || samePxth(proxy.path, path));
 
 /**
  * Helper function. Calls `standardCallback` if `proxy` is undefined, or if `path` isn't inner path of `proxy.path` variable.
@@ -18,99 +18,99 @@ const shouldUseProxy = (proxy: StockProxy<unknown> | undefined, path: Pxth<unkno
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const intercept = <T extends (...args: any[]) => any>(
-    proxy: StockProxy<unknown> | undefined,
-    path: Pxth<unknown>,
-    standardCallback: T,
-    proxiedCallback: T,
-    args: Parameters<T>
+	proxy: StockProxy<unknown> | undefined,
+	path: Pxth<unknown>,
+	standardCallback: T,
+	proxiedCallback: T,
+	args: Parameters<T>,
 ): ReturnType<T> => {
-    if (!shouldUseProxy(proxy, path)) {
-        return standardCallback(...args);
-    } else {
-        return proxiedCallback(...args);
-    }
+	if (!shouldUseProxy(proxy, path)) {
+		return standardCallback(...args);
+	} else {
+		return proxiedCallback(...args);
+	}
 };
 
 /** Intercepts stock's `observe`, `stopObserving` and `setValue` functions, if proxy is provided. */
 export const useInterceptors = <T extends object>(stock: Stock<T>, proxy?: StockProxy<unknown>): Stock<T> => {
-    const { watch, setValue, getValue, setValues, getValues } = stock;
+	const { watch, setValue, getValue, setValues, getValues } = stock;
 
-    useEffect(
-        () =>
-            invariant(
-                !proxy || proxy.isActive(),
-                'Cannot use not activated proxy. Maybe you forgot to call proxy.activate()?'
-            ),
-        [proxy]
-    );
+	useEffect(
+		() =>
+			invariant(
+				!proxy || proxy.isActive(),
+				'Cannot use not activated proxy. Maybe you forgot to call proxy.activate()?',
+			),
+		[proxy],
+	);
 
-    const interceptedWatch = useCallback(
-        <V>(path: Pxth<V>, observer: Observer<V>) =>
-            intercept(
-                proxy,
-                path as Pxth<unknown>,
-                watch,
-                (path: Pxth<V>, observer: Observer<V>) => proxy!.watch<V>(path, observer, watch),
-                [path, observer]
-            ),
-        [watch, proxy]
-    );
+	const interceptedWatch = useCallback(
+		<V>(path: Pxth<V>, observer: Observer<V>) =>
+			intercept(
+				proxy,
+				path as Pxth<unknown>,
+				watch,
+				(path: Pxth<V>, observer: Observer<V>) => proxy!.watch<V>(path, observer, watch),
+				[path, observer],
+			),
+		[watch, proxy],
+	);
 
-    const interceptedSetValue = useCallback(
-        <V>(path: Pxth<V>, value: V) =>
-            intercept(
-                proxy,
-                path as Pxth<unknown>,
-                setValue,
-                <V>(path: Pxth<V>, value: V) => proxy!.setValue(path, value, setValue),
-                [path as Pxth<unknown>, value]
-            ),
-        [proxy, setValue]
-    );
+	const interceptedSetValue = useCallback(
+		<V>(path: Pxth<V>, value: V) =>
+			intercept(
+				proxy,
+				path as Pxth<unknown>,
+				setValue,
+				<V>(path: Pxth<V>, value: V) => proxy!.setValue(path, value, setValue),
+				[path as Pxth<unknown>, value],
+			),
+		[proxy, setValue],
+	);
 
-    const interceptedGetValue = useCallback(
-        <V>(path: Pxth<V>) =>
-            intercept(proxy, path as Pxth<unknown>, getValue, (path: Pxth<V>) => proxy!.getValue<V>(path, getValue), [
-                path,
-            ]),
-        [proxy, getValue]
-    );
+	const interceptedGetValue = useCallback(
+		<V>(path: Pxth<V>) =>
+			intercept(proxy, path as Pxth<unknown>, getValue, (path: Pxth<V>) => proxy!.getValue<V>(path, getValue), [
+				path,
+			]),
+		[proxy, getValue],
+	);
 
-    const interceptedGetValues = useCallback(() => {
-        let allValues = cloneDeep(getValues());
+	const interceptedGetValues = useCallback(() => {
+		let allValues = cloneDeep(getValues());
 
-        const proxiedValue = proxy!.getValue(proxy!.path, getValue);
+		const proxiedValue = proxy!.getValue(proxy!.path, getValue);
 
-        allValues = deepSet(allValues, proxy!.path, proxiedValue) as T;
+		allValues = deepSet(allValues, proxy!.path, proxiedValue) as T;
 
-        return allValues;
-    }, [proxy, getValues, getValue]);
+		return allValues;
+	}, [proxy, getValues, getValue]);
 
-    const interceptedSetValues = useCallback(
-        (values: T) => {
-            const proxiedValue = deepGet(values, proxy!.path);
+	const interceptedSetValues = useCallback(
+		(values: T) => {
+			const proxiedValue = deepGet(values, proxy!.path);
 
-            unset(values, getPxthSegments(proxy!.path));
+			unset(values, getPxthSegments(proxy!.path));
 
-            proxy!.setValue(proxy!.path, proxiedValue, (path, value) => {
-                deepSet(values, path, value);
-            });
+			proxy!.setValue(proxy!.path, proxiedValue, (path, value) => {
+				deepSet(values, path, value);
+			});
 
-            setValues(values);
-        },
-        [proxy, setValues]
-    );
+			setValues(values);
+		},
+		[proxy, setValues],
+	);
 
-    if (!proxy) {
-        return stock;
-    }
+	if (!proxy) {
+		return stock;
+	}
 
-    return {
-        ...stock,
-        watch: interceptedWatch,
-        setValue: interceptedSetValue,
-        getValue: interceptedGetValue,
-        getValues: interceptedGetValues,
-        setValues: interceptedSetValues,
-    };
+	return {
+		...stock,
+		watch: interceptedWatch,
+		setValue: interceptedSetValue,
+		getValue: interceptedGetValue,
+		getValues: interceptedGetValues,
+		setValues: interceptedSetValues,
+	};
 };

@@ -17,17 +17,17 @@ import { Dispatch, SetStateAction } from '../typings/SetStateAction';
  * @param proxy       - optional parameter, if you want to pass custom proxy, not receive it from context. @see useStockContext
  */
 export const useStockState = <V, T extends object = object>(
-    path: Pxth<V>,
-    customStock?: Stock<T>,
-    proxy?: StockProxy<unknown>
+	path: Pxth<V>,
+	customStock?: Stock<T>,
+	proxy?: StockProxy<unknown>,
 ): [V, Dispatch<SetStateAction<V>>] => {
-    const stock = useStockContext(customStock, proxy);
+	const stock = useStockContext(customStock, proxy);
 
-    const value = useStockValue<V, T>(path, customStock, proxy);
+	const value = useStockValue<V, T>(path, customStock, proxy);
 
-    const { setValue } = stock;
+	const { setValue } = stock;
 
-    const set = useCallback((action: SetStateAction<V>) => setValue(path, action), [path, setValue]);
+	const set = useCallback((action: SetStateAction<V>) => setValue(path, action), [path, setValue]);
 
-    return [value, set];
+	return [value, set];
 };

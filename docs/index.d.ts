@@ -1,5 +1,5 @@
 declare module '*.module.css' {
-    const classes: Record<string, string>;
+	const classes: Record<string, string>;
 
-    export default classes;
+	export default classes;
 }

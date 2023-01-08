@@ -8,25 +8,25 @@ import { ProxyExample } from './components/ProxyExample';
 import { StockExample } from './components/StockExample';
 
 const App = () => {
-    return (
-        <BrowserRouter>
-            <menu>
-                <li>
-                    <Link to="/StockExample">Stock example</Link>
-                </li>
-                <li>
-                    <Link to="/ProxyExample">Proxy example</Link>
-                </li>
-            </menu>
+	return (
+		<BrowserRouter>
+			<menu>
+				<li>
+					<Link to="/StockExample">Stock example</Link>
+				</li>
+				<li>
+					<Link to="/ProxyExample">Proxy example</Link>
+				</li>
+			</menu>
 
-            <Route path="/StockExample">
-                <StockExample />
-            </Route>
-            <Route path="/ProxyExample">
-                <ProxyExample />
-            </Route>
-        </BrowserRouter>
-    );
+			<Route path="/StockExample">
+				<StockExample />
+			</Route>
+			<Route path="/ProxyExample">
+				<ProxyExample />
+			</Route>
+		</BrowserRouter>
+	);
 };
 
 ReactDOM.render(<App />, document.getElementById('root'));
