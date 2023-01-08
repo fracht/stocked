@@ -10,6 +10,7 @@ specifiers:
   '@typescript-eslint/eslint-plugin': ^4.9.0
   '@typescript-eslint/parser': ^4.9.0
   aqu: ^0.3.2
+  configs: github:fracht/configs
   eslint-config-prettier: ^8.3.0
   eslint-config-react-app: ^6.0.0
   eslint-plugin-react-hooks: ^4.2.0
@@ -46,6 +47,7 @@ devDependencies:
   '@typescript-eslint/eslint-plugin': 4.22.0_uwneditcorqam3cejicxj3ok3a
   '@typescript-eslint/parser': 4.22.0_typescript@4.5.5
   aqu: 0.3.2
+  configs: github.com/fracht/configs/ee4066d3e6a0469bea06b7d2bf9ffc22252205cc
   eslint-config-prettier: 8.3.0
   eslint-config-react-app: 6.0.0_67peavkwxc5aqe73xaibnwno7m
   eslint-plugin-react-hooks: 4.2.0
@@ -11260,4 +11262,10 @@ packages:
       nanoclone: 0.2.1
       property-expr: 2.0.4
       toposort: 2.0.2
+    dev: true
+
+  github.com/fracht/configs/ee4066d3e6a0469bea06b7d2bf9ffc22252205cc:
+    resolution: {tarball: https://codeload.github.com/fracht/configs/tar.gz/ee4066d3e6a0469bea06b7d2bf9ffc22252205cc}
+    name: configs
+    version: 1.0.0
     dev: true

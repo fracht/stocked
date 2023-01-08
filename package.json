@@ -56,6 +56,7 @@
         "@typescript-eslint/eslint-plugin": "^4.9.0",
         "@typescript-eslint/parser": "^4.9.0",
         "aqu": "^0.3.2",
+        "configs": "github:fracht/configs",
         "eslint-config-prettier": "^8.3.0",
         "eslint-config-react-app": "^6.0.0",
         "eslint-plugin-react-hooks": "^4.2.0",
