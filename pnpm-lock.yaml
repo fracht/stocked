@@ -19,7 +19,7 @@ specifiers:
   lodash: ^4.17.20
   lodash-es: ^4.17.15
   np: ^6.5.0
-  prettier: ^2.5.1
+  prettier: ^2.8.2
   pxth: ^0.6.0
   react: ^17.0.1
   react-dom: ^17.0.1
@@ -54,7 +54,7 @@ devDependencies:
   jest: 27.0.6
   jest-watch-typeahead: 1.0.0_jest@27.0.6
   np: 6.5.0
-  prettier: 2.5.1
+  prettier: 2.8.2
   react: 17.0.2
   react-dom: 17.0.2_react@17.0.2
   react-test-renderer: 17.0.2_react@17.0.2
@@ -2989,7 +2989,7 @@ packages:
       esbuild: 0.14.22
       eslint: 7.32.0
       eslint-config-prettier: 8.3.0_eslint@7.32.0
-      eslint-plugin-prettier: 3.4.0_nzvclje2srg3b6ryiggdxjf4qy
+      eslint-plugin-prettier: 3.4.0_eyyrlz7d6gccgbtzkh4ccqaqse
       eslint-plugin-simple-import-sort: 7.0.0_eslint@7.32.0
       execa: 4.1.0
       fs-extra: 9.1.0
@@ -2999,7 +2999,7 @@ packages:
       jest-watch-typeahead: 0.6.4_jest@26.6.3
       lodash: 4.17.21
       ora: 5.4.1
-      prettier: 2.5.1
+      prettier: 2.8.2
       rimraf: 3.0.2
       ts-jest: 26.5.6_iml3gh354yi2jyq3i6mkncucre
       typescript: 4.5.5
@@ -5076,7 +5076,7 @@ packages:
       typescript: 4.5.5
     dev: true
 
-  /eslint-plugin-prettier/3.4.0_nzvclje2srg3b6ryiggdxjf4qy:
+  /eslint-plugin-prettier/3.4.0_eyyrlz7d6gccgbtzkh4ccqaqse:
     resolution: {integrity: sha512-UDK6rJT6INSfcOo545jiaOwB701uAIt2/dR7WnFQoGCVl1/EMqdANBmwUaqqQ45aXprsTGzSa39LI1PyuRBxxw==}
     engines: {node: '>=6.0.0'}
     peerDependencies:
@@ -5089,7 +5089,7 @@ packages:
     dependencies:
       eslint: 7.32.0
       eslint-config-prettier: 8.3.0_eslint@7.32.0
-      prettier: 2.5.1
+      prettier: 2.8.2
       prettier-linter-helpers: 1.0.0
     dev: true
 
@@ -9120,8 +9120,8 @@ packages:
       fast-diff: 1.2.0
     dev: true
 
-  /prettier/2.5.1:
-    resolution: {integrity: sha512-vBZcPRUR5MZJwoyi3ZoyQlc1rXeEck8KgeC9AwwOn+exuxLxq5toTRDTSaVrXHxelDMHy9zlicw8u66yxoSUFg==}
+  /prettier/2.8.2:
+    resolution: {integrity: sha512-BtRV9BcncDyI2tsuS19zzhzoxD8Dh8LiCx7j7tHzrkz8GFXAexeWFdi22mjE1d16dftH2qNaytVxqiRTGlMfpw==}
     engines: {node: '>=10.13.0'}
     hasBin: true
     dev: true
