@@ -3,7 +3,7 @@ name: Format sources
 on:
     push:
         branches:
-            - "main"
+            - 'main'
 
 # Skip job run if PR updated
 concurrency:

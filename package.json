@@ -1,52 +1,36 @@
 {
 	"name": "stocked",
-	"author": "Artiom Tretjakovas",
-	"version": "1.0.0-beta.28",
-	"license": "MIT",
-	"main": "dist/index.js",
-	"typings": "dist/stocked.d.ts",
-	"module": "dist/stocked.esm.js",
 	"description": "Tiny state management library for react.",
-	"repository": {
-		"url": "https://github.com/ArtiomTr/stocked"
-	},
-	"files": [
-		"dist"
-	],
-	"engines": {
-		"node": ">=10"
-	},
+	"version": "1.0.0-beta.28",
+	"main": "dist/index.js",
+	"module": "dist/stocked.esm.js",
+	"repository": "ArtiomTr/stocked",
+	"author": "Artiom Tretjakovas",
+	"license": "MIT",
 	"scripts": {
-		"start": "aqu watch",
+		"analyze": "size-limit --why",
 		"build": "aqu build",
-		"test": "jest --passWithNoTests",
-		"test:watch": "pnpm run test --watch",
-		"test:coverage": "pnpm run test --silent --ci --coverage --json --outputFile=report.json",
-		"test:lcov": "pnpm run test --silent --ci --coverage",
+		"build:docs": "vitepress build new-docs",
+		"dev:docs": "vitepress dev new-docs",
+		"format": "syncpack format && prettier --write \"**/*.{ts,tsx,cjs,mjs,js,jsx,json,yml,yaml,clean-publish}\"",
 		"lint": "eslint .",
 		"lint:config": "pnpm lint --write-file",
 		"prepublishOnly": "aqu build",
-		"size": "size-limit",
-		"analyze": "size-limit --why",
 		"release": "np",
-		"dev:docs": "vitepress dev new-docs",
-		"build:docs": "vitepress build new-docs",
 		"serve:docs": "vitepress serve new-docs",
-		"format": "syncpack format && prettier --write \"**/*.{ts,tsx,cjs,mjs,js,jsx,json,yml,yaml,clean-publish}\""
+		"size": "size-limit",
+		"start": "aqu watch",
+		"test": "jest --passWithNoTests",
+		"test:coverage": "pnpm run test --silent --ci --coverage --json --outputFile=report.json",
+		"test:lcov": "pnpm run test --silent --ci --coverage",
+		"test:watch": "pnpm run test --watch"
 	},
-	"peerDependencies": {
-		"react": ">=16"
+	"dependencies": {
+		"lodash": "^4.17.20",
+		"lodash-es": "^4.17.15",
+		"pxth": "^0.6.0",
+		"tiny-invariant": "^1.1.0"
 	},
-	"size-limit": [
-		{
-			"path": "dist/stocked.cjs.production.min.js",
-			"limit": "10 KB"
-		},
-		{
-			"path": "dist/stocked.esm.js",
-			"limit": "10 KB"
-		}
-	],
 	"devDependencies": {
 		"@size-limit/preset-small-lib": "^4.6.2",
 		"@testing-library/react-hooks": "^7.0.2",
@@ -75,10 +59,24 @@
 		"typescript": "^4.5.5",
 		"vitepress": "^1.0.0-alpha.23"
 	},
-	"dependencies": {
-		"lodash": "^4.17.20",
-		"lodash-es": "^4.17.15",
-		"pxth": "^0.6.0",
-		"tiny-invariant": "^1.1.0"
-	}
+	"peerDependencies": {
+		"react": ">=16"
+	},
+	"engines": {
+		"node": ">=10"
+	},
+	"files": [
+		"dist"
+	],
+	"size-limit": [
+		{
+			"path": "dist/stocked.cjs.production.min.js",
+			"limit": "10 KB"
+		},
+		{
+			"path": "dist/stocked.esm.js",
+			"limit": "10 KB"
+		}
+	],
+	"typings": "dist/stocked.d.ts"
 }
