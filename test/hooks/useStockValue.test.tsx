@@ -24,8 +24,11 @@ const wrapper: React.FC = ({ children }) => (
 );
 
 const renderUseStockValue = (path: Pxth<unknown>, useContext = true) =>
-	renderHook(() => useStockValue(path, useContext ? undefined : stock), {
+	renderHook<{ path: Pxth<unknown> }, unknown>(({ path }) => useStockValue(path, useContext ? undefined : stock), {
 		wrapper: useContext ? wrapper : undefined,
+		initialProps: {
+			path,
+		},
 	});
 
 beforeEach(() => {
@@ -50,6 +53,24 @@ describe('Testing "useStockValue" with context stock', () => {
 		await promise;
 
 		expect(result.current).toBe(newValue);
+	});
+
+	// TODO decide on the behavior when path changes
+	it.skip('should return new value when path changes', async () => {
+		const initialPath = createPxth(['hello']);
+		const otherPath = createPxth(['parent', 'child']);
+
+		const { result, waitForNextUpdate, rerender } = renderUseStockValue(initialPath);
+
+		const promise = act(async () => {
+			await waitForNextUpdate({ timeout: 1000 });
+		});
+
+		rerender({ path: otherPath });
+
+		await promise;
+
+		expect(result.current).toBe('value');
 	});
 });
 
