@@ -286,6 +286,45 @@ describe('Mapping proxy', () => {
 		).toBeTruthy();
 	});
 
+	it('should set proxied value providing callback', () => {
+		const proxy = new MappingProxy<RegisteredUser>(getUserMapSource(), createPxth(['registeredUser']));
+
+		const defaultSetValue = jest.fn();
+		const getStringValue = jest.fn(() => 'old value') as <U>(path: Pxth<U>) => U;
+
+		proxy.setValue(
+			createPxth(['registeredUser', 'personalData', 'name', 'firstName']),
+			(old) => old + ' updated',
+			defaultSetValue,
+			getStringValue,
+		);
+
+		expect(getPxthSegments(defaultSetValue.mock.calls[0][0])).toStrictEqual(['registeredUser', 'name']);
+		expect(defaultSetValue).toBeCalledWith(expect.anything(), 'old value updated');
+
+		defaultSetValue.mockClear();
+		const getObjectValue = jest.fn(() => ({ firstName: 'As', lastName: 'Df' })) as <U>(path: Pxth<U>) => U;
+
+		proxy.setValue(
+			createPxth<object>(['registeredUser', 'personalData', 'name']),
+			(old: object) => ({ ...old, lastName: 'updated' }),
+			defaultSetValue,
+			getObjectValue,
+		);
+
+		expect(
+			defaultSetValue.mock.calls.findIndex(
+				([path, value]) => samePxth(path, createPxth(['registeredUser', 'name'])) && value === 'As',
+			) !== -1,
+		).toBeTruthy();
+
+		expect(
+			defaultSetValue.mock.calls.findIndex(
+				([path, value]) => samePxth(path, createPxth(['registeredUser', 'surname'])) && value === 'updated',
+			) !== -1,
+		).toBeTruthy();
+	});
+
 	it('should get proxied value', () => {
 		const fullUser = {
 			personalData: {
