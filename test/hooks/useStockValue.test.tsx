@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, renderHook } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { createPxth, Pxth } from 'pxth';
 
 import { Stock, StockContext, useStock, useStockValue } from '../../src';
@@ -44,11 +44,9 @@ describe('Testing "useStockValue" with context stock', () => {
 
 		const newValue = 'newValue';
 
-		await act(async () => {
-			await stock.setValue(createPxth(['hello']), newValue);
-		});
+		stock.setValue(createPxth(['hello']), newValue);
 
-		expect(result.current).toBe(newValue);
+		await waitFor(() => expect(result.current).toBe(newValue));
 	});
 
 	// TODO decide on the behavior when path changes
@@ -72,10 +70,8 @@ describe('Testing "useStockValue" with provided stock', () => {
 
 		const newValue = 'newValue';
 
-		await act(async () => {
-			await stock.setValue(createPxth(['hello']), newValue);
-		});
+		stock.setValue(createPxth(['hello']), newValue);
 
-		expect(result.current).toBe(newValue);
+		await waitFor(() => expect(result.current).toBe(newValue));
 	});
 });
