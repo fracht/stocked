@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { createPxth, Pxth } from 'pxth';
 
 import { ProxyMapSource, useMappingProxy } from '../../src';

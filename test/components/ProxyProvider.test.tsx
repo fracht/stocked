@@ -1,24 +1,8 @@
 import React from 'react';
-import { render, unmountComponentAtNode } from 'react-dom';
-import { act } from 'react-dom/test-utils';
+import { render } from '@testing-library/react';
 import { createPxth } from 'pxth';
 
 import { MappingProxy, ProxyProvider, Stock, StockRoot, useStockContext } from '../../src';
-
-let container: HTMLDivElement | null = null;
-
-beforeEach(() => {
-	container = document.createElement('div');
-	document.body.appendChild(container);
-});
-
-afterEach(() => {
-	if (container) {
-		unmountComponentAtNode(container);
-		container.remove();
-		container = null;
-	}
-});
 
 const StockExtractor = ({ extract }: { extract: (stock: Stock<object>) => void }) => {
 	const stock = useStockContext();
@@ -41,16 +25,13 @@ describe('ProxyProvider', () => {
 
 		let stock: Stock<object> | undefined = undefined;
 
-		act(() => {
-			render(
-				<StockRoot initialValues={{ user: { name: 'hello' } }}>
-					<ProxyProvider proxy={proxy}>
-						<StockExtractor extract={(value) => (stock = value)} />
-					</ProxyProvider>
-				</StockRoot>,
-				container,
-			);
-		});
+		render(
+			<StockRoot initialValues={{ user: { name: 'hello' } }}>
+				<ProxyProvider proxy={proxy}>
+					<StockExtractor extract={(value) => (stock = value)} />
+				</ProxyProvider>
+			</StockRoot>,
+		);
 
 		expect(stock!.getValue(createPxth(['user']))).toStrictEqual({
 			surname: 'hello',
@@ -79,18 +60,15 @@ describe('ProxyProvider', () => {
 
 		let stock: Stock<object> | undefined = undefined;
 
-		act(() => {
-			render(
-				<StockRoot initialValues={{ user: { name: 'hello' } }}>
-					<ProxyProvider proxy={proxy}>
-						<ProxyProvider proxy={proxy2}>
-							<StockExtractor extract={(value) => (stock = value)} />
-						</ProxyProvider>
+		render(
+			<StockRoot initialValues={{ user: { name: 'hello' } }}>
+				<ProxyProvider proxy={proxy}>
+					<ProxyProvider proxy={proxy2}>
+						<StockExtractor extract={(value) => (stock = value)} />
 					</ProxyProvider>
-				</StockRoot>,
-				container,
-			);
-		});
+				</ProxyProvider>
+			</StockRoot>,
+		);
 
 		expect(stock!.getValue(createPxth(['user']))).toStrictEqual({
 			name: {
