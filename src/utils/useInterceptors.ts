@@ -5,7 +5,7 @@ import { deepGet, deepSet, getPxthSegments, isInnerPxth, Pxth, samePxth } from '
 import invariant from 'tiny-invariant';
 
 import { Stock } from '../hooks/useStock';
-import { Observer } from '../typings';
+import { Observer, SetStateAction } from '../typings';
 import { StockProxy } from '../typings/StockProxy';
 
 const shouldUseProxy = (proxy: StockProxy<unknown> | undefined, path: Pxth<unknown>) =>
@@ -57,7 +57,7 @@ export const useInterceptors = <T extends object>(stock: Stock<T>, proxy?: Stock
 	);
 
 	const interceptedSetValue = useCallback(
-		<V>(path: Pxth<V>, value: V) =>
+		<V>(path: Pxth<V>, value: SetStateAction<V>) =>
 			intercept(
 				proxy,
 				path as Pxth<unknown>,

@@ -20,7 +20,7 @@ specifiers:
   lodash-es: ^4.17.15
   np: ^6.5.0
   prettier: ^2.8.2
-  pxth: ^0.6.0
+  pxth: ^0.7.0
   react: ^17.0.1
   react-dom: ^17.0.1
   react-test-renderer: ^17.0.1
@@ -35,7 +35,7 @@ specifiers:
 dependencies:
   lodash: 4.17.21
   lodash-es: 4.17.21
-  pxth: 0.6.0
+  pxth: 0.7.0
   tiny-invariant: 1.1.0
 
 devDependencies:
@@ -48,7 +48,7 @@ devDependencies:
   '@typescript-eslint/eslint-plugin': 4.22.0_uwneditcorqam3cejicxj3ok3a
   '@typescript-eslint/parser': 4.22.0_typescript@4.5.5
   aqu: 0.3.2
-  configs: github.com/fracht/configs/2709d82037408671ed815c3b76ec031e2aba0dc4
+  configs: github.com/fracht/configs/b8a8e13fc3db0f3d5afdcedd0749fccc7292be30
   eslint-config-prettier: 8.3.0
   eslint-config-react-app: 6.0.0_67peavkwxc5aqe73xaibnwno7m
   eslint-plugin-react-hooks: 4.2.0
@@ -5639,7 +5639,7 @@ packages:
     resolution: {integrity: sha512-oWb1Z6mkHIskLzEJ/XWX0srkpkTQ7vaopMQkyaEIoq0fmtFVxOthb8cCxeT+p3ynTdkk/RZwbgG4brR5BeWECw==}
     engines: {node: '>= 4.0'}
     os: [darwin]
-    deprecated: fsevents 1 will break on node v14+ and could be using insecure binaries. Upgrade to fsevents 2.
+    deprecated: The v1 package contains DANGEROUS / INSECURE binaries. Upgrade to safe fsevents v2
     requiresBuild: true
     dependencies:
       bindings: 1.5.0
@@ -9326,8 +9326,8 @@ packages:
       escape-goat: 2.1.1
     dev: true
 
-  /pxth/0.6.0:
-    resolution: {integrity: sha512-2hLFYyvFF9KvfODMbSi1WystAsK7TuwwuimESrT2eVjjv5A/LwWFvfo20jz+c3r/uQIj5td9bb0Uw2oE0CpiWw==}
+  /pxth/0.7.0:
+    resolution: {integrity: sha512-V2bNJNl7FIuvjsnreT7EWaBiqD5akAuGrKAVxgarjmTSDcDIGKLhY39ZFBqMkSTN8OHEBM4pszNUN+rfrojMfw==}
     dependencies:
       lodash: 4.17.21
       tiny-invariant: 1.1.0
@@ -11379,8 +11379,8 @@ packages:
       toposort: 2.0.2
     dev: true
 
-  github.com/fracht/configs/2709d82037408671ed815c3b76ec031e2aba0dc4:
-    resolution: {tarball: https://codeload.github.com/fracht/configs/tar.gz/2709d82037408671ed815c3b76ec031e2aba0dc4}
+  github.com/fracht/configs/b8a8e13fc3db0f3d5afdcedd0749fccc7292be30:
+    resolution: {tarball: https://codeload.github.com/fracht/configs/tar.gz/b8a8e13fc3db0f3d5afdcedd0749fccc7292be30}
     name: configs
     version: 1.0.0
     dependencies:
