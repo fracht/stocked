@@ -1,3 +1,4 @@
+import { SetStateAction } from 'react';
 import { Pxth } from 'pxth';
 
 import { Observer } from './Observer';
@@ -17,8 +18,9 @@ export abstract class StockProxy<T> {
 	/** Function, which sets proxied value. It will be callen only if proxied value is changing. */
 	public abstract setValue: <V>(
 		path: Pxth<V>,
-		value: V,
-		defaultSetValue: <U>(path: Pxth<U>, value: U) => void,
+		value: SetStateAction<V>,
+		defaultSetValue: <U>(path: Pxth<U>, value: SetStateAction<U>) => void,
+		defaultGetValue: <U>(path: Pxth<U>) => U,
 	) => void;
 
 	/** Function for watching proxied value. Should return cleanup. */

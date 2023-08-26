@@ -1,3 +1,5 @@
+import { SetStateAction } from 'react';
+import isFunction from 'lodash/isFunction';
 import { createPxth, deepGet, deepSet, getPxthSegments, Pxth, samePxth } from 'pxth';
 
 import { MappingProxy, Observer, ProxyMapSource } from '../../src/typings';
@@ -250,8 +252,14 @@ describe('Mapping proxy', () => {
 		const proxy = new MappingProxy<RegisteredUser>(getUserMapSource(), createPxth(['registeredUser']));
 
 		const defaultSetValue = jest.fn();
+		const defaultGetValue = jest.fn();
 
-		proxy.setValue(createPxth(['registeredUser', 'personalData', 'name', 'firstName']), 'Hello', defaultSetValue);
+		proxy.setValue(
+			createPxth(['registeredUser', 'personalData', 'name', 'firstName']),
+			'Hello',
+			defaultSetValue,
+			defaultGetValue,
+		);
 
 		expect(getPxthSegments(defaultSetValue.mock.calls[0][0])).toStrictEqual(['registeredUser', 'name']);
 		expect(defaultSetValue).toBeCalledWith(expect.anything(), 'Hello');
@@ -262,6 +270,7 @@ describe('Mapping proxy', () => {
 			createPxth(['registeredUser', 'personalData', 'name']),
 			{ firstName: 'As', lastName: 'Df' },
 			defaultSetValue,
+			defaultGetValue,
 		);
 
 		expect(
@@ -419,11 +428,14 @@ describe('Mapping proxy', () => {
 			},
 		};
 
-		const defaultSetValue: <U>(path: Pxth<U>, value: U) => void = jest.fn(<U>(path: Pxth<U>, value: U) => {
-			deepSet(values, path, value);
-		});
+		const defaultSetValue: <U>(path: Pxth<U>, value: SetStateAction<U>) => void = jest.fn(
+			<U>(path: Pxth<U>, value: SetStateAction<U>) => {
+				deepSet(values, path, isFunction(value) ? deepGet(values, path) : value);
+			},
+		);
+		const defaultGetValue = jest.fn();
 
-		proxy.setValue(createPxth(['compound', 'location', 'id']), 42, defaultSetValue);
+		proxy.setValue(createPxth(['compound', 'location', 'id']), 42, defaultSetValue, defaultGetValue);
 		expect(values).toStrictEqual({
 			core: {
 				cmp_id_from: 5,
@@ -446,6 +458,7 @@ describe('Mapping proxy', () => {
 				street: 'Teodoro',
 			},
 			defaultSetValue,
+			defaultGetValue,
 		);
 		expect(values).toStrictEqual({
 			core: {

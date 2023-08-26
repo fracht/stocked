@@ -109,7 +109,7 @@ describe('proxy', () => {
 		expect(watch).toBeCalledWith(expect.anything(), observer, expect.any(Function));
 		expect(watch).toBeCalledTimes(1);
 		expect(getPxthSegments(setValue.mock.calls[0][0])).toStrictEqual(['dest']);
-		expect(setValue).toBeCalledWith(expect.anything(), 'asdf', expect.any(Function));
+		expect(setValue).toBeCalledWith(expect.anything(), 'asdf', expect.any(Function), expect.any(Function));
 		expect(setValue).toBeCalledTimes(1);
 		expect(getPxthSegments(getValue.mock.calls[0][0])).toStrictEqual(['dest']);
 		expect(getValue).toBeCalledTimes(1);
