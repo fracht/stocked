@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react';
 import { createPxth, Pxth } from 'pxth';
 
 import { Stock, StockContext, useStock, useStockValue } from '../../src';
@@ -24,7 +24,7 @@ const wrapper: React.FC = ({ children }) => (
 );
 
 const renderUseStockValue = (path: Pxth<unknown>, useContext = true) =>
-	renderHook<{ path: Pxth<unknown> }, unknown>(({ path }) => useStockValue(path, useContext ? undefined : stock), {
+	renderHook(({ path }: { path: Pxth<unknown> }) => useStockValue(path, useContext ? undefined : stock), {
 		wrapper: useContext ? wrapper : undefined,
 		initialProps: {
 			path,
@@ -38,19 +38,15 @@ beforeEach(() => {
 
 describe('Testing "useStockValue" with context stock', () => {
 	it('Should return new value after update', async () => {
-		const { result, waitForNextUpdate } = renderUseStockValue(createPxth(['hello']));
+		const { result } = renderUseStockValue(createPxth(['hello']));
 
 		expect(result.current).toBe(initialValues.hello);
 
 		const newValue = 'newValue';
 
-		const promise = act(async () => {
-			await waitForNextUpdate({ timeout: 1000 });
+		await act(async () => {
+			await stock.setValue(createPxth(['hello']), newValue);
 		});
-
-		stock.setValue(createPxth(['hello']), newValue);
-
-		await promise;
 
 		expect(result.current).toBe(newValue);
 	});
@@ -60,15 +56,9 @@ describe('Testing "useStockValue" with context stock', () => {
 		const initialPath = createPxth(['hello']);
 		const otherPath = createPxth(['parent', 'child']);
 
-		const { result, waitForNextUpdate, rerender } = renderUseStockValue(initialPath);
-
-		const promise = act(async () => {
-			await waitForNextUpdate({ timeout: 1000 });
-		});
+		const { result, rerender } = renderUseStockValue(initialPath);
 
 		rerender({ path: otherPath });
-
-		await promise;
 
 		expect(result.current).toBe('value');
 	});
@@ -76,19 +66,15 @@ describe('Testing "useStockValue" with context stock', () => {
 
 describe('Testing "useStockValue" with provided stock', () => {
 	it('Should return new value after update', async () => {
-		const { result, waitForNextUpdate } = renderUseStockValue(createPxth(['hello']), false);
+		const { result } = renderUseStockValue(createPxth(['hello']), false);
 
 		expect(result.current).toBe(initialValues.hello);
 
 		const newValue = 'newValue';
 
-		const promise = act(async () => {
-			await waitForNextUpdate({ timeout: 1000 });
+		await act(async () => {
+			await stock.setValue(createPxth(['hello']), newValue);
 		});
-
-		stock.setValue(createPxth(['hello']), newValue);
-
-		await promise;
 
 		expect(result.current).toBe(newValue);
 	});

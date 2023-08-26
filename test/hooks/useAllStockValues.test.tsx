@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react';
 import { createPxth } from 'pxth';
 
 import { Stock, StockContext, useAllStockValues, useStock } from '../../src';
@@ -35,13 +35,9 @@ beforeEach(() => {
 
 describe('Testing "useStockValues" with context stock', () => {
 	it('Should return new values after update using setValues', async () => {
-		const { result, waitForNextUpdate } = renderUseStockValues();
+		const { result } = renderUseStockValues();
 
 		expect(result.current).toStrictEqual(initialValues);
-
-		const promise = act(async () => {
-			await waitForNextUpdate({ timeout: 1000 });
-		});
 
 		const newValue = {
 			hello: 'changed',
@@ -56,26 +52,20 @@ describe('Testing "useStockValues" with context stock', () => {
 			],
 		};
 
-		stock.setValues(newValue);
-
-		await promise;
+		await act(async () => {
+			await stock.setValues(newValue);
+		});
 
 		expect(result.current).toStrictEqual(newValue);
 	});
 	it('Should return new values after update using setValue', async () => {
-		const { result, waitForNextUpdate } = renderUseStockValues();
-
+		const { result } = renderUseStockValues();
 		expect(result.current).toStrictEqual(initialValues);
 
-		const promise = act(async () => {
-			await waitForNextUpdate({ timeout: 1000 });
-		});
-
 		const newValue = [1, 42];
-
-		stock.setValue(createPxth(['array']), newValue);
-
-		await promise;
+		await act(async () => {
+			await stock.setValue(createPxth(['array']), newValue);
+		});
 
 		expect(result.current).toStrictEqual({
 			hello: 'test',

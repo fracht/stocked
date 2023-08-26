@@ -1,4 +1,4 @@
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react';
 import { createPxth, getPxthSegments, Pxth } from 'pxth';
 
 import { Stock, StockProxy, useStock } from '../../src';
@@ -39,8 +39,7 @@ describe('hit cases', () => {
 		expect(observer).toBeCalledWith('asdf');
 	});
 	it('non activated proxy', () => {
-		const { result } = renderUseInterceptorsHook(new DummyProxy(createPxth(['asdf'])));
-		expect(result.error).toBeDefined();
+		expect(() => renderUseInterceptorsHook(new DummyProxy(createPxth(['asdf'])))).toThrow();
 	});
 });
 
