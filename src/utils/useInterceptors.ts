@@ -66,7 +66,7 @@ export const useInterceptors = <T extends object>(stock: Stock<T>, proxy?: Stock
 				<V>(path: Pxth<V>, value: SetStateAction<V>) => proxy!.setValue(path, value, setValue, getValue),
 				[path as Pxth<unknown>, value],
 			),
-		[proxy, setValue],
+		[getValue, proxy, setValue],
 	);
 
 	const interceptedGetValue = useCallback(
@@ -97,14 +97,14 @@ export const useInterceptors = <T extends object>(stock: Stock<T>, proxy?: Stock
 				proxy!.path,
 				proxiedValue,
 				(path, value) => {
-					deepSet(values, path, isFunction(value) ? value(getValue(path)) : value);
+					values = deepSet(values, path, isFunction(value) ? value(deepGet(values, path)) : value) as T;
 				},
 				getValue,
 			);
 
 			setValues(values);
 		},
-		[proxy, setValues],
+		[getValue, proxy, setValues],
 	);
 
 	if (!proxy) {
