@@ -2,6 +2,7 @@ import { SetStateAction } from 'react';
 import isFunction from 'lodash/isFunction';
 import { createPxth, deepGet, deepSet, getPxthSegments, Pxth, samePxth } from 'pxth';
 
+import { AnyStock } from '../../src';
 import { MappingProxy, Observer, ProxyMapSource } from '../../src/typings';
 
 type RegisteredUser = {
@@ -44,13 +45,13 @@ describe('Mapping proxy', () => {
 
 		defaultObserve.mockReturnValue(0);
 
-		proxy.watch(createPxth(['asdf', 'hello']), observer, defaultObserve);
+		proxy.watch(createPxth(['asdf', 'hello']), observer, { watch: defaultObserve } as unknown as AnyStock);
 
 		expect(getPxthSegments(defaultObserve.mock.calls[0][0])).toStrictEqual(['a', 'b', 'c']);
 
 		defaultObserve.mockClear();
 
-		proxy.watch(createPxth(['asdf', 'bye']), observer, defaultObserve);
+		proxy.watch(createPxth(['asdf', 'bye']), observer, { watch: defaultObserve } as unknown as AnyStock);
 		expect(getPxthSegments(defaultObserve.mock.calls[0][0])).toStrictEqual(['a', 'b', 'd']);
 	});
 
@@ -62,7 +63,7 @@ describe('Mapping proxy', () => {
 
 		defaultObserve.mockReturnValue(0);
 
-		proxy.watch(createPxth(['asdf']), observer, defaultObserve);
+		proxy.watch(createPxth(['asdf']), observer, { watch: defaultObserve } as unknown as AnyStock);
 		expect(getPxthSegments(defaultObserve.mock.calls[0][0])).toStrictEqual(['a', 'd', 'c']);
 
 		defaultObserve.mockClear();
@@ -79,12 +80,12 @@ describe('Mapping proxy', () => {
 
 		defaultObserve.mockReturnValue(0);
 
-		proxy.watch(createPxth(['hello']), observer, defaultObserve);
+		proxy.watch(createPxth(['hello']), observer, { watch: defaultObserve } as unknown as AnyStock);
 		expect(getPxthSegments(defaultObserve.mock.calls[0][0])).toStrictEqual(['a', 'd', 'c']);
 
 		defaultObserve.mockClear();
 
-		proxy.watch(createPxth(['bye']), observer, defaultObserve);
+		proxy.watch(createPxth(['bye']), observer, { watch: defaultObserve } as unknown as AnyStock);
 		expect(getPxthSegments(defaultObserve.mock.calls[0][0])).toStrictEqual(['b', 'b', 'd']);
 	});
 
@@ -121,18 +122,24 @@ describe('Mapping proxy', () => {
 		});
 		const observer = jest.fn();
 
-		proxy.watch(createPxth(['registeredUser', 'personalData', 'name', 'firstName']), observer, defaultObserve);
+		proxy.watch(createPxth(['registeredUser', 'personalData', 'name', 'firstName']), observer, {
+			watch: defaultObserve,
+		} as unknown as AnyStock);
 
 		expect(getPxthSegments(defaultObserve.mock.calls[0][0])).toStrictEqual(['registeredUser', 'name']);
 
 		defaultObserve.mockClear();
 
-		proxy.watch(createPxth(['registeredUser', 'personalData', 'name']), observer, defaultObserve);
+		proxy.watch(createPxth(['registeredUser', 'personalData', 'name']), observer, {
+			watch: defaultObserve,
+		} as unknown as AnyStock);
 		expect(getPxthSegments(defaultObserve.mock.calls[0][0])).toStrictEqual(['registeredUser']);
 
 		defaultObserve.mockClear();
 
-		proxy.watch(createPxth(['registeredUser', 'personalData']), observer, defaultObserve);
+		proxy.watch(createPxth(['registeredUser', 'personalData']), observer, {
+			watch: defaultObserve,
+		} as unknown as AnyStock);
 		expect(getPxthSegments(defaultObserve.mock.calls[0][0])).toStrictEqual([]);
 
 		observers[0](rawData.registeredUser.name);
@@ -231,12 +238,12 @@ describe('Mapping proxy', () => {
 		});
 		const observer = jest.fn();
 
-		proxy.watch(createPxth(['truck', 'owner']), observer, defaultWatch);
+		proxy.watch(createPxth(['truck', 'owner']), observer, { watch: defaultWatch } as unknown as AnyStock);
 		expect(getPxthSegments(defaultWatch.mock.calls[0][0])).toStrictEqual([]);
 
 		defaultWatch.mockClear();
 
-		proxy.watch(createPxth(['truck', 'info']), observer, defaultWatch);
+		proxy.watch(createPxth(['truck', 'info']), observer, { watch: defaultWatch } as unknown as AnyStock);
 		expect(getPxthSegments(defaultWatch.mock.calls[0][0])).toStrictEqual([]);
 
 		observers[0](rawData);
@@ -254,24 +261,20 @@ describe('Mapping proxy', () => {
 		const defaultSetValue = jest.fn();
 		const defaultGetValue = jest.fn();
 
-		proxy.setValue(
-			createPxth(['registeredUser', 'personalData', 'name', 'firstName']),
-			'Hello',
-			defaultSetValue,
-			defaultGetValue,
-		);
+		proxy.setValue(createPxth(['registeredUser', 'personalData', 'name', 'firstName']), 'Hello', {
+			setValue: defaultSetValue,
+			getValue: defaultGetValue,
+		} as unknown as AnyStock);
 
 		expect(getPxthSegments(defaultSetValue.mock.calls[0][0])).toStrictEqual(['registeredUser', 'name']);
 		expect(defaultSetValue).toBeCalledWith(expect.anything(), 'Hello');
 
 		defaultSetValue.mockClear();
 
-		proxy.setValue(
-			createPxth(['registeredUser', 'personalData', 'name']),
-			{ firstName: 'As', lastName: 'Df' },
-			defaultSetValue,
-			defaultGetValue,
-		);
+		proxy.setValue(createPxth(['registeredUser', 'personalData', 'name']), { firstName: 'As', lastName: 'Df' }, {
+			setValue: defaultSetValue,
+			getValue: defaultGetValue,
+		} as unknown as AnyStock);
 
 		expect(
 			defaultSetValue.mock.calls.findIndex(
@@ -292,12 +295,10 @@ describe('Mapping proxy', () => {
 		const defaultSetValue = jest.fn();
 		const getStringValue = jest.fn(() => 'old value');
 
-		proxy.setValue(
-			createPxth(['registeredUser', 'personalData', 'name', 'firstName']),
-			(old) => old + ' updated',
-			defaultSetValue,
-			getStringValue as <U>(path: Pxth<U>) => U,
-		);
+		proxy.setValue(createPxth(['registeredUser', 'personalData', 'name', 'firstName']), (old) => old + ' updated', {
+			setValue: defaultSetValue,
+			getValue: getStringValue,
+		} as unknown as AnyStock);
 
 		expect(getPxthSegments((getStringValue as jest.Mock<any, any>).mock.calls[0][0])).toStrictEqual([
 			'registeredUser',
@@ -312,8 +313,7 @@ describe('Mapping proxy', () => {
 		proxy.setValue(
 			createPxth<object>(['registeredUser', 'personalData', 'name']),
 			(old: object) => ({ ...old, lastName: 'updated' }),
-			defaultSetValue,
-			getObjectValue,
+			{ setValue: defaultSetValue, getValue: getObjectValue } as unknown as AnyStock,
 		);
 
 		expect(
@@ -356,15 +356,21 @@ describe('Mapping proxy', () => {
 
 		const defaultGet = <V>(path: Pxth<V>) => deepGet(rawData, path);
 
-		expect(proxy.getValue(createPxth(['registeredUser', 'personalData', 'name', 'firstName']), defaultGet)).toBe(
-			fullUser.personalData.name.firstName,
-		);
-		expect(proxy.getValue(createPxth(['registeredUser', 'personalData', 'name']), defaultGet)).toStrictEqual(
-			fullUser.personalData.name,
-		);
-		expect(proxy.getValue(createPxth(['registeredUser', 'personalData', 'birthday']), defaultGet)).toStrictEqual(
-			fullUser.personalData.birthday,
-		);
+		expect(
+			proxy.getValue(createPxth(['registeredUser', 'personalData', 'name', 'firstName']), {
+				getValue: defaultGet,
+			} as unknown as AnyStock),
+		).toBe(fullUser.personalData.name.firstName);
+		expect(
+			proxy.getValue(createPxth(['registeredUser', 'personalData', 'name']), {
+				getValue: defaultGet,
+			} as unknown as AnyStock),
+		).toStrictEqual(fullUser.personalData.name);
+		expect(
+			proxy.getValue(createPxth(['registeredUser', 'personalData', 'birthday']), {
+				getValue: defaultGet,
+			} as unknown as AnyStock),
+		).toStrictEqual(fullUser.personalData.birthday);
 	});
 
 	it('should return normal path from proxied path', () => {
@@ -443,7 +449,9 @@ describe('Mapping proxy', () => {
 		const fn = jest.fn((path) => {
 			return deepGet(values, path);
 		});
-		const value = proxy.getValue(createPxth(['compound', 'location', 'id']), fn as <U>(path: Pxth<U>) => U);
+		const value = proxy.getValue(createPxth(['compound', 'location', 'id']), {
+			getValue: fn,
+		} as unknown as AnyStock);
 		expect(value).toBe(24);
 	});
 
@@ -478,7 +486,10 @@ describe('Mapping proxy', () => {
 		);
 		const defaultGetValue = jest.fn();
 
-		proxy.setValue(createPxth(['compound', 'location', 'id']), 42, defaultSetValue, defaultGetValue);
+		proxy.setValue(createPxth(['compound', 'location', 'id']), 42, {
+			setValue: defaultSetValue,
+			getValue: defaultGetValue,
+		} as unknown as AnyStock);
 		expect(values).toStrictEqual({
 			core: {
 				cmp_id_from: 5,
@@ -500,8 +511,7 @@ describe('Mapping proxy', () => {
 				city: 'Kaunas',
 				street: 'Teodoro',
 			},
-			defaultSetValue,
-			defaultGetValue,
+			{ setValue: defaultSetValue, getValue: defaultGetValue } as unknown as AnyStock,
 		);
 		expect(values).toStrictEqual({
 			core: {
@@ -534,11 +544,9 @@ describe('Mapping proxy', () => {
 			return jest.fn();
 		});
 
-		proxy.watch(
-			createPxth(['compound', 'location', 'id']),
-			observer,
-			defaultWatch as <U>(path: Pxth<U>, observer: Observer<U>) => () => void,
-		);
+		proxy.watch(createPxth(['compound', 'location', 'id']), observer, {
+			watch: defaultWatch,
+		} as unknown as AnyStock);
 
 		expect(getPxthSegments(defaultWatch.mock.calls[0][0])).toStrictEqual(['core', 'values', 'location_from', 'id']);
 		expect(defaultWatch.mock.calls[0][1]).toBeDefined();
