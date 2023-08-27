@@ -43,5 +43,5 @@ export const useDebugStock = <T extends object>(stock: Stock<T>) => {
 		return () => {
 			/** empty fn */
 		};
-	}, []);
+	}, [stock]);
 };

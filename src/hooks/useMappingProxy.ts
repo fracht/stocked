@@ -24,5 +24,6 @@ export const useMappingProxy = <V>(mapSource: ProxyMapSource<V>, path: Pxth<V>) 
 		const proxy = new MappingProxy(realMap, path);
 		proxy.activate();
 		return proxy;
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [hashPxth(path), realMap]);
 };
