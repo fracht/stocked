@@ -46,15 +46,14 @@ export class MappingProxy<T> extends StockProxy<T> {
 
 		const innerPaths = getInnerPaths(relativeValuePath, this.proxyMap);
 
+		const oldValue = defaultGetValue(normalPath);
+
 		innerPaths.forEach(
 			([to, from]) =>
 				from !== undefined &&
 				defaultSetValue(
 					from,
-					deepGet(
-						isFunction(value) ? value(defaultGetValue(normalPath)) : value,
-						relativePxth(relativeValuePath, to),
-					),
+					deepGet(isFunction(value) ? value(oldValue) : value, relativePxth(relativeValuePath, to)),
 				),
 		);
 	};

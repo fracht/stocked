@@ -290,15 +290,19 @@ describe('Mapping proxy', () => {
 		const proxy = new MappingProxy<RegisteredUser>(getUserMapSource(), createPxth(['registeredUser']));
 
 		const defaultSetValue = jest.fn();
-		const getStringValue = jest.fn(() => 'old value') as <U>(path: Pxth<U>) => U;
+		const getStringValue = jest.fn(() => 'old value');
 
 		proxy.setValue(
 			createPxth(['registeredUser', 'personalData', 'name', 'firstName']),
 			(old) => old + ' updated',
 			defaultSetValue,
-			getStringValue,
+			getStringValue as <U>(path: Pxth<U>) => U,
 		);
 
+		expect(getPxthSegments((getStringValue as jest.Mock<any, any>).mock.calls[0][0])).toStrictEqual([
+			'registeredUser',
+			'name',
+		]);
 		expect(getPxthSegments(defaultSetValue.mock.calls[0][0])).toStrictEqual(['registeredUser', 'name']);
 		expect(defaultSetValue).toBeCalledWith(expect.anything(), 'old value updated');
 
