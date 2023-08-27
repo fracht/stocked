@@ -1,11 +1,11 @@
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { createPxth, getPxthSegments, Pxth } from 'pxth';
 
-import { Stock, StockProxy, useStock } from '../../src';
+import { MappingProxy, StockProxy, useStock } from '../../src';
 import { intercept, useInterceptors } from '../../src/utils/useInterceptors';
 import { DummyProxy } from '../DummyProxy';
 
-const initialValues = {
+const defaultInitialValues = {
 	hello: '',
 	dest: {
 		bye: 'asdf',
@@ -13,19 +13,16 @@ const initialValues = {
 	},
 };
 
-let stock: Stock<typeof initialValues> | undefined;
-
-const renderUseInterceptorsHook = (proxy?: StockProxy<unknown>) => renderHook(() => useInterceptors(stock!, proxy));
-
-beforeEach(() => {
+const renderUseInterceptorsHook = <T extends object>(initialValues: T, proxy?: StockProxy<unknown>) => {
 	const { result } = renderHook(() => useStock({ initialValues }));
 
-	stock = result.current;
-});
+	const stock = result.current;
+	return [renderHook(() => useInterceptors(stock, proxy)), stock] as const;
+};
 
 describe('hit cases', () => {
 	it('no proxy', () => {
-		const { result } = renderUseInterceptorsHook();
+		const [{ result }] = renderUseInterceptorsHook(defaultInitialValues);
 
 		const observer = jest.fn();
 		act(() => {
@@ -39,7 +36,7 @@ describe('hit cases', () => {
 		expect(observer).toBeCalledWith('asdf');
 	});
 	it('non activated proxy', () => {
-		expect(() => renderUseInterceptorsHook(new DummyProxy(createPxth(['asdf'])))).toThrow();
+		expect(() => renderUseInterceptorsHook(defaultInitialValues, new DummyProxy(createPxth(['asdf'])))).toThrow();
 	});
 });
 
@@ -89,7 +86,7 @@ describe('proxy', () => {
 		proxy.setValue = setValue;
 		proxy.getValue = getValue;
 		proxy.activate();
-		const { result } = renderUseInterceptorsHook(proxy);
+		const [{ result }] = renderUseInterceptorsHook(defaultInitialValues, proxy);
 
 		const observer = jest.fn();
 
@@ -114,7 +111,7 @@ describe('proxy', () => {
 		expect(getValue).toBeCalledTimes(1);
 	});
 
-	it('should handle setValues / getValues properly', () => {
+	it('should handle setValues / getValues properly', async () => {
 		const proxy = new DummyProxy(createPxth(['dest']));
 
 		const watch = jest.fn(() => () => {});
@@ -126,31 +123,110 @@ describe('proxy', () => {
 		proxy.setValue = setValue;
 		proxy.getValue = getValue as <V>(path: Pxth<V>, defaultGetValue: <U>(path: Pxth<U>) => U) => V;
 		proxy.activate();
-		const { result } = renderUseInterceptorsHook(proxy);
+		const [{ result }] = renderUseInterceptorsHook(defaultInitialValues, proxy);
 
-		let values: any = {};
-
-		act(() => {
-			result.current.setValues({
-				hello: 'asdf',
-				dest: {
-					bye: '',
-					l: 15,
-				},
-			});
-
-			values = result.current.getValues();
+		result.current.setValues({
+			hello: 'asdf',
+			dest: {
+				bye: '',
+				l: 15,
+			},
 		});
+
+		await waitFor(() =>
+			expect(result.current.getValues()).toStrictEqual({
+				hello: 'asdf',
+				dest: 'Test get value',
+			}),
+		);
 
 		expect(getPxthSegments(setValue.mock.calls[0][0])).toStrictEqual(['dest']);
 		expect(setValue).toBeCalledTimes(1);
 
 		expect(getPxthSegments(getValue.mock.calls[0][0])).toStrictEqual(['dest']);
 		expect(getValue).toBeCalledTimes(1);
+	});
 
-		expect(values).toStrictEqual({
-			hello: 'asdf',
-			dest: 'Test get value',
+	it('should set entire values object', async () => {
+		const initialValues = {
+			userName: 'Harry',
+			userSurname: 'Potter',
+		};
+
+		const proxy = new MappingProxy(
+			{
+				driver: {
+					name: createPxth<string>(['userName']),
+					surname: createPxth<string>(['userSurname']),
+				},
+			},
+			createPxth<{ driver: { name: string; surname: string } }>(['proxy']),
+		);
+
+		proxy.activate();
+
+		const [{ result }, realStock] = renderUseInterceptorsHook(initialValues, proxy);
+
+		const proxiedStock = result.current;
+
+		proxiedStock.setValues({
+			proxy: {
+				driver: {
+					name: 'John',
+					surname: 'Weasley',
+				},
+			},
+			userName: 'OVERRIDABLE',
+			userSurname: 'OVERRIDABLE',
+		} as typeof initialValues);
+
+		await waitFor(() => {
+			expect(proxiedStock.getValues()).toStrictEqual({
+				proxy: {
+					driver: {
+						name: 'John',
+						surname: 'Weasley',
+					},
+				},
+				userName: 'John',
+				userSurname: 'Weasley',
+			});
+
+			expect(realStock.getValues()).toStrictEqual({
+				userName: 'John',
+				userSurname: 'Weasley',
+			});
+		});
+	});
+
+	it('should be able to pass an update callback to construct new state', async () => {
+		const initialValues = {
+			userName: 'Harry',
+			userSurname: 'Potter',
+		};
+
+		const proxy = new MappingProxy(
+			{
+				driver: {
+					name: createPxth<string>(['userName']),
+					surname: createPxth<string>(['userSurname']),
+				},
+			},
+			createPxth<{ driver: { name: string; surname: string } }>(['proxy']),
+		);
+
+		proxy.activate();
+
+		const [{ result }, realStock] = renderUseInterceptorsHook(initialValues, proxy);
+
+		const proxiedStock = result.current;
+
+		const valuePath = createPxth<string>(['proxy', 'driver', 'name']);
+		proxiedStock.setValue(valuePath, (old) => old + ' updated');
+
+		await waitFor(() => {
+			expect(proxiedStock.getValue(valuePath)).toBe('Harry updated');
+			expect(realStock.getValue(createPxth<string>(['userName']))).toBe('Harry updated');
 		});
 	});
 });
