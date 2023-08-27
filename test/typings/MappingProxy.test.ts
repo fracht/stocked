@@ -286,7 +286,7 @@ describe('Mapping proxy', () => {
 		).toBeTruthy();
 	});
 
-	it('should set proxied value providing callback', () => {
+	it('should set proxied value based on the old value', () => {
 		const proxy = new MappingProxy<RegisteredUser>(getUserMapSource(), createPxth(['registeredUser']));
 
 		const defaultSetValue = jest.fn();

@@ -176,8 +176,8 @@ describe('proxy', () => {
 					surname: 'Weasley',
 				},
 			},
-			userName: 'OVERRIDABLE',
-			userSurname: 'OVERRIDABLE',
+			userName: 'THIS SHOULD BE OVERRIDED',
+			userSurname: 'THIS SHOULD BE OVERRIDED',
 		} as typeof initialValues);
 
 		await waitFor(() => {
