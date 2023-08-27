@@ -1,5 +1,6 @@
 import { Pxth } from 'pxth';
 
+import { Stock } from '../src';
 import { StockProxy } from '../src/typings/StockProxy';
 
 export class DummyProxy extends StockProxy<unknown> {
@@ -7,5 +8,5 @@ export class DummyProxy extends StockProxy<unknown> {
 	public getNormalPath = <V>(path: Pxth<V>) => path;
 	public setValue = () => {};
 	public watch = () => () => {};
-	public getValue = <V>(path: Pxth<V>, defaultGetValue: <U>(path: Pxth<U>) => U) => defaultGetValue(path) as V;
+	public getValue = <V>(path: Pxth<V>, { getValue: defaultGetValue }: Stock<object>) => defaultGetValue(path) as V;
 }

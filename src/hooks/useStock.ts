@@ -24,6 +24,9 @@ export type Stock<T extends object> = {
 	debugName?: string;
 } & Omit<ObserversControl<T>, 'notifyAll' | 'notifySubTree'>;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type AnyStock = Stock<any>;
+
 export type StockConfig<T extends object> = {
 	initialValues: T;
 	debugName?: string;

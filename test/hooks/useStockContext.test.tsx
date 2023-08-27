@@ -65,7 +65,7 @@ describe('Test "useStockContext" hook', () => {
 
 		expect(getPxthSegments(watch.mock.calls[watch.mock.calls.length - 1][0])).toStrictEqual(['asdf']);
 
-		expect(watch).lastCalledWith(expect.anything(), observer, expect.any(Function));
+		expect(watch).lastCalledWith(expect.anything(), observer, expect.anything());
 	});
 
 	it('should take proxy from arguments', () => {
@@ -93,6 +93,6 @@ describe('Test "useStockContext" hook', () => {
 		});
 
 		expect(getPxthSegments(watch.mock.calls[watch.mock.calls.length - 1][0])).toStrictEqual(['asdf']);
-		expect(watch).lastCalledWith(expect.anything(), observer, expect.any(Function));
+		expect(watch).lastCalledWith(expect.anything(), observer, expect.anything());
 	});
 });

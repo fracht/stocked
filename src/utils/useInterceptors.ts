@@ -51,10 +51,10 @@ export const useInterceptors = <T extends object>(stock: Stock<T>, proxy?: Stock
 				proxy,
 				path as Pxth<unknown>,
 				watch,
-				(path: Pxth<V>, observer: Observer<V>) => proxy!.watch<V>(path, observer, watch),
+				(path: Pxth<V>, observer: Observer<V>) => proxy!.watch<V>(path, observer, stock),
 				[path, observer],
 			),
-		[watch, proxy],
+		[proxy, watch, stock],
 	);
 
 	const interceptedSetValue = useCallback(
@@ -63,29 +63,29 @@ export const useInterceptors = <T extends object>(stock: Stock<T>, proxy?: Stock
 				proxy,
 				path as Pxth<unknown>,
 				setValue,
-				<V>(path: Pxth<V>, value: SetStateAction<V>) => proxy!.setValue(path, value, setValue, getValue),
+				<V>(path: Pxth<V>, value: SetStateAction<V>) => proxy!.setValue(path, value, stock),
 				[path as Pxth<unknown>, value],
 			),
-		[getValue, proxy, setValue],
+		[proxy, setValue, stock],
 	);
 
 	const interceptedGetValue = useCallback(
 		<V>(path: Pxth<V>) =>
-			intercept(proxy, path as Pxth<unknown>, getValue, (path: Pxth<V>) => proxy!.getValue<V>(path, getValue), [
+			intercept(proxy, path as Pxth<unknown>, getValue, (path: Pxth<V>) => proxy!.getValue<V>(path, stock), [
 				path,
 			]),
-		[proxy, getValue],
+		[proxy, getValue, stock],
 	);
 
 	const interceptedGetValues = useCallback(() => {
 		let allValues = cloneDeep(getValues());
 
-		const proxiedValue = proxy!.getValue(proxy!.path, getValue);
+		const proxiedValue = proxy!.getValue(proxy!.path, stock);
 
 		allValues = deepSet(allValues, proxy!.path, proxiedValue) as T;
 
 		return allValues;
-	}, [proxy, getValues, getValue]);
+	}, [getValues, proxy, stock]);
 
 	const interceptedSetValues = useCallback(
 		(values: T) => {
@@ -93,18 +93,16 @@ export const useInterceptors = <T extends object>(stock: Stock<T>, proxy?: Stock
 
 			unset(values, getPxthSegments(proxy!.path));
 
-			proxy!.setValue(
-				proxy!.path,
-				proxiedValue,
-				(path, value) => {
+			proxy!.setValue(proxy!.path, proxiedValue, {
+				...stock,
+				setValue: (path, value) => {
 					values = deepSet(values, path, isFunction(value) ? value(deepGet(values, path)) : value) as T;
 				},
-				getValue,
-			);
+			});
 
 			setValues(values);
 		},
-		[getValue, proxy, setValues],
+		[proxy, setValues, stock],
 	);
 
 	if (!proxy) {

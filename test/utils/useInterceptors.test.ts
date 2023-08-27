@@ -1,7 +1,7 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { createPxth, getPxthSegments, Pxth } from 'pxth';
 
-import { MappingProxy, StockProxy, useStock } from '../../src';
+import { MappingProxy, Stock, StockProxy, useStock } from '../../src';
 import { intercept, useInterceptors } from '../../src/utils/useInterceptors';
 import { DummyProxy } from '../DummyProxy';
 
@@ -102,10 +102,10 @@ describe('proxy', () => {
 		});
 
 		expect(getPxthSegments(watch.mock.calls[0][0])).toStrictEqual(['dest']);
-		expect(watch).toBeCalledWith(expect.anything(), observer, expect.any(Function));
+		expect(watch).toBeCalledWith(expect.anything(), observer, expect.anything());
 		expect(watch).toBeCalledTimes(1);
 		expect(getPxthSegments(setValue.mock.calls[0][0])).toStrictEqual(['dest']);
-		expect(setValue).toBeCalledWith(expect.anything(), 'asdf', expect.any(Function), expect.any(Function));
+		expect(setValue).toBeCalledWith(expect.anything(), 'asdf', expect.anything());
 		expect(setValue).toBeCalledTimes(1);
 		expect(getPxthSegments(getValue.mock.calls[0][0])).toStrictEqual(['dest']);
 		expect(getValue).toBeCalledTimes(1);
@@ -121,7 +121,7 @@ describe('proxy', () => {
 
 		proxy.watch = watch;
 		proxy.setValue = setValue;
-		proxy.getValue = getValue as <V>(path: Pxth<V>, defaultGetValue: <U>(path: Pxth<U>) => U) => V;
+		proxy.getValue = getValue as <V>(path: Pxth<V>, stock: Stock<any>) => V;
 		proxy.activate();
 		const [{ result }] = renderUseInterceptorsHook(defaultInitialValues, proxy);
 

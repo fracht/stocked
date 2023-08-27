@@ -10,6 +10,7 @@ import { StockProxy } from './StockProxy';
 import { ProxyMapSource } from '.';
 import { createProxyMap } from '../utils/createProxyMap';
 import { getInnerPaths, hasMappedParentPaths } from '../utils/mappingProxyUtils';
+import { AnyStock } from '..';
 
 /**
  * Simple example of StockProxy.
@@ -33,8 +34,7 @@ export class MappingProxy<T> extends StockProxy<T> {
 	public setValue = <V>(
 		path: Pxth<V>,
 		value: SetStateAction<V>,
-		defaultSetValue: <U>(path: Pxth<U>, value: SetStateAction<U>) => void,
-		defaultGetValue: <U>(path: Pxth<U>) => U,
+		{ setValue: defaultSetValue, getValue: defaultGetValue }: AnyStock,
 	) => {
 		const relativeValuePath = relativePxth(this.path as Pxth<unknown>, path as Pxth<unknown>);
 		const normalPath = this.getNormalPath(path);
@@ -58,16 +58,12 @@ export class MappingProxy<T> extends StockProxy<T> {
 		);
 	};
 
-	public watch = <V>(
-		path: Pxth<V>,
-		observer: Observer<V>,
-		defaultWatch: <U>(path: Pxth<U>, observer: Observer<U>) => () => void,
-	) => {
+	public watch = <V>(path: Pxth<V>, observer: Observer<V>, { watch: defaultWatch }: AnyStock) => {
 		const normalPath = this.getNormalPath(path);
 		return defaultWatch(normalPath, (value) => observer(this.mapValue(value, path, normalPath) as V));
 	};
 
-	public getValue = <V>(path: Pxth<V>, defaultGetValue: <U>(path: Pxth<U>) => U): V => {
+	public getValue = <V>(path: Pxth<V>, { getValue: defaultGetValue }: AnyStock): V => {
 		const normalPath = this.getNormalPath(path);
 		return this.mapValue(defaultGetValue(normalPath), path, normalPath) as V;
 	};

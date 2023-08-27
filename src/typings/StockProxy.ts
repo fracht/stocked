@@ -2,6 +2,7 @@ import { SetStateAction } from 'react';
 import { Pxth } from 'pxth';
 
 import { Observer } from './Observer';
+import { AnyStock } from '..';
 
 /**
  * Abstract class of "stocked" proxy
@@ -16,22 +17,13 @@ export abstract class StockProxy<T> {
 	}
 
 	/** Function, which sets proxied value. It will be callen only if proxied value is changing. */
-	public abstract setValue: <V>(
-		path: Pxth<V>,
-		value: SetStateAction<V>,
-		defaultSetValue: <U>(path: Pxth<U>, value: SetStateAction<U>) => void,
-		defaultGetValue: <U>(path: Pxth<U>) => U,
-	) => void;
+	public abstract setValue: <V>(path: Pxth<V>, value: SetStateAction<V>, stock: AnyStock) => void;
 
 	/** Function for watching proxied value. Should return cleanup. */
-	public abstract watch: <V>(
-		path: Pxth<V>,
-		observer: Observer<V>,
-		defaultWatch: <U>(path: Pxth<U>, observer: Observer<U>) => () => void,
-	) => () => void;
+	public abstract watch: <V>(path: Pxth<V>, observer: Observer<V>, stock: AnyStock) => () => void;
 
 	/** Function to access proxied value. */
-	public abstract getValue: <V>(path: Pxth<V>, defaultGetValue: <U>(path: Pxth<U>) => U) => V;
+	public abstract getValue: <V>(path: Pxth<V>, stock: AnyStock) => V;
 
 	/** Function for getting proxied path from normal path. */
 	public abstract getProxiedPath: <V>(path: Pxth<V>) => Pxth<V>;
