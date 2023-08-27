@@ -1,3 +1,5 @@
+import { SetStateAction } from 'react';
+import isFunction from 'lodash/isFunction';
 import isNil from 'lodash/isNil';
 import { deepGet, deepSet, isInnerPxth, joinPxths, longestCommonPxth, Pxth, relativePxth, samePxth } from 'pxth';
 import invariant from 'tiny-invariant';
@@ -28,20 +30,31 @@ export class MappingProxy<T> extends StockProxy<T> {
 		this.proxyMap = createProxyMap(mapSource);
 	}
 
-	public setValue = <V>(path: Pxth<V>, value: V, defaultSetValue: <U>(path: Pxth<U>, value: U) => void) => {
+	public setValue = <V>(
+		path: Pxth<V>,
+		value: SetStateAction<V>,
+		defaultSetValue: <U>(path: Pxth<U>, value: SetStateAction<U>) => void,
+		defaultGetValue: <U>(path: Pxth<U>) => U,
+	) => {
 		const relativeValuePath = relativePxth(this.path as Pxth<unknown>, path as Pxth<unknown>);
+		const normalPath = this.getNormalPath(path);
 
 		if (hasMappedParentPaths(relativeValuePath, this.proxyMap)) {
-			const normalPath = this.getNormalPath(path);
 			defaultSetValue(normalPath, value);
 			return;
 		}
 
 		const innerPaths = getInnerPaths(relativeValuePath, this.proxyMap);
 
+		const oldValue = defaultGetValue(normalPath);
+
 		innerPaths.forEach(
 			([to, from]) =>
-				from !== undefined && defaultSetValue(from, deepGet(value, relativePxth(relativeValuePath, to))),
+				from !== undefined &&
+				defaultSetValue(
+					from,
+					deepGet(isFunction(value) ? value(oldValue) : value, relativePxth(relativeValuePath, to)),
+				),
 		);
 	};
 
