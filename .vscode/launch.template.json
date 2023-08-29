@@ -8,12 +8,7 @@
 			"name": "Debug stocked tests",
 			"type": "node",
 			"request": "launch",
-			"runtimeArgs": [
-				"--inspect-brk",
-				"${workspaceFolder}\\node_modules\\jest\\bin\\jest.js",
-				"--watch",
-				"MappingProxy"
-			],
+			"runtimeArgs": ["--inspect-brk", "${workspaceFolder}\\node_modules\\jest\\bin\\jest.js", "--watch"],
 			"cwd": "${workspaceFolder}",
 			"console": "integratedTerminal",
 			"internalConsoleOptions": "neverOpen"

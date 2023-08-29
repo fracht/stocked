@@ -307,13 +307,14 @@ describe('Mapping proxy', () => {
 		expect(defaultSetValue).toBeCalledWith(expect.anything(), 'old value updated');
 
 		defaultSetValue.mockClear();
-		const getObjectValue = jest.fn(() => ({ firstName: 'As', lastName: 'Df' })) as <U>(path: Pxth<U>) => U;
+		const defaultGetValue = jest.fn(() => ({ name: 'As', surname: 'Df' })) as jest.Mock<any, any>;
+		const updater = jest.fn((value) => ({ ...value, lastName: 'updated' }));
 
 		proxy.setValue(
 			createPxth<object>(['registeredUser', 'personalData', 'name']),
-			(old: object) => ({ ...old, lastName: 'updated' }),
+			updater,
 			defaultSetValue,
-			getObjectValue,
+			defaultGetValue,
 		);
 
 		expect(
@@ -327,6 +328,14 @@ describe('Mapping proxy', () => {
 				([path, value]) => samePxth(path, createPxth(['registeredUser', 'surname'])) && value === 'updated',
 			) !== -1,
 		).toBeTruthy();
+
+		expect(getPxthSegments(defaultGetValue.mock.calls[0][0])).toStrictEqual(['registeredUser']);
+
+		expect(updater).toBeCalledTimes(1);
+		expect(updater.mock.calls[0][0]).toStrictEqual({
+			firstName: 'As',
+			lastName: 'Df',
+		});
 	});
 
 	it('should get proxied value', () => {
