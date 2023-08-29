@@ -1,5 +1,5 @@
 import React from 'react';
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { createPxth, Pxth } from 'pxth';
 
 import { Stock, StockContext, useStock, useStockValue } from '../../src';
@@ -44,7 +44,9 @@ describe('Testing "useStockValue" with context stock', () => {
 
 		const newValue = 'newValue';
 
-		stock.setValue(createPxth(['hello']), newValue);
+		act(() => {
+			stock.setValue(createPxth(['hello']), newValue);
+		});
 
 		await waitFor(() => expect(result.current).toBe(newValue));
 	});
@@ -70,7 +72,9 @@ describe('Testing "useStockValue" with provided stock', () => {
 
 		const newValue = 'newValue';
 
-		stock.setValue(createPxth(['hello']), newValue);
+		act(() => {
+			stock.setValue(createPxth(['hello']), newValue);
+		});
 
 		await waitFor(() => expect(result.current).toBe(newValue));
 	});
