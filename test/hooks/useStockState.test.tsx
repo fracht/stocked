@@ -1,5 +1,5 @@
 import React from 'react';
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { createPxth, Pxth } from 'pxth';
 
 import { Stock, StockContext, useStock, useStockState } from '../../src';
@@ -42,7 +42,9 @@ const testWrapper = (testName: string, useContext: boolean) => {
 			const [, setValue] = result.current;
 			const newValue = 'newValue';
 
-			setValue(newValue);
+			act(() => {
+				setValue(newValue);
+			});
 
 			await waitFor(() => expect(result.current[0]).toBe(newValue));
 		});
@@ -51,7 +53,10 @@ const testWrapper = (testName: string, useContext: boolean) => {
 			const { result } = renderUseStockState(createPxth(['parent', 'child']), useContext);
 
 			const [, setValue] = result.current;
-			setValue(() => 'value_changed_via_updater');
+
+			act(() => {
+				setValue(() => 'value_changed_via_updater');
+			});
 
 			await waitFor(() => expect(result.current[0]).toBe('value_changed_via_updater'));
 		});
@@ -61,9 +66,12 @@ const testWrapper = (testName: string, useContext: boolean) => {
 
 			const [, setValue] = result.current;
 			const updater = (value: number) => ++value;
-			setValue(updater);
-			setValue(updater);
-			setValue(updater);
+
+			act(() => {
+				setValue(updater);
+				setValue(updater);
+				setValue(updater);
+			});
 
 			await waitFor(() => expect(result.current[0]).toBe(3));
 		});
@@ -75,7 +83,9 @@ const testWrapper = (testName: string, useContext: boolean) => {
 
 			const newValue = 'newValue';
 
-			stock.setValue(createPxth(['hello']), newValue);
+			act(() => {
+				stock.setValue(createPxth(['hello']), newValue);
+			});
 
 			await waitFor(() => expect(result.current[0]).toBe(newValue));
 		});

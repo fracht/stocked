@@ -1,5 +1,5 @@
 import React from 'react';
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { createPxth } from 'pxth';
 
 import { Stock, StockContext, useAllStockValues, useStock } from '../../src';
@@ -52,7 +52,9 @@ describe('Testing "useStockValues" with context stock', () => {
 			],
 		};
 
-		stock.setValues(newValue);
+		act(() => {
+			stock.setValues(newValue);
+		});
 
 		await waitFor(() => expect(result.current).toStrictEqual(newValue));
 	});
@@ -62,7 +64,10 @@ describe('Testing "useStockValues" with context stock', () => {
 		expect(result.current).toStrictEqual(initialValues);
 
 		const newValue = [1, 42];
-		stock.setValue(createPxth(['array']), newValue);
+
+		act(() => {
+			stock.setValue(createPxth(['array']), newValue);
+		});
 
 		await waitFor(() =>
 			expect(result.current).toStrictEqual({
