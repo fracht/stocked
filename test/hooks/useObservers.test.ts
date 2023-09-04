@@ -1,4 +1,4 @@
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react';
 import { createPxth, getPxthSegments } from 'pxth';
 
 import { useObservers } from '../../src';
