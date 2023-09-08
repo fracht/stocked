@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { createPxth } from 'pxth';
 
@@ -19,7 +19,7 @@ const initialValues = {
 
 let stock: Stock<typeof initialValues>;
 
-const wrapper: React.FC = ({ children }) => (
+const wrapper = ({ children }: PropsWithChildren<{}>) => (
 	<StockContext.Provider value={stock as unknown as Stock<object>}>{children}</StockContext.Provider>
 );
 
