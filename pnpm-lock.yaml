@@ -5,8 +5,8 @@ specifiers:
   '@testing-library/react': ^14.0.0
   '@types/jest': ^27.0.1
   '@types/lodash': ^4.14.162
-  '@types/react': ^18.2.21
-  '@types/react-dom': ^18.2.7
+  '@types/react': 18.0.23
+  '@types/react-dom': 18.0.6
   '@typescript-eslint/eslint-plugin': ^4.9.0
   '@typescript-eslint/parser': ^4.9.0
   aqu: ^0.3.2
@@ -42,8 +42,8 @@ devDependencies:
   '@testing-library/react': 14.0.0_biqbaboplfbrettd7655fr4n2y
   '@types/jest': 27.5.2
   '@types/lodash': 4.14.197
-  '@types/react': 18.2.21
-  '@types/react-dom': 18.2.7
+  '@types/react': 18.0.23
+  '@types/react-dom': 18.0.6
   '@typescript-eslint/eslint-plugin': 4.33.0_pbkabtxghosqq7n4qap3owhleu
   '@typescript-eslint/parser': 4.33.0_typescript@4.9.5
   aqu: 0.3.2
@@ -62,7 +62,7 @@ devDependencies:
   ts-jest: 27.1.5_n4jzo3ixy42kfaqevs43wjx5ui
   tslib: 2.6.2
   typescript: 4.9.5
-  vitepress: 1.0.0-rc.10_vnxzf5c44dqo4vncfl2mrh2gwm
+  vitepress: 1.0.0-rc.10_yyloj25vv7zmuk3uh3z5jonzqq
 
 packages:
 
@@ -1511,10 +1511,10 @@ packages:
     resolution: {integrity: sha512-SPiDHaWKQZpwR2siD0KQUwlStvIAnEyK6tAE2h2Wuoq8ue9skzhlyVQ1ddzOxX6khULnAALDiR/isSF3bnuciA==}
     dev: true
 
-  /@docsearch/js/3.5.2_vnxzf5c44dqo4vncfl2mrh2gwm:
+  /@docsearch/js/3.5.2_yyloj25vv7zmuk3uh3z5jonzqq:
     resolution: {integrity: sha512-p1YFTCDflk8ieHgFJYfmyHBki1D61+U9idwrLh+GQQMrBSP3DLGKpy0XUJtPjAOPltcVbqsTjiPFfH7JImjUNg==}
     dependencies:
-      '@docsearch/react': 3.5.2_vnxzf5c44dqo4vncfl2mrh2gwm
+      '@docsearch/react': 3.5.2_yyloj25vv7zmuk3uh3z5jonzqq
       preact: 10.17.1
     transitivePeerDependencies:
       - '@algolia/client-search'
@@ -1524,7 +1524,7 @@ packages:
       - search-insights
     dev: true
 
-  /@docsearch/react/3.5.2_vnxzf5c44dqo4vncfl2mrh2gwm:
+  /@docsearch/react/3.5.2_yyloj25vv7zmuk3uh3z5jonzqq:
     resolution: {integrity: sha512-9Ahcrs5z2jq/DcAvYtvlqEBHImbm4YJI8M9y0x6Tqg598P40HTEkX7hsMcIuThI+hTFxRGZ9hll0Wygm2yEjng==}
     peerDependencies:
       '@types/react': '>= 16.8.0 < 19.0.0'
@@ -1544,7 +1544,7 @@ packages:
       '@algolia/autocomplete-core': 1.9.3_algoliasearch@4.19.1
       '@algolia/autocomplete-preset-algolia': 1.9.3_algoliasearch@4.19.1
       '@docsearch/css': 3.5.2
-      '@types/react': 18.2.21
+      '@types/react': 18.0.23
       algoliasearch: 4.19.1
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -2682,10 +2682,24 @@ packages:
     resolution: {integrity: sha512-JCB8C6SnDoQf0cNycqd/35A7MjcnK+ZTqE7judS6o7utxUCg6imJg3QK2qzHKszlTjcj2cn+NwMB2i96ubpj7w==}
     dev: true
 
+  /@types/react-dom/18.0.6:
+    resolution: {integrity: sha512-/5OFZgfIPSwy+YuIBP/FgJnQnsxhZhjjrnxudMddeblOouIodEQ75X14Rr4wGSG/bknL+Omy9iWlLo1u/9GzAA==}
+    dependencies:
+      '@types/react': 18.2.21
+    dev: true
+
   /@types/react-dom/18.2.7:
     resolution: {integrity: sha512-GRaAEriuT4zp9N4p1i8BDBYmEyfo+xQ3yHjJU4eiK5NDa1RmUZG+unZABUTK4/Ox/M+GaHwb6Ow8rUITrtjszA==}
     dependencies:
       '@types/react': 18.2.21
+    dev: true
+
+  /@types/react/18.0.23:
+    resolution: {integrity: sha512-R1wTULtCiJkudAN2DJGoYYySbGtOdzZyUWAACYinKdiQC8auxso4kLDUhQ7AJ2kh3F6A6z4v69U6tNY39hihVQ==}
+    dependencies:
+      '@types/prop-types': 15.7.5
+      '@types/scheduler': 0.16.3
+      csstype: 3.1.2
     dev: true
 
   /@types/react/18.2.21:
@@ -11560,12 +11574,12 @@ packages:
       fsevents: 2.3.3
     dev: true
 
-  /vitepress/1.0.0-rc.10_vnxzf5c44dqo4vncfl2mrh2gwm:
+  /vitepress/1.0.0-rc.10_yyloj25vv7zmuk3uh3z5jonzqq:
     resolution: {integrity: sha512-+MsahIWqq5WUEmj6MR4obcKYbT7im07jZPCQPdNJExkeOSbOAJ4xypSLx88x7rvtzWHhHc5aXbOhCRvGEGjFrw==}
     hasBin: true
     dependencies:
       '@docsearch/css': 3.5.2
-      '@docsearch/js': 3.5.2_vnxzf5c44dqo4vncfl2mrh2gwm
+      '@docsearch/js': 3.5.2_yyloj25vv7zmuk3uh3z5jonzqq
       '@vue/devtools-api': 6.5.0
       '@vueuse/core': 10.4.1_vue@3.3.4
       '@vueuse/integrations': 10.4.1_focus-trap@7.5.2+vue@3.3.4
