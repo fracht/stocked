@@ -1,11 +1,10 @@
-import { useCallback } from 'react';
+import { Dispatch, SetStateAction, useCallback } from 'react';
 import { Pxth } from 'pxth';
 
 import { Stock } from './useStock';
 import { useStockContext } from './useStockContext';
 import { useStockValue } from './useStockValue';
 import { StockProxy } from '../typings';
-import { Dispatch, SetStateAction } from '../typings/SetStateAction';
 
 /**
  * Hook, returns tuple of value and value set action.

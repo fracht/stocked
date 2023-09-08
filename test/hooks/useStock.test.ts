@@ -1,4 +1,4 @@
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react';
 import { createPxth } from 'pxth';
 
 import { StockConfig, useStock } from '../../src';

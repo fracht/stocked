@@ -1,5 +1,5 @@
 import React, { PropsWithChildren } from 'react';
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react';
 import { createPxth, getPxthSegments } from 'pxth';
 
 import { StockContext, useStock, useStockContext } from '../../src';
@@ -8,9 +8,7 @@ import { DummyProxy } from '../DummyProxy';
 
 describe('Test "useStockContext" hook', () => {
 	it('should throw error', () => {
-		const { result } = renderHook(() => useStockContext());
-
-		expect(result.error).toBeDefined();
+		expect(() => renderHook(() => useStockContext())).toThrow();
 	});
 
 	it('should return stock from context', () => {

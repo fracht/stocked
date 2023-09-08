@@ -1,11 +1,12 @@
-import { useCallback, useEffect } from 'react';
+import { SetStateAction, useCallback, useEffect } from 'react';
 import cloneDeep from 'lodash/cloneDeep';
+import isFunction from 'lodash/isFunction';
 import unset from 'lodash/unset';
 import { deepGet, deepSet, getPxthSegments, isInnerPxth, Pxth, samePxth } from 'pxth';
 import invariant from 'tiny-invariant';
 
 import { Stock } from '../hooks/useStock';
-import { Observer, SetStateAction } from '../typings';
+import { Observer } from '../typings';
 import { StockProxy } from '../typings/StockProxy';
 
 const shouldUseProxy = (proxy: StockProxy<unknown> | undefined, path: Pxth<unknown>) =>
@@ -62,10 +63,10 @@ export const useInterceptors = <T extends object>(stock: Stock<T>, proxy?: Stock
 				proxy,
 				path as Pxth<unknown>,
 				setValue,
-				<V>(path: Pxth<V>, value: V) => proxy!.setValue(path, value, setValue),
+				<V>(path: Pxth<V>, value: SetStateAction<V>) => proxy!.setValue(path, value, setValue, getValue),
 				[path as Pxth<unknown>, value],
 			),
-		[proxy, setValue],
+		[getValue, proxy, setValue],
 	);
 
 	const interceptedGetValue = useCallback(
@@ -92,13 +93,18 @@ export const useInterceptors = <T extends object>(stock: Stock<T>, proxy?: Stock
 
 			unset(values, getPxthSegments(proxy!.path));
 
-			proxy!.setValue(proxy!.path, proxiedValue, (path, value) => {
-				deepSet(values, path, value);
-			});
+			proxy!.setValue(
+				proxy!.path,
+				proxiedValue,
+				(path, value) => {
+					values = deepSet(values, path, isFunction(value) ? value(deepGet(values, path)) : value) as T;
+				},
+				getValue,
+			);
 
 			setValues(values);
 		},
-		[proxy, setValues],
+		[getValue, proxy, setValues],
 	);
 
 	if (!proxy) {

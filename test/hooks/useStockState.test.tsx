@@ -1,5 +1,5 @@
 import React, { PropsWithChildren } from 'react';
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { createPxth, Pxth } from 'pxth';
 
 import { Stock, StockContext, useStock, useStockState } from '../../src';
@@ -37,62 +37,57 @@ beforeEach(() => {
 const testWrapper = (testName: string, useContext: boolean) => {
 	describe(testName, () => {
 		it('Should set value via setter', async () => {
-			const { result, waitForNextUpdate } = renderUseStockState(createPxth(['parent', 'child']), useContext);
+			const { result } = renderUseStockState(createPxth(['parent', 'child']), useContext);
 
+			const [, setValue] = result.current;
 			const newValue = 'newValue';
 
-			await act(async () => {
-				const [, setValue] = result.current;
+			act(() => {
 				setValue(newValue);
-				await waitForNextUpdate({ timeout: 1000 });
 			});
 
-			expect(result.current[0]).toBe(newValue);
+			await waitFor(() => expect(result.current[0]).toBe(newValue));
 		});
 
 		it('Should set value via updater function', async () => {
-			const { result, waitForNextUpdate } = renderUseStockState(createPxth(['parent', 'child']), useContext);
+			const { result } = renderUseStockState(createPxth(['parent', 'child']), useContext);
 
-			await act(async () => {
-				const [, setValue] = result.current;
+			const [, setValue] = result.current;
+
+			act(() => {
 				setValue(() => 'value_changed_via_updater');
-				await waitForNextUpdate({ timeout: 1000 });
 			});
 
-			expect(result.current[0]).toBe('value_changed_via_updater');
+			await waitFor(() => expect(result.current[0]).toBe('value_changed_via_updater'));
 		});
 
 		it('Value updater should receive actual value', async () => {
-			const { result, waitForNextUpdate } = renderUseStockState(createPxth(['value']), useContext);
+			const { result } = renderUseStockState(createPxth(['value']), useContext);
 
-			await act(async () => {
-				const [, setValue] = result.current;
-				const updater = (value: number) => ++value;
+			const [, setValue] = result.current;
+			const updater = (value: number) => ++value;
+
+			act(() => {
 				setValue(updater);
 				setValue(updater);
 				setValue(updater);
-				await waitForNextUpdate({ timeout: 1000 });
 			});
 
-			expect(result.current[0]).toBe(3);
+			await waitFor(() => expect(result.current[0]).toBe(3));
 		});
 
 		it('Should update when externally set value', async () => {
-			const { result, waitForNextUpdate } = renderUseStockState(createPxth(['hello']), useContext);
+			const { result } = renderUseStockState(createPxth(['hello']), useContext);
 
 			expect(result.current[0]).toBe(initialValues.hello);
 
 			const newValue = 'newValue';
 
-			const promise = act(async () => {
-				await waitForNextUpdate({ timeout: 1000 });
+			act(() => {
+				stock.setValue(createPxth(['hello']), newValue);
 			});
 
-			stock.setValue(createPxth(['hello']), newValue);
-
-			await promise;
-
-			expect(result.current[0]).toBe(newValue);
+			await waitFor(() => expect(result.current[0]).toBe(newValue));
 		});
 	});
 };

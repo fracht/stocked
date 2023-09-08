@@ -1,11 +1,10 @@
-import { useCallback, useMemo } from 'react';
+import { SetStateAction, useCallback, useMemo } from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 import isFunction from 'lodash/isFunction';
 import { createPxth, deepGet, deepSet, Pxth } from 'pxth';
 
 import { useDebugStock } from './useDebugStock';
 import { ObserversControl, useObservers } from './useObservers';
-import { SetStateAction } from '../typings/SetStateAction';
 import { useLazyRef } from '../utils/useLazyRef';
 
 export type Stock<T extends object> = {
