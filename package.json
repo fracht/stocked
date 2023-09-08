@@ -36,8 +36,8 @@
 		"@testing-library/react-hooks": "^7.0.2",
 		"@types/jest": "^27.0.1",
 		"@types/lodash": "^4.14.162",
-		"@types/react": "^16.9.53",
-		"@types/react-dom": "^16.9.8",
+		"@types/react": "18.0.23",
+		"@types/react-dom": "18.0.6",
 		"@typescript-eslint/eslint-plugin": "^4.9.0",
 		"@typescript-eslint/parser": "^4.9.0",
 		"aqu": "^0.3.2",
@@ -78,5 +78,6 @@
 			"limit": "10 KB"
 		}
 	],
-	"typings": "dist/stocked.d.ts"
+	"typings": "dist/stocked.d.ts",
+	"packageManager": "pnpm@8.6.12"
 }

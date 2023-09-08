@@ -18,7 +18,7 @@ describe('Test "useStockContext" hook', () => {
 			result: { current: stock },
 		} = renderHook(() => useStock({ initialValues: {} }));
 
-		const wrapper: React.FC = ({ children }) => (
+		const wrapper = ({ children }: PropsWithChildren<{}>) => (
 			<StockContext.Provider value={stock}>{children}</StockContext.Provider>
 		);
 
@@ -50,7 +50,7 @@ describe('Test "useStockContext" hook', () => {
 
 		proxy.activate();
 
-		const wrapper: React.FC = ({ children }) => (
+		const wrapper = ({ children }: PropsWithChildren<{}>) => (
 			<ProxyContext.Provider value={proxy}>{children}</ProxyContext.Provider>
 		);
 
