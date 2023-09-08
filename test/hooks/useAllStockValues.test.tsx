@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 import { act, renderHook } from '@testing-library/react-hooks';
 import { createPxth } from 'pxth';
 

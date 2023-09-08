@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 import { act, renderHook } from '@testing-library/react-hooks';
 import { createPxth, Pxth } from 'pxth';
 
@@ -19,7 +19,7 @@ const initialValues = {
 
 let stock: Stock<typeof initialValues>;
 
-const wrapper = ({ children }: PropsWithChildren<{}>) => (
+const wrapper = ({ children }: PropsWithChildren<{ path: Pxth<unknown> }>) => (
 	<StockContext.Provider value={stock as unknown as Stock<object>}>{children}</StockContext.Provider>
 );
 
