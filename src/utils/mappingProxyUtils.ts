@@ -9,5 +9,5 @@ export const getInnerPaths = <V>(path: Pxth<V>, proxyMap: PxthMap<Pxth<unknown>>
 };
 
 export const hasMappedParentPaths = <V>(path: Pxth<V>, proxyMap: PxthMap<Pxth<unknown>>) => {
-	return proxyMap.entries().some(([mappedPath]) => isInnerPxth(mappedPath, path as Pxth<unknown>));
+	return proxyMap.keys().some((mappedPath) => isInnerPxth(mappedPath, path as Pxth<unknown>));
 };
