@@ -4,6 +4,7 @@ import { createPxth, deepGet, deepSet, getPxthSegments, Pxth, samePxth } from 'p
 
 import { MappingProxy, Observer, ProxyMapSource } from '../../src/typings';
 
+// Fake object type
 type RegisteredUser = {
 	registrationDate: Date;
 	personalData: {
@@ -287,14 +288,15 @@ describe('Mapping proxy', () => {
 	});
 
 	it('should set proxied value based on the old value', () => {
-		const proxy = new MappingProxy<RegisteredUser>(getUserMapSource(), createPxth(['registeredUser']));
+		const proxy = new MappingProxy<RegisteredUser>(getUserMapSource(), createPxth(['proxy']));
 
 		const defaultSetValue = jest.fn();
 		const getStringValue = jest.fn(() => 'old value');
+		let updater: jest.Mock<any, any> = jest.fn((old) => old + ' updated');
 
 		proxy.setValue(
-			createPxth(['registeredUser', 'personalData', 'name', 'firstName']),
-			(old) => old + ' updated',
+			createPxth(['proxy', 'personalData', 'name', 'firstName']),
+			updater,
 			defaultSetValue,
 			getStringValue as <U>(path: Pxth<U>) => U,
 		);
@@ -305,16 +307,17 @@ describe('Mapping proxy', () => {
 		]);
 		expect(getPxthSegments(defaultSetValue.mock.calls[0][0])).toStrictEqual(['registeredUser', 'name']);
 		expect(defaultSetValue).toBeCalledWith(expect.anything(), 'old value updated');
+		expect(updater).toBeCalledTimes(1);
 
 		defaultSetValue.mockClear();
-		const getObjectValue = jest.fn(() => ({ firstName: 'As', lastName: 'Df' })) as <U>(path: Pxth<U>) => U;
+		const getObjectValue = jest.fn(() => ({ name: 'As', surname: 'Df', dates: { registration: new Date() } })) as <
+			U,
+		>(
+			path: Pxth<U>,
+		) => U;
+		updater = jest.fn((old: object) => ({ ...old, lastName: 'updated' }));
 
-		proxy.setValue(
-			createPxth<object>(['registeredUser', 'personalData', 'name']),
-			(old: object) => ({ ...old, lastName: 'updated' }),
-			defaultSetValue,
-			getObjectValue,
-		);
+		proxy.setValue(createPxth<object>(['proxy', 'personalData', 'name']), updater, defaultSetValue, getObjectValue);
 
 		expect(
 			defaultSetValue.mock.calls.findIndex(
@@ -327,6 +330,12 @@ describe('Mapping proxy', () => {
 				([path, value]) => samePxth(path, createPxth(['registeredUser', 'surname'])) && value === 'updated',
 			) !== -1,
 		).toBeTruthy();
+
+		expect(updater).toBeCalledTimes(1);
+		expect(updater.mock.calls[0][0]).toStrictEqual({
+			firstName: 'As',
+			lastName: 'Df',
+		});
 	});
 
 	it('should get proxied value', () => {
