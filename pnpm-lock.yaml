@@ -48,7 +48,7 @@ devDependencies:
     version: 0.3.2
   configs:
     specifier: github:fracht/configs
-    version: github.com/fracht/configs/b8a8e13fc3db0f3d5afdcedd0749fccc7292be30
+    version: git@github.com+fracht/configs/b8a8e13fc3db0f3d5afdcedd0749fccc7292be30
   eslint-config-prettier:
     specifier: ^8.3.0
     version: 8.3.0(eslint@7.32.0)
@@ -3691,8 +3691,9 @@ packages:
       randombytes: 2.1.0
     dev: true
 
-  /browserify-sign@4.2.1:
-    resolution: {integrity: sha512-/vrA5fguVAKKAVTNJjgSm1tRQDHUU6DbwO9IROu/0WAzC8PKhucDSh18J0RMvVeHAn5puMd+QHC2erPRNf8lmg==}
+  /browserify-sign@4.2.2:
+    resolution: {integrity: sha512-1rudGyeYY42Dk6texmv7c4VcQ0EsvVbLwZkA+AQB7SxvXxmcD93jcHie8bzecJ+ChDlmAm2Qyu0+Ccg5uhZXCg==}
+    engines: {node: '>= 4'}
     dependencies:
       bn.js: 5.2.1
       browserify-rsa: 4.1.0
@@ -4414,7 +4415,7 @@ packages:
     resolution: {integrity: sha512-fz4spIh+znjO2VjL+IdhEpRJ3YN6sMzITSBijk6FK2UvTqruSQW+/cCZTSNsMiZNvUeq0CqurF+dAbyiGOY6Wg==}
     dependencies:
       browserify-cipher: 1.0.1
-      browserify-sign: 4.2.1
+      browserify-sign: 4.2.2
       create-ecdh: 4.0.4
       create-hash: 1.2.0
       create-hmac: 1.1.7
@@ -12542,8 +12543,8 @@ packages:
       toposort: 2.0.2
     dev: true
 
-  github.com/fracht/configs/b8a8e13fc3db0f3d5afdcedd0749fccc7292be30:
-    resolution: {tarball: https://codeload.github.com/fracht/configs/tar.gz/b8a8e13fc3db0f3d5afdcedd0749fccc7292be30}
+  git@github.com+fracht/configs/b8a8e13fc3db0f3d5afdcedd0749fccc7292be30:
+    resolution: {commit: b8a8e13fc3db0f3d5afdcedd0749fccc7292be30, repo: git@github.com:fracht/configs.git, type: git}
     name: configs
     version: 1.0.0
     dependencies:
