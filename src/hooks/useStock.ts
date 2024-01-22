@@ -40,7 +40,7 @@ export type StockConfig<T extends object> = {
  */
 export const useStock = <T extends object>({ initialValues, debugName }: StockConfig<T>): Stock<T> => {
 	const values = useLazyRef<T>(() => cloneDeep(initialValues));
-	const { notifySubTree, notifyAll, watch, watchAll, watchEffect, watchAllEffect, watchBatchUpdates, isObserved } =
+	const { notifySubTree, notifyAll, watch, watchAll, watchEffect, watchEffectAll, watchBatchUpdates, isObserved } =
 		useObservers<T>(values);
 
 	const setValue = useCallback(
@@ -80,7 +80,7 @@ export const useStock = <T extends object>({ initialValues, debugName }: StockCo
 			watch,
 			watchAll,
 			watchEffect,
-			watchAllEffect,
+			watchEffectAll,
 			watchBatchUpdates,
 			isObserved,
 			debugName,
@@ -95,7 +95,7 @@ export const useStock = <T extends object>({ initialValues, debugName }: StockCo
 			watch,
 			watchAll,
 			watchEffect,
-			watchAllEffect,
+			watchEffectAll,
 			watchBatchUpdates,
 			isObserved,
 			debugName,

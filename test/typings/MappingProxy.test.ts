@@ -54,6 +54,27 @@ describe('Mapping proxy', () => {
 		expect(getPxthSegments(defaultObserve.mock.calls[0][0])).toStrictEqual(['a', 'b', 'd']);
 	});
 
+	it('observe/stopObserving value - with "watchEffect"', () => {
+		const proxy = new MappingProxy(
+			{ hello: createPxth(['a', 'b', 'c']), bye: createPxth(['a', 'b', 'd']) },
+			createPxth(['asdf']),
+		);
+
+		const defaultObserve = jest.fn();
+		const observer = jest.fn();
+
+		defaultObserve.mockReturnValue(0);
+
+		proxy.watchEffect(createPxth(['asdf', 'hello']), observer, defaultObserve);
+
+		expect(getPxthSegments(defaultObserve.mock.calls[0][0])).toStrictEqual(['a', 'b', 'c']);
+
+		defaultObserve.mockClear();
+
+		proxy.watchEffect(createPxth(['asdf', 'bye']), observer, defaultObserve);
+		expect(getPxthSegments(defaultObserve.mock.calls[0][0])).toStrictEqual(['a', 'b', 'd']);
+	});
+
 	it('observe/stopObserving (empty mapping path)', () => {
 		const proxy = new MappingProxy(createPxth(['a', 'd', 'c']), createPxth(['asdf']));
 
