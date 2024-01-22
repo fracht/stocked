@@ -171,6 +171,70 @@ describe('Mapping proxy', () => {
 		expect(observer).toBeCalledWith(fullUser.personalData);
 	});
 
+	it('calling observer fns - with watchEffect', () => {
+		const fullUser = {
+			personalData: {
+				name: {
+					firstName: 'Hello',
+					lastName: 'World',
+				},
+				birthday: new Date('2020.12.26'),
+			},
+			registrationDate: new Date('2020.12.31'),
+			notify: true,
+		};
+		const rawData = {
+			registeredUser: {
+				name: fullUser.personalData.name.firstName,
+				surname: fullUser.personalData.name.lastName,
+				dates: {
+					registration: fullUser.registrationDate,
+				},
+			},
+			dateOfBirth: fullUser.personalData.birthday,
+		};
+
+		const proxy = new MappingProxy<RegisteredUser>(getUserMapSource(), createPxth(['registeredUser']));
+
+		const observers: Observer<unknown>[] = [];
+
+		const defaultObserve = jest.fn((path, observer) => {
+			observer(deepGet(rawData, path));
+			observers.push(observer);
+			return () => observers.splice(observers.indexOf(observer), 1);
+		});
+		const observer = jest.fn();
+
+		proxy.watchEffect(
+			createPxth(['registeredUser', 'personalData', 'name', 'firstName']),
+			observer,
+			defaultObserve,
+		);
+
+		expect(observer).toBeCalledWith(fullUser.personalData.name.firstName);
+		observer.mockClear();
+
+		expect(getPxthSegments(defaultObserve.mock.calls[0][0])).toStrictEqual(['registeredUser', 'name']);
+
+		defaultObserve.mockClear();
+
+		proxy.watchEffect(createPxth(['registeredUser', 'personalData', 'name']), observer, defaultObserve);
+
+		expect(observer).toBeCalledWith(fullUser.personalData.name);
+		observer.mockClear();
+
+		expect(getPxthSegments(defaultObserve.mock.calls[0][0])).toStrictEqual(['registeredUser']);
+
+		defaultObserve.mockClear();
+
+		proxy.watchEffect(createPxth(['registeredUser', 'personalData']), observer, defaultObserve);
+
+		expect(observer).toBeCalledWith(fullUser.personalData);
+		observer.mockClear();
+
+		expect(getPxthSegments(defaultObserve.mock.calls[0][0])).toStrictEqual([]);
+	});
+
 	it('calling observer fns (complex cases)', () => {
 		const fullData = {
 			truck: {
