@@ -20,7 +20,7 @@ export const useStockValue = <V, T extends object = object>(
 ): V => {
 	const stock = useStockContext(customStock, proxy);
 
-	const { watch, getValue } = stock;
+	const { watchEffect, getValue } = stock;
 
 	const [, forceUpdate] = useReducer((val) => val + 1, 0);
 
@@ -28,11 +28,11 @@ export const useStockValue = <V, T extends object = object>(
 
 	useEffect(
 		() =>
-			watch(path, (newValue) => {
+			watchEffect(path, (newValue) => {
 				value.current = newValue;
 				forceUpdate();
 			}),
-		[path, watch, value],
+		[path, watchEffect, value],
 	);
 
 	return value.current;
