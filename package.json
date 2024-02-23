@@ -24,7 +24,7 @@
 		"test:lcov": "pnpm run test --silent --ci --coverage",
 		"test:watch": "pnpm run test --watch",
 		"bump": "changeset version && pnpm i --lockfile-only",
-		"release": "pnpm build && changeset tag && pnpm publish -r"
+		"release": "pnpm build && changeset tag && pnpm publish"
 	},
 	"dependencies": {
 		"lodash": "^4.17.20",
