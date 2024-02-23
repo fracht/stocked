@@ -40,20 +40,6 @@ describe('Observer tests', () => {
 		expect(observer).toBeCalled();
 	});
 
-	it('should call observer instantly with "watchEffectAll"', () => {
-		const { result } = renderUseObserversHook({
-			b: 'hello',
-		});
-
-		const observer = jest.fn();
-
-		act(() => {
-			result.current.watchEffectAll(observer);
-		});
-
-		expect(observer).toBeCalled();
-	});
-
 	it('Should call all values observer', async () => {
 		const { result } = renderUseObserversHook();
 

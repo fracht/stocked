@@ -15,13 +15,11 @@ export type ObserversControl<T> = {
 	watch: <V>(path: Pxth<V>, observer: Observer<V>) => () => void;
 	/**
 	 * Watch all stock values. Returns cleanup function.
-	 * @deprecated - use watchEffectAll instead
+	 * @deprecated - use watchEffect instead
 	 */
 	watchAll: (observer: Observer<T>) => () => void;
 	/** Watch stock value. Returns cleanup function. Calls observer instantly. */
 	watchEffect: <V>(path: Pxth<V>, observer: Observer<V>) => () => void;
-	/** Watch all stock values. Returns cleanup function. Calls observer instantly. */
-	watchEffectAll: (observer: Observer<T>) => () => void;
 	/** Check if value is observed or not. */
 	isObserved: <V>(path: Pxth<V>) => boolean;
 	/** Notify all observers, which are children of specified path */
@@ -93,11 +91,6 @@ export const useObservers = <T>(values: MutableRefObject<T>): ObserversControl<T
 		[observe, stopObserving, values],
 	);
 
-	const watchEffectAll = useCallback(
-		(observer: Observer<T>) => watchEffect(createPxth<T>([]), observer),
-		[watchEffect],
-	);
-
 	const watchBatchUpdates = useCallback(
 		(observer: Observer<BatchUpdate<T>>) => {
 			const key = observeBatchUpdates(observer);
@@ -146,7 +139,6 @@ export const useObservers = <T>(values: MutableRefObject<T>): ObserversControl<T
 		watch,
 		watchAll,
 		watchEffect,
-		watchEffectAll,
 		watchBatchUpdates,
 		isObserved,
 		notifySubTree,
