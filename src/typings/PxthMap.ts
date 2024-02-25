@@ -6,7 +6,7 @@ export class PxthMap<Value> {
 	private _values: Record<string, Value> = {};
 	private _keys: Record<string, Pxth<unknown>> = {};
 
-	public get = <V>(key: Pxth<V>): Value => {
+	public get = <V>(key: Pxth<V>): Value | undefined => {
 		return this._values[hashPxth(key)];
 	};
 

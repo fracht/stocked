@@ -13,7 +13,7 @@ export const areProxyMapsEqual = (map1: ProxyMapSource<unknown>, map2: ProxyMapS
 
 	for (const [key, value] of proxyMap1.entries()) {
 		const value2 = proxyMap2.get(key);
-		if (!proxyMap2.has(key) || !samePxth(value, value2)) {
+		if (!proxyMap2.has(key) || !samePxth(value, value2!)) {
 			return false;
 		}
 	}
