@@ -44,6 +44,7 @@
 		"@typescript-eslint/parser": "^4.9.0",
 		"aqu": "^0.3.2",
 		"configs": "github:fracht/configs",
+		"danger": "^11.3.1",
 		"eslint-config-prettier": "^8.3.0",
 		"eslint-config-react-app": "^6.0.0",
 		"eslint-plugin-react-hooks": "^4.2.0",
