@@ -54,6 +54,27 @@ describe('Mapping proxy', () => {
 		expect(getPxthSegments(defaultObserve.mock.calls[0][0])).toStrictEqual(['a', 'b', 'd']);
 	});
 
+	it('observe/stopObserving value - with "watchEffect"', () => {
+		const proxy = new MappingProxy(
+			{ hello: createPxth(['a', 'b', 'c']), bye: createPxth(['a', 'b', 'd']) },
+			createPxth(['asdf']),
+		);
+
+		const defaultObserve = jest.fn();
+		const observer = jest.fn();
+
+		defaultObserve.mockReturnValue(0);
+
+		proxy.watchEffect(createPxth(['asdf', 'hello']), observer, defaultObserve);
+
+		expect(getPxthSegments(defaultObserve.mock.calls[0][0])).toStrictEqual(['a', 'b', 'c']);
+
+		defaultObserve.mockClear();
+
+		proxy.watchEffect(createPxth(['asdf', 'bye']), observer, defaultObserve);
+		expect(getPxthSegments(defaultObserve.mock.calls[0][0])).toStrictEqual(['a', 'b', 'd']);
+	});
+
 	it('observe/stopObserving (empty mapping path)', () => {
 		const proxy = new MappingProxy(createPxth(['a', 'd', 'c']), createPxth(['asdf']));
 
@@ -148,6 +169,70 @@ describe('Mapping proxy', () => {
 
 		observers[2](rawData);
 		expect(observer).toBeCalledWith(fullUser.personalData);
+	});
+
+	it('calling observer fns - with watchEffect', () => {
+		const fullUser = {
+			personalData: {
+				name: {
+					firstName: 'Hello',
+					lastName: 'World',
+				},
+				birthday: new Date('2020.12.26'),
+			},
+			registrationDate: new Date('2020.12.31'),
+			notify: true,
+		};
+		const rawData = {
+			registeredUser: {
+				name: fullUser.personalData.name.firstName,
+				surname: fullUser.personalData.name.lastName,
+				dates: {
+					registration: fullUser.registrationDate,
+				},
+			},
+			dateOfBirth: fullUser.personalData.birthday,
+		};
+
+		const proxy = new MappingProxy<RegisteredUser>(getUserMapSource(), createPxth(['registeredUser']));
+
+		const observers: Observer<unknown>[] = [];
+
+		const defaultObserve = jest.fn((path, observer) => {
+			observer(deepGet(rawData, path));
+			observers.push(observer);
+			return () => observers.splice(observers.indexOf(observer), 1);
+		});
+		const observer = jest.fn();
+
+		proxy.watchEffect(
+			createPxth(['registeredUser', 'personalData', 'name', 'firstName']),
+			observer,
+			defaultObserve,
+		);
+
+		expect(observer).toBeCalledWith(fullUser.personalData.name.firstName);
+		observer.mockClear();
+
+		expect(getPxthSegments(defaultObserve.mock.calls[0][0])).toStrictEqual(['registeredUser', 'name']);
+
+		defaultObserve.mockClear();
+
+		proxy.watchEffect(createPxth(['registeredUser', 'personalData', 'name']), observer, defaultObserve);
+
+		expect(observer).toBeCalledWith(fullUser.personalData.name);
+		observer.mockClear();
+
+		expect(getPxthSegments(defaultObserve.mock.calls[0][0])).toStrictEqual(['registeredUser']);
+
+		defaultObserve.mockClear();
+
+		proxy.watchEffect(createPxth(['registeredUser', 'personalData']), observer, defaultObserve);
+
+		expect(observer).toBeCalledWith(fullUser.personalData);
+		observer.mockClear();
+
+		expect(getPxthSegments(defaultObserve.mock.calls[0][0])).toStrictEqual([]);
 	});
 
 	it('calling observer fns (complex cases)', () => {

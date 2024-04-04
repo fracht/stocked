@@ -3,7 +3,12 @@ import { createPxth, getPxthSegments } from 'pxth';
 
 import { useObservers } from '../../src';
 
-const renderUseObserversHook = () => renderHook(() => useObservers());
+const renderUseObserversHook = (values: object = {}) =>
+	renderHook(() =>
+		useObservers({
+			current: values,
+		}),
+	);
 
 describe('Observer tests', () => {
 	it('should call value observer', () => {
@@ -16,6 +21,20 @@ describe('Observer tests', () => {
 			result.current.notifySubTree(createPxth(['b']), {
 				b: 0,
 			});
+		});
+
+		expect(observer).toBeCalled();
+	});
+
+	it('should call observer instantly with "watchEffect"', () => {
+		const { result } = renderUseObserversHook({
+			b: 'hello',
+		});
+
+		const observer = jest.fn();
+
+		act(() => {
+			result.current.watchEffect(createPxth(['b']), observer);
 		});
 
 		expect(observer).toBeCalled();

@@ -35,6 +35,18 @@ describe('hit cases', () => {
 		expect(observer).toBeCalledTimes(1);
 		expect(observer).toBeCalledWith('asdf');
 	});
+	it('no proxy - with "watchEffect"', () => {
+		const [{ result }] = renderUseInterceptorsHook(defaultInitialValues);
+
+		const observer = jest.fn();
+		act(() => {
+			const cleanup = result.current.watchEffect(createPxth(['dest', 'bye']), observer);
+			cleanup();
+		});
+
+		expect(observer).toBeCalledTimes(1);
+		expect(observer).toBeCalledWith('asdf');
+	});
 	it('non activated proxy', () => {
 		expect(() => renderUseInterceptorsHook(defaultInitialValues, new DummyProxy(createPxth(['asdf'])))).toThrow();
 	});
@@ -109,6 +121,30 @@ describe('proxy', () => {
 		expect(setValue).toBeCalledTimes(1);
 		expect(getPxthSegments(getValue.mock.calls[0][0])).toStrictEqual(['dest']);
 		expect(getValue).toBeCalledTimes(1);
+	});
+
+	it('should call proxy functions - with "watchEffect"', () => {
+		const proxy = new DummyProxy(createPxth(['dest']));
+
+		const watchEffect: jest.Mock<any, any> = jest.fn(() => () => {});
+
+		proxy.watchEffect = watchEffect;
+		proxy.activate();
+		const [{ result }] = renderUseInterceptorsHook(defaultInitialValues, proxy);
+
+		const observer = jest.fn();
+
+		act(() => {
+			const cleanup = result.current.watchEffect(createPxth(['dest']), observer);
+			const cleanup2 = result.current.watchEffect(createPxth(['asdf']), observer);
+			cleanup();
+			cleanup2();
+		});
+
+		expect(getPxthSegments(watchEffect.mock.calls[0][0])).toStrictEqual(['dest']);
+		expect(watchEffect).toBeCalledWith(expect.anything(), observer, expect.any(Function));
+		expect(watchEffect).toBeCalledTimes(1);
+		expect(observer).toBeCalled();
 	});
 
 	it('should handle setValues / getValues properly', async () => {

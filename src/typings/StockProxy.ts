@@ -23,11 +23,21 @@ export abstract class StockProxy<T> {
 		defaultGetValue: <U>(path: Pxth<U>) => U,
 	) => void;
 
-	/** Function for watching proxied value. Should return cleanup. */
+	/**
+	 * Function for watching proxied value. Should return cleanup.
+	 * @deprecated
+	 */
 	public abstract watch: <V>(
 		path: Pxth<V>,
 		observer: Observer<V>,
 		defaultWatch: <U>(path: Pxth<U>, observer: Observer<U>) => () => void,
+	) => () => void;
+
+	/** Function for watching proxied value. Should return cleanup. Calls observer instantly. */
+	public abstract watchEffect: <V>(
+		path: Pxth<V>,
+		observer: Observer<V>,
+		defaultWatchEffect: <U>(path: Pxth<U>, observer: Observer<U>) => () => void,
 	) => () => void;
 
 	/** Function to access proxied value. */

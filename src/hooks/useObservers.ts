@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { MutableRefObject, useCallback, useRef } from 'react';
 import { createPxth, deepGet, isInnerPxth, Pxth, samePxth } from 'pxth';
 import invariant from 'tiny-invariant';
 
@@ -8,10 +8,18 @@ import { ObserverArray, ObserverKey } from '../utils/ObserverArray';
 import { useLazyRef } from '../utils/useLazyRef';
 
 export type ObserversControl<T> = {
-	/** Watch stock value. Returns cleanup function. */
+	/**
+	 * Watch stock value. Returns cleanup function.
+	 * @deprecated - use watchEffect instead
+	 */
 	watch: <V>(path: Pxth<V>, observer: Observer<V>) => () => void;
-	/** Watch all stock values. Returns cleanup function. */
+	/**
+	 * Watch all stock values. Returns cleanup function.
+	 * @deprecated - use watchEffect instead
+	 */
 	watchAll: (observer: Observer<T>) => () => void;
+	/** Watch stock value. Returns cleanup function. Calls observer instantly. */
+	watchEffect: <V>(path: Pxth<V>, observer: Observer<V>) => () => void;
 	/** Check if value is observed or not. */
 	isObserved: <V>(path: Pxth<V>) => boolean;
 	/** Notify all observers, which are children of specified path */
@@ -23,7 +31,7 @@ export type ObserversControl<T> = {
 };
 
 /** Hook, wraps functionality of observers storage (add, remove, notify tree of observers, etc.) */
-export const useObservers = <T>(): ObserversControl<T> => {
+export const useObservers = <T>(values: MutableRefObject<T>): ObserversControl<T> => {
 	const observersMap = useRef<PxthMap<ObserverArray<unknown>>>(new PxthMap());
 	const batchUpdateObservers = useLazyRef<ObserverArray<BatchUpdate<T>>>(() => new ObserverArray());
 
@@ -74,6 +82,15 @@ export const useObservers = <T>(): ObserversControl<T> => {
 
 	const watchAll = useCallback((observer: Observer<T>) => watch(createPxth<T>([]), observer), [watch]);
 
+	const watchEffect = useCallback(
+		<V>(path: Pxth<V>, observer: Observer<V>) => {
+			observer(deepGet(values.current, path));
+			const key = observe(path, observer);
+			return () => stopObserving(path, key);
+		},
+		[observe, stopObserving, values],
+	);
+
 	const watchBatchUpdates = useCallback(
 		(observer: Observer<BatchUpdate<T>>) => {
 			const key = observeBatchUpdates(observer);
@@ -123,6 +140,7 @@ export const useObservers = <T>(): ObserversControl<T> => {
 	return {
 		watch,
 		watchAll,
+		watchEffect,
 		watchBatchUpdates,
 		isObserved,
 		notifySubTree,

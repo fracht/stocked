@@ -34,7 +34,7 @@ export const intercept = <T extends (...args: any[]) => any>(
 
 /** Intercepts stock's `observe`, `stopObserving` and `setValue` functions, if proxy is provided. */
 export const useInterceptors = <T extends object>(stock: Stock<T>, proxy?: StockProxy<unknown>): Stock<T> => {
-	const { watch, setValue, getValue, setValues, getValues } = stock;
+	const { watch, watchEffect, setValue, getValue, setValues, getValues } = stock;
 
 	useEffect(
 		() =>
@@ -55,6 +55,18 @@ export const useInterceptors = <T extends object>(stock: Stock<T>, proxy?: Stock
 				[path, observer],
 			),
 		[watch, proxy],
+	);
+
+	const interceptedWatchEffect = useCallback(
+		<V>(path: Pxth<V>, observer: Observer<V>) =>
+			intercept(
+				proxy,
+				path as Pxth<unknown>,
+				watchEffect,
+				(path: Pxth<V>, observer: Observer<V>) => proxy!.watchEffect<V>(path, observer, watchEffect),
+				[path, observer],
+			),
+		[watchEffect, proxy],
 	);
 
 	const interceptedSetValue = useCallback(
@@ -114,6 +126,7 @@ export const useInterceptors = <T extends object>(stock: Stock<T>, proxy?: Stock
 	return {
 		...stock,
 		watch: interceptedWatch,
+		watchEffect: interceptedWatchEffect,
 		setValue: interceptedSetValue,
 		getValue: interceptedGetValue,
 		getValues: interceptedGetValues,
