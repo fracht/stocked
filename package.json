@@ -1,7 +1,7 @@
 {
 	"name": "stocked",
 	"description": "Tiny state management library for react.",
-	"version": "1.0.0-beta.30",
+	"version": "1.0.0-beta.32",
 	"main": "dist/index.js",
 	"module": "dist/stocked.esm.js",
 	"repository": "ArtiomTr/stocked",
@@ -16,14 +16,15 @@
 		"lint": "eslint .",
 		"lint:config": "pnpm lint --write-file",
 		"prepublishOnly": "aqu build",
-		"release": "np",
 		"serve:docs": "vitepress serve new-docs",
 		"size": "size-limit",
 		"start": "aqu watch",
 		"test": "jest --passWithNoTests",
 		"test:coverage": "pnpm run test --silent --ci --coverage --json --outputFile=report.json",
 		"test:lcov": "pnpm run test --silent --ci --coverage",
-		"test:watch": "pnpm run test --watch"
+		"test:watch": "pnpm run test --watch",
+		"bump": "changeset version && pnpm i --lockfile-only",
+		"release": "pnpm build && changeset tag && pnpm publish"
 	},
 	"dependencies": {
 		"lodash": "^4.17.20",
@@ -32,6 +33,7 @@
 		"tiny-invariant": "^1.1.0"
 	},
 	"devDependencies": {
+		"@changesets/cli": "^2.27.1",
 		"@size-limit/preset-small-lib": "^4.6.2",
 		"@testing-library/react": "^14.0.0",
 		"@types/jest": "^27.0.1",
@@ -42,12 +44,12 @@
 		"@typescript-eslint/parser": "^4.9.0",
 		"aqu": "^0.3.2",
 		"configs": "github:fracht/configs",
+		"danger": "^11.3.1",
 		"eslint-config-prettier": "^8.3.0",
 		"eslint-config-react-app": "^6.0.0",
 		"eslint-plugin-react-hooks": "^4.2.0",
 		"jest": "^27.0.6",
 		"jest-watch-typeahead": "^1.0.0",
-		"np": "^6.5.0",
 		"prettier": "^2.8.2",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",

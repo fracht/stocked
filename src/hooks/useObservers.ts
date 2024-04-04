@@ -57,7 +57,7 @@ export const useObservers = <T>(values: MutableRefObject<T>): ObserversControl<T
 			observersMap.current.set(path, new ObserverArray());
 		}
 
-		return observersMap.current.get(path).add(observer as Observer<unknown>);
+		return observersMap.current.get(path)!.add(observer as Observer<unknown>);
 	}, []);
 
 	const stopObserving = useCallback(<V>(path: Pxth<V>, observerKey: ObserverKey) => {
@@ -107,8 +107,10 @@ export const useObservers = <T>(values: MutableRefObject<T>): ObserversControl<T
 			batchUpdate({ paths, origin, values });
 			paths.forEach((path) => {
 				const observer = observersMap.current.get(path);
-				const subValue = deepGet(values, path);
-				observer.call(subValue);
+				if (observer) {
+					const subValue = deepGet(values, path);
+					observer.call(subValue);
+				}
 			});
 		},
 		[batchUpdate],

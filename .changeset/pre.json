@@ -1,0 +1,10 @@
+{
+  "mode": "pre",
+  "tag": "beta",
+  "initialVersions": {
+    "stocked": "1.0.0-beta.30"
+  },
+  "changesets": [
+    "odd-kids-applaud"
+  ]
+}
