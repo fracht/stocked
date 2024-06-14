@@ -1,5 +1,15 @@
 # stocked
 
+## 1.0.0-beta.33
+
+### Minor Changes
+
+-   d3884eb: Create watchEffect function, deprecate watch & watchAll
+
+### Patch Changes
+
+-   c35fbf1: Fixed error in notifyPaths - observer could be undefined
+
 ## 1.0.0-beta.32
 
 ### Patch Changes

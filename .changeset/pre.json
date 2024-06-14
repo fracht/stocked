@@ -5,6 +5,8 @@
     "stocked": "1.0.0-beta.30"
   },
   "changesets": [
+    "eleven-lamps-wash",
+    "fresh-owls-explain",
     "odd-kids-applaud"
   ]
 }
