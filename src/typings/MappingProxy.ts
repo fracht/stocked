@@ -36,7 +36,7 @@ export class MappingProxy<T> extends StockProxy<T> {
 		defaultSetValue: <U>(path: Pxth<U>, value: SetStateAction<U>) => void,
 		defaultGetValue: <U>(path: Pxth<U>) => U,
 	) => {
-		const relativeValuePath = relativePxth(this.path as Pxth<unknown>, path as Pxth<unknown>);
+		const relativeValuePath = relativePxth(this.path, path);
 		const normalPath = this.getNormalPath(path);
 
 		if (hasMappedParentPaths(relativeValuePath, this.proxyMap)) {
@@ -45,16 +45,11 @@ export class MappingProxy<T> extends StockProxy<T> {
 		}
 
 		const innerPaths = getInnerPaths(relativeValuePath, this.proxyMap);
-
-		const oldValue = defaultGetValue(normalPath);
+		const newValue = isFunction(value) ? value(this.getValue(path, defaultGetValue)) : value;
 
 		innerPaths.forEach(
 			([to, from]) =>
-				from !== undefined &&
-				defaultSetValue(
-					from,
-					deepGet(isFunction(value) ? value(oldValue) : value, relativePxth(relativeValuePath, to)),
-				),
+				from !== undefined && defaultSetValue(from, deepGet(newValue, relativePxth(relativeValuePath, to))),
 		);
 	};
 
