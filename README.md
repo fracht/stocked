@@ -1,5 +1,8 @@
 # stocked
 
+> [!NOTE]
+> This repository was moved into [reactive-forms monorepo](https://github.com/fracht/reactive-forms)
+
 [![npm version](https://img.shields.io/npm/v/stocked)](https://www.npmjs.com/package/stocked)
 [![npm downloads](https://img.shields.io/npm/dw/stocked)](https://www.npmjs.com/package/stocked)
 [![vulnerabilities](https://img.shields.io/snyk/vulnerabilities/npm/stocked)](https://www.npmjs.com/package/stocked)
